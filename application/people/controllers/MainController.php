@@ -95,7 +95,7 @@ class MainController extends CrudController
     public function create(): string
     {
         try {
-            $response = $this->preformCRUD($this->defaultModel, 'create', [$this->input->body()], 'id');
+            $response = $this->preformCRUD($this->defaultModel, 'create', [$this->input->request()], 'id');
         } catch (ValidationFailed $vf) {
             $response = $this->rest406($vf);
         }
@@ -107,7 +107,7 @@ class MainController extends CrudController
     public function update(): string
     {
         try {
-            $response = $this->preformCRUD($this->defaultModel, 'update', [$this->input->body()]);
+            $response = $this->preformCRUD($this->defaultModel, 'update', [$this->input->request()]);
         } catch (ValidationFailed $vf) {
             $response = $this->rest406($vf);
         }
@@ -119,7 +119,7 @@ class MainController extends CrudController
     public function delete(): string
     {
         try {
-            $response = $this->preformCRUD($this->defaultModel, 'delete', [$this->input->body()]);
+            $response = $this->preformCRUD($this->defaultModel, 'delete', [$this->input->request()]);
         } catch (ValidationFailed $vf) {
             $response = $this->rest406($vf);
         }
