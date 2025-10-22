@@ -88,7 +88,7 @@ return [
     },
 
     'filter' => function (ContainerInterface $container): FilterInterface {
-        return Filter::getInstance($container->validate, $container->input);
+        return Filter::getInstance(['request' => $container->input->request(), 'query' => $container->input->query()], $container->validate);
     },
 
     '@cache' => 'phpcache',
