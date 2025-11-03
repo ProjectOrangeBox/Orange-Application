@@ -10,5 +10,5 @@ use orange\framework\interfaces\ContainerInterface;
 
 return [
     'router' => fn(ContainerInterface $container): RouterInterface => Router::getInstance($container->config->routes, $container->input, $container->phpcache),
-    'config' => fn(ContainerInterface $container): ConfigInterface => Config::getInstance($container->get('$application.config directories'), $container->phpcache),
+    'config' => fn(ContainerInterface $container): ConfigInterface => Config::getInstance($container->get('$application'), $container->phpcache),
 ];
