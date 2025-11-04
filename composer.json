@@ -29,7 +29,9 @@
             "peels\\negotiate\\": "packages/peels/negotiate/src",
             "peels\\handlebars\\": "packages/peels/handlebars/src",
             "peels\\benchmark\\": "packages/peels/benchmark/src",
-            "peels\\language\\": "packages/peels/language/src"
+            "peels\\language\\": "packages/peels/language/src",
+            "peels\\bitwise\\": "packages/peels/bitwise/src",
+            "peels\\priority\\": "packages/peels/priority/src"
         },
         "files": [],
         "classmap": []
