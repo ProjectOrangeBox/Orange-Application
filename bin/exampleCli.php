@@ -3,30 +3,38 @@
 
 declare(strict_types=1);
 
-$container = require '../bootstrapCli.php';
+use orange\framework\Application;
+
+require '../bootstrapCli.php';
+
+$container = Application::cli();
 
 // start shellscript
 $console = $container->console;
 
-//$console->detectVerboseLevel();
-$console->verbose($console::EVERYTHING);
+$console->detectVerboseLevel();
+$console->verboseAdd('info');
 
-var_dump($console->verbose());
+$console->always('welcome');
+$console->alert('alert');
+$console->critical('critical');
+$console->debug('debug');
+$console->emergency('emergency');
+$console->error('error');
+$console->info('info');
+$console->notice('notice');
+$console->warning('warning');
 
 $console->line();
 
-$appConfig = $container->config->app;
+$appConfig = $container->config->application;
 
-$console->primary('h1 is '.$appConfig['h1']);
-$console->primary('file is '.$appConfig['file']);
-
-$console->primary('This is a primary test');
-$console->secondary('This is a secondary test');
+$console->always('h1 is '.$appConfig['h1']);
+$console->always('file is '.$appConfig['this file']);
 
 $console->line();
 
 $console->error('Danger, Will Robinson!');
-$console->success('Task Success!');
 $console->info('Important Information!');
 $console->warning('Warning! System Overload!');
 
@@ -36,19 +44,19 @@ $console->minimumArguments(1, 'You have no provided a filename to open.');
 
 $filename = $console->getArgument(1);
 
-$console->echo('Using File <bold>' . $filename);
+$console->info('Using File <bold>' . $filename);
 
 $color = $console->getArgumentByOption('-color');
 
-$console->echo('Using Color <bold>' . $color);
+$console->info('Using Color <bold>' . $color);
 
 $last = $console->getLastArgument();
 
-$console->echo('Last <bold>' . $last);
+$console->info('Last <bold>' . $last);
 
 $arg1 = $console->getArgument(1);
 
-$console->echo('Arg 1 <bold>' . $arg1);
+$console->info('Arg 1 <bold>' . $arg1);
 
 $table = [
     ['Colors', 'Names', 'Age'],
@@ -62,10 +70,10 @@ $console->table($table);
 
 $name = $console->getLine('What is your name?');
 
-$console->echo('<bright blue>Hello <magenta>' . $name);
+$console->info('<bright blue>Hello <magenta>' . $name);
 
 $console->list([1 => 'red', 2 => 'blue', 3 => 'green']);
 
 $selection = $console->getOneOf(null, [1, 2, 3]);
 
-$console->primary('You selected <magenta>' . $selection);
+$console->info('You selected <magenta>' . $selection);

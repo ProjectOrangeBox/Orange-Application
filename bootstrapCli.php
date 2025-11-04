@@ -9,10 +9,10 @@ use orange\framework\Application;
 // you can just change __ROOT__ to something else then change it back for example
 define('__ROOT__', __DIR__);
 
+// bootstrap before anything else
+require_once __ROOT__ . '/bootstrap.php';
+
 // composer auto loader
 require_once __ROOT__ . '/vendor/autoload.php';
 
 Application::loadEnvironment(__ROOT__ . '/.env', __ROOT__ . '/.env-cli');
-
-/* send config into cli application and away we go! */
-return Application::cli();
