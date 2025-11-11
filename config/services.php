@@ -31,7 +31,6 @@ use peels\negotiate\NegotiateInterface;
 use application\child\models\ChildModel;
 use application\people\models\ColorModel;
 use application\people\models\PeopleModel;
-use orange\framework\Application;
 use peels\asset\Interfaces\AssetInterface;
 use peels\acl\interfaces\UserEntityInterface;
 use orange\framework\interfaces\ViewInterface;
@@ -70,9 +69,10 @@ return [
     'collection' => function (ContainerInterface $container): CollectorInterface {
         return Collector::getInstance($container->config->collection);
     },
-    '@databaseConfigPDO' => 'pdo', // alias of pdo
+    // alias of pdo
+    '@databaseConfigPDO' => 'pdo',
     'pdo' => function (ContainerInterface $container) {
-        $db = Application::env('db');
+        $db = env('db');
 
         // stored in the .env file specific to each server (not committed to GIT)
         return new PDO('mysql:host=' . $db['host'] . ';dbname=' . $db['database'], $db['username'], $db['password'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);

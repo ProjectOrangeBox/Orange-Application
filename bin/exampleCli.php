@@ -3,11 +3,11 @@
 
 declare(strict_types=1);
 
-use orange\framework\Application;
-
 require '../bootstrapCli.php';
 
-$container = Application::cli();
+$cliApplication = Orange\Framework\Application::make();
+
+$container = $cliApplication->run();
 
 // start shellscript
 $console = $container->console;

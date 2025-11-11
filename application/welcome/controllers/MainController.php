@@ -23,7 +23,7 @@ class MainController extends BaseController
             'aboutText' => $this->language->line('main.about text'),
             'position' => $this->config['application']['position'],
             'h1' => $this->config['application']['h1'],
-            'file' => $this->config['application']['file'],
+            'file' => $this->config['application']['this file'],
             'cash' => '19.95',
         ]);
 
