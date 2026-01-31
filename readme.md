@@ -1,11 +1,73 @@
 # Orange Framework #
 
-The Orange MVC framework is not intended to replace other first-rate PHP frameworks, and although it has powered several sites, it is now primarily used to showcase my coding skills. 
-It started as a proof-of-concept / dare from a customer. In which he challenged me to serve over 1,000 pages per second on a few Raspberry Pis. At the time, it was only running on Model 3s, but it could efficiently serve over 1,000 requests per second, which won me my first contract. 
+The Orange MVC framework is not intended to replace other first-rate PHP frameworks, and although it has powered several sites, it is now primarily used to showcase my coding skills.
+It started as a proof-of-concept / dare from a customer. In which he challenged me to serve over 1,000 pages per second on a few Raspberry Pis. At the time, it was only running on Model 3s, but it could efficiently serve over 1,000 requests per second, which won me my first contract.
 
 It has been continually updated ever since. While I also work with other PHP frameworks, I would love to hear from you if this is the quality of code you are looking for or if you would like to learn more about this framework.
 
-Overview: Web Page Generation Process (starting from index.php)
+### Install
+
+In order to install the Orange Framework, start off by cloning this repository and setting up your .env file:
+
+<code>
+
+git clone git@github.com:ProjectOrangeBox/Orange-Application.git myAwesomeWebApplication
+
+cd myAwesomeWebApplication
+
+</code>
+
+At this point, you can use the included shell script `install.sh` in the install directory
+
+If you want to continue manually, these are pretty much the steps the shellscript automates. 
+
+<code>
+
+mkdir packages
+
+cd packages
+
+git clone git@github.com:ProjectOrangeBox/OrangePackage.git Orange
+
+git clone https://github.com/ProjectOrangeBox/Peels Peels
+
+cp ./support/samples/sample.env .env
+
+</code>
+
+#### How to setup the.env file
+
+You will need a **.env** file in order to set up your environment.
+
+Different environments can be set up for development, testing, and production.
+
+You, of course, can add your own to this file as well.
+
+This file will also include the private configuration values for each environment. This might include things like
+
+Database login credentials or API keys.
+
+By having a different environment file on each server, you can keep the production password and keys away from the developers, for example, or on development, make sure you aren't accessing the development database or APIs.
+
+All of that said, this file should NEVER be committed to your repository.
+
+The included .gitignore file already contains this entry.
+
+In your application, you can use the built-in global function `env(...)` (see **./myAwesomeWebApplication/packages/orange/src/helpers/wrappers.php**)
+
+#### Finally
+
+You will need to run `composer install` to set up the shared packages and autoloader
+
+If you haven't used composer you can learn more at  [https://getcomposer.org](https://getcomposer.org) 
+
+Point your web server at ./myAwesomeWebApplication/htdocs, and if we configured everything correctly for PHP, it should serve up index.php
+
+---
+
+### Overview
+
+Web Page Generation Process (starting from index.php)
 
 The framework follows a classic MVC request lifecycle. Here's the end-to-end flow:
 
