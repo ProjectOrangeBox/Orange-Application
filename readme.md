@@ -2,7 +2,7 @@
 
 A lightweight PHP MVC framework + example application.
 
-> **Project note:** This framework has powered real sites, but today it’s primarily maintained as a portfolio-quality codebase and a reference implementation.
+**Project note:** This framework has powered real sites, but today it’s primarily maintained as a portfolio-quality codebase and a reference implementation.
 
 ---
 
