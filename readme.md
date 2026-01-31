@@ -1,9 +1,11 @@
 # Orange Framework #
 
 The Orange MVC framework is not intended to replace other first-rate PHP frameworks, and although it has powered several sites, it is now primarily used to showcase my coding skills.
-It started as a proof-of-concept / dare from a customer. In which he challenged me to serve over 1,000 pages per second on a few Raspberry Pis. At the time, it was only running on Model 3s, but it could efficiently serve over 1,000 requests per second, which won me my first contract.
+It started as a proof-of-concept / dare from a customer. In which he challenged me to serve over 1,000 pages per second on a few Raspberry PI. At the time the current Model was version 3s. After a few weeks my cluster could efficiently serve over 1,000 requests per second, which won me my first contract.
 
-It has been continually updated ever since. While I also work with other PHP frameworks, I would love to hear from you if this is the quality of code you are looking for or if you would like to learn more about this framework.
+It has been continually updated ever since. I also love to work with other PHP frameworks such as Laravel, Symfony & CodeIgniter. The quality of code allows you to focus on writing PHP code without worrying about writing everything yourself.
+
+I would love to hear from you if this is the quality of code you are looking for or if you would like to learn more about this framework.
 
 ### Install
 
