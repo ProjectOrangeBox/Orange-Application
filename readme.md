@@ -11,15 +11,23 @@ In order to install the Orange Framework, start off by cloning this repository a
 
 <code>
 
-git clone git@github.com:ProjectOrangeBox/Orange-Application.git myAwesomeWebApplication
+git clone git@github.com:ProjectOrangeBox/Orange-Application.git webapp
 
-cd myAwesomeWebApplication
+cd webapp
 
 </code>
 
 At this point, you can use the included shell script `install.sh` in the install directory
 
-If you want to continue manually, these are pretty much the steps the shellscript automates. 
+<code>
+
+cd install
+
+./install.sh
+
+</code>
+
+If you want to continue manually, these are pretty much the steps the shellscript automates.
 
 <code>
 
@@ -35,7 +43,7 @@ cp ./support/samples/sample.env .env
 
 </code>
 
-#### How to setup the.env file
+#### How to setup the.env file and what is it for?
 
 You will need a **.env** file in order to set up your environment.
 
@@ -53,15 +61,15 @@ All of that said, this file should NEVER be committed to your repository.
 
 The included .gitignore file already contains this entry.
 
-In your application, you can use the built-in global function `env(...)` (see **./myAwesomeWebApplication/packages/orange/src/helpers/wrappers.php**)
+In your application, you can use the built-in global function `env(...)` (see **./webapp/packages/orange/src/helpers/wrappers.php**)
 
 #### Finally
 
 You will need to run `composer install` to set up the shared packages and autoloader
 
-If you haven't used composer you can learn more at  [https://getcomposer.org](https://getcomposer.org) 
+If you haven't used composer you can learn more at  [https://getcomposer.org](https://getcomposer.org)
 
-Point your web server at ./myAwesomeWebApplication/htdocs, and if we configured everything correctly for PHP, it should serve up index.php
+Point your web server at ./webapp/htdocs, and if we configured everything correctly for PHP, it should serve up index.php
 
 ---
 
