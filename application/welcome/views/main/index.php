@@ -1,14 +1,12 @@
-<?php fig::extends('templates/base') ?>
-
-<?php fig::block('body') ?>
-
+<?php include __DIR__ . '/../partials/header.php' ?>
+<?php include __DIR__ . '/../partials/nav.php' ?>
 <!-- Masthead-->
 <header class="masthead bg-primary text-white text-center">
     <div class="container d-flex align-items-center flex-column" id="page-top">
         <!-- Masthead Avatar Image-->
         <img class="masthead-avatar mb-5" src="assets/img/avataaars.svg" alt="..." />
         <!-- Masthead Heading-->
-        <h1 class="masthead-heading text-uppercase mb-0"><?= fig::v('h1') ?></h1>
+        <h1 class="masthead-heading text-uppercase mb-0"><?= $h1 ?></h1>
         <!-- Icon Divider-->
         <div class="divider-custom divider-light">
             <div class="divider-custom-line"></div>
@@ -16,7 +14,7 @@
             <div class="divider-custom-line"></div>
         </div>
         <!-- Masthead Subheading-->
-        <p class="masthead-subheading font-weight-light mb-0"><?= fig::v('position') ?></p>
+        <p class="masthead-subheading font-weight-light mb-0"><?= $position ?></p>
     </div>
 </header>
 <!-- Portfolio Section-->
@@ -103,7 +101,7 @@
         <!-- About Section Content-->
         <div class="row">
             <div class="col-lg-4 ms-auto">
-                <p class="lead">Ipsum dolor sit <?= fig::money(fig::value('cash')) ?> amet consectetur adipiscing elit ut. Sit amet commodo nulla facilisi nullam vehicula ipsum. Risus at ultrices mi tempus imperdiet nulla malesuada pellentesque elit. Amet commodo nulla facilisi nullam vehicula ipsum a arcu cursus. Elit ullamcorper dignissim cras tincidunt lobortis feugiat vivamus at augue.</p>
+                <p class="lead">Ipsum dolor sit <?= $cash ?> amet consectetur adipiscing elit ut. Sit amet commodo nulla facilisi nullam vehicula ipsum. Risus at ultrices mi tempus imperdiet nulla malesuada pellentesque elit. Amet commodo nulla facilisi nullam vehicula ipsum a arcu cursus. Elit ullamcorper dignissim cras tincidunt lobortis feugiat vivamus at augue.</p>
             </div>
             <div class="col-lg-4 me-auto">
                 <p class="lead">Consectetur libero id faucibus nisl. Augue eget arcu dictum varius duis at consectetur lorem donec. Condimentum vitae sapien pellentesque habitant morbi tristique senectus et netus. Justo donec enim diam vulputate.</p>
@@ -118,11 +116,11 @@
             <!-- Footer Location-->
             <div class="col-lg-4 mb-5 mb-lg-0">
                 <h4 class="text-uppercase mb-4">Location</h4>
-                <p class="lead mb-0"><?= fig::value('address') ?></p>
+                <p class="lead mb-0"><?= $address ?></p>
             </div>
             <!-- Footer Social Icons-->
             <div class="col-lg-4 mb-5 mb-lg-0">
-                <h4 class="text-uppercase mb-4"><?= fig::value('around') ?></h4>
+                <h4 class="text-uppercase mb-4"><?= $around ?></h4>
                 <a class="btn btn-outline-light btn-social mx-1" href="#!"><i class="fab fa-fw fa-facebook-f"></i></a>
                 <a class="btn btn-outline-light btn-social mx-1" href="#!"><i class="fab fa-fw fa-twitter"></i></a>
                 <a class="btn btn-outline-light btn-social mx-1" href="#!"><i class="fab fa-fw fa-linkedin-in"></i></a>
@@ -130,24 +128,15 @@
             </div>
             <!-- Footer About Text-->
             <div class="col-lg-4">
-                <h4 class="text-uppercase mb-4"><?= fig::value('about') ?></h4>
-                <p class="lead mb-0"><?=$aboutText ?></p>
+                <h4 class="text-uppercase mb-4"><?= $about ?></h4>
+                <p class="lead mb-0"><?= $aboutText ?></p>
             </div>
         </div>
     </div>
 </footer>
 <!-- Copyright Section-->
 <div class="copyright py-4 text-center text-white">
-    <div class="container"><small>Copyright &copy; Your Website <?= fig::date('now', 'Y') ?><br>Config: <?=$file ?> <?=ENVIRONMENT ?> <?php
-            function humanBytes(int $bytes): string
-            {
-                $i = floor(log($bytes, 1024));
-
-                return round($bytes / pow(1024, $i), [0, 1, 2, 2, 3][$i]) . ['B', 'kB', 'MB', 'GB', 'TB'][$i];
-            }
-
-            echo humanBytes(memory_get_usage(true)) . ' / ' . humanBytes(memory_get_peak_usage(true))
-        ?></small></div>
+    <div class="container"><small>Copyright &copy; Your Website <?= date('Y') ?><br>Config: <?= $file ?> <?= ENVIRONMENT ?></small></div>
 </div>
 <!-- Portfolio Modals-->
 <!-- Portfolio Modal 1-->
@@ -342,6 +331,7 @@
         </div>
     </div>
 </div>
-<?php fig::end() ?>
-
-<?php fig::render() ?>
+<script src="/assets/bundle.js"></script>
+<?= $script ?>
+<?= $js ?>
+<?php include __DIR__ . '/../partials/footer.php' ?>

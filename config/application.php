@@ -8,4 +8,7 @@ return [
         'view',
         'data',
     ],
+    'display_errors' => 1,
+    'display_startup_errors' => 1,
+    'error_reporting' => -1,
 ];
