@@ -4,11 +4,21 @@ declare(strict_types=1);
 
 namespace application\welcome\controllers;
 
+use orange\framework\attributes\AttachService;
+use orange\framework\attributes\Route;
 use orange\framework\controllers\BaseController;
+use orange\framework\interfaces\DataInterface;
+use orange\framework\interfaces\ViewInterface;
 
 class MainController extends BaseController
 {
-    # [route(*,/,home)]
+    #[AttachService('data')]
+    protected DataInterface $data;
+
+    #[AttachService('view')]
+    protected ViewInterface $view;
+
+    #[Route('*','/','home')]
     public function index(): string
     {
         // many at once
