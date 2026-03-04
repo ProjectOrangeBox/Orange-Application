@@ -18,16 +18,16 @@ class MainController extends BaseController
     #[AttachService('view')]
     protected ViewInterface $view;
 
-    #[Route('*','/','home')]
+    #[Route('*', '/', 'home')]
     public function index(): string
     {
         // many at once
         $this->data->merge([
-            'css'=>'',
-            'script'=>'',
-            'js'=>'',
+            'css' => '',
+            'script' => '',
+            'js' => '',
             'address' => '123 South Main Street<br />Somewhere, AZ 12345',
-            'about'=>'',
+            'about' => '',
             'aboutText' => '',
             'position' => $this->config['application']['position'],
             'h1' => $this->config['application']['h1'],
