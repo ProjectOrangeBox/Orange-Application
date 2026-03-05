@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // only use this in development mode
 // use export to echo a production level route array
-require __DIR__ . '/RouterDetector.php';
+require_once __DIR__ . '/RouterDetector.php';
 
 // a route name is used with the getUrl(...) method
 // all routes can have a name but it not required
