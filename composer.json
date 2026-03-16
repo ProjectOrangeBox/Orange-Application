@@ -1,5 +1,5 @@
 {
-    "name": "orange/framework",
+    "name": "orange/orange-framework",
     "authors": [
         {
             "name": "Don Myers",
@@ -8,30 +8,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "application\\": "application",
-            "orange\\framework\\": "packages/orange/src",
-            "peels\\cache\\": "packages/peels/cache/src",
-            "peels\\console\\": "packages/peels/console/src",
-            "peels\\session\\": "packages/peels/session/src",
-            "peels\\asset\\": "packages/peels/asset/src",
-            "peels\\flashmsg\\": "packages/peels/flashmsg/src",
-            "peels\\stash\\": "packages/peels/stash/src",
-            "peels\\validate\\": "packages/peels/validate/src",
-            "peels\\quickview\\": "packages/peels/quickView/src",
-            "peels\\model\\": "packages/peels/model/src",
-            "peels\\mergeView\\": "packages/peels/mergeView/src",
-            "peels\\auth\\": "packages/peels/auth/src",
-            "peels\\acl\\": "packages/peels/acl/src",
-            "peels\\snippets\\": "packages/peels/snippets/src",
-            "peels\\disc\\": "packages/peels/disc/src",
-            "peels\\cookie\\": "packages/peels/cookie/src",
-            "peels\\observer\\": "packages/peels/observer/src",
-            "peels\\negotiate\\": "packages/peels/negotiate/src",
-            "peels\\handlebars\\": "packages/peels/handlebars/src",
-            "peels\\benchmark\\": "packages/peels/benchmark/src",
-            "peels\\language\\": "packages/peels/language/src",
-            "peels\\bitwise\\": "packages/peels/bitwise/src",
-            "peels\\priority\\": "packages/peels/priority/src"
+            "application\\": "application"
         },
         "files": [],
         "classmap": []
@@ -46,6 +23,13 @@
         "monolog/monolog": "3.*",
         "michelf/php-markdown": "2.*",
         "zordius/lightncandy": "1.*",
-        "brick/varexporter": "0.*"
-    }
+        "brick/varexporter": "0.*",
+        "orange/framework": "dev-main"
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "git@github.com:ProjectOrangeBox/OrangePackage.git"
+        }
+    ]
 }
