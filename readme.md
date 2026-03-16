@@ -122,9 +122,9 @@ application/   # HMVC modules (examples: people, rest, shared, welcome)
 config/        # configuration
 htdocs/        # public web root (index.php entry point)
 install/       # install script
-packages/      # external packages cloned here (OrangePackage, Peels)
 support/       # samples and helpers (sample.env, etc.)
 bin/           # scripts/utilities
+vendor/        # Composer dependencies
 ```
 
 ---
@@ -134,13 +134,13 @@ bin/           # scripts/utilities
 Framework unit tests live in:
 
 ```text
-/packages/orange/bin/tests/runUnitTests.sh
+/vendor/orange/framework/bin/tests/runUnitTests.sh
 ```
 
 Run them (after installation):
 
 ```bash
-bash ./packages/orange/bin/tests/runUnitTests.sh
+bash ./vendor/orange/framework/bin/tests/runUnitTests.sh
 ```
 
 If core framework tests fail, higher-level features may fail as well.
@@ -152,9 +152,8 @@ If core framework tests fail, higher-level features may fail as well.
 High-level request flow:
 
 ```text
-index.php → Application → Container → Input → Router → Dispatcher
-        → Controller → View → Output
-        → Error (on exception)
+index.php → Application → Container → Input → Router → Dispatcher → Controller → View → Output
+          → Error (on exception)
 ```
 
 For the deeper walkthrough and lifecycle notes, see:
