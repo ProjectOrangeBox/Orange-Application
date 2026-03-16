@@ -1,7 +1,5 @@
 #!/bin/sh
 
-cd ../
-
 mkdir var
 mkdir var/logs
 mkdir var/cache

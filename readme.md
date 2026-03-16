@@ -13,7 +13,6 @@ A lightweight PHP MVC framework + example application.
   - [Features](#features)
   - [Requirements](#requirements)
   - [Quick start](#quick-start)
-  - [Manual installation](#manual-installation)
   - [Configuration (.env)](#configuration-env)
   - [Run locally](#run-locally)
     - [Option A: PHP built-in server (fastest)](#option-a-php-built-in-server-fastest)
@@ -57,14 +56,12 @@ cd webapp
 Run the installer script:
 
 ```bash
-cd install
-./install.sh
+./install/install.sh
 ```
 
 Then install PHP dependencies:
 
 ```bash
-cd ..
 composer install
 ```
 
@@ -72,25 +69,6 @@ Now point your web server document root to:
 
 ```text
 ./htdocs
-```
-
----
-
-## Manual installation
-
-If you prefer not to use `install.sh`, the script is essentially doing this:
-
-```bash
-mkdir -p packages
-cd packages
-
-git clone git@github.com:ProjectOrangeBox/OrangePackage.git Orange
-git clone https://github.com/ProjectOrangeBox/Peels Peels
-
-cd ..
-cp ./support/samples/sample.env .env
-
-composer install
 ```
 
 ---
