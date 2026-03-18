@@ -17,7 +17,7 @@ require_once __DIR__ . '/RouterDetector.php';
 // ['get','post'] matches on both get and post method
 return [
     // all of the routes need to be in this array
-    'routes' => RouterDetector::detect([__ROOT__ . '/application/welcome/controllers'], [
+    'routes' => RouterDetector::detect([__ROOT__ . '/application'], [
         // these are used to get paths router::getUrl(...)
         // then if you need to change a path you simply need to change it here and not in mutiple files
         ['url' => '/assets', 'name' => 'assets'],

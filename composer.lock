@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9046002809ea24e87c8731f9d133c982",
+    "content-hash": "b7c37fb7774c52830b646c98b729f83b",
     "packages": [
         {
             "name": "brick/varexporter",
@@ -448,12 +448,56 @@
             "time": "2025-12-06T11:56:16+00:00"
         },
         {
+            "name": "orange/cookies",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "./vendor/orange/cookies",
+                "reference": "61eafbbd6d45b45a52d378d7477c1e5c799e33c9"
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\cookies\\": "src/"
+                }
+            },
+            "description": "Orange Cookie Handling package",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "orange/files",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "./vendor/orange/files",
+                "reference": "2083172005a1aae290d58867d8243414692d0270"
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\files\\": "src/"
+                }
+            },
+            "description": "Orange File Handling package",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "orange/framework",
             "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "git@github.com:ProjectOrangeBox/OrangePackage.git",
-                "reference": "43261a627d19a1b3c0f6ce90bf7a342099183c98"
+                "reference": "557400a8c41ae5da3d9d6cf0f7ff3f08c71ec31e"
             },
             "require": {
                 "php": ">=8.4"
@@ -466,7 +510,7 @@
                 }
             },
             "description": "Orange Framework core package",
-            "time": "2026-03-16T10:56:00+00:00"
+            "time": "2026-03-16T11:16:19+00:00"
         },
         {
             "name": "psr/clock",
@@ -2810,6 +2854,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "orange/cookies": 20,
+        "orange/files": 20,
         "orange/framework": 20
     },
     "prefer-stable": false,
