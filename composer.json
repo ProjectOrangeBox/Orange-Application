@@ -25,8 +25,9 @@
         "zordius/lightncandy": "1.*",
         "brick/varexporter": "0.*",
         "orange/framework": "dev-main",
-        "orange/cookies": "dev-main",
-        "orange/files": "dev-main"
+        "orange/cookies": "dev-master",
+        "orange/files": "dev-master",
+        "orange/request": "dev-main"
     },
     "repositories": [
         {
@@ -34,12 +35,17 @@
             "url": "git@github.com:ProjectOrangeBox/OrangePackage.git"
         },
         {
-            "type": "path",
-            "url": "./vendor/orange/cookies"
+            "type": "git",
+            "url": "git@github.com:ProjectOrangeBox/cookies.git"
         },
-         {
+        {
+            "type": "git",
+            "url": "git@github.com:ProjectOrangeBox/files.git"
+        },
+        {
             "type": "path",
-            "url": "./vendor/orange/files"
+            "url": "./vendor/orange/request"
+
         }
-   ]
+    ]
 }

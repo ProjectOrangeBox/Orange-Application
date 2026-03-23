@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace application\testing\controllers;
 
+use application\testing\request\User;
 use orange\files\Files;
 use orange\framework\attributes\AttachService;
 use orange\framework\attributes\Route;
@@ -39,6 +40,30 @@ class TestController extends BaseController
             echo $fieldkey . ' ' . $uf->errorMessage() . PHP_EOL;
 
             $uf->move(__ROOT__ . '/var/uploads', 'icon.png', true);
+        }
+
+        return '';
+    }
+
+    #[Route('GET', '/request')]
+    public function request(): string
+    {
+        $input = [
+            'name' => 'Johnny Appleseed',
+            'age' => '23',
+            'clr' => 'Orange',
+        ];
+
+        $request = new User($input);
+
+        if ($request->isValid()) {
+            var_dump($request->name);
+            var_dump($request->age);
+            var_dump($request->color);
+
+            var_dump($request->asColumns());
+        } else {
+            var_dump($request->errors());
         }
 
         return '';
