@@ -29,6 +29,14 @@
         "orange/files": "dev-master",
         "orange/request": "dev-master"
     },
+    "scripts": {
+        "test:orange": "cd vendor/orange/framework/unittest && sh runUnitTests.sh",
+        "test:orangeCoverage": "cd vendor/orange/framework/unittest && sh runCoverage.sh"
+    },
+    "scripts-descriptions": {
+        "test:orange": "Run the Orange Framework core unit tests.",
+        "test:orangeCoverage": "Run the Orange Framework core unit tests with code coverage."
+    },
     "repositories": [
         {
             "type": "git",
