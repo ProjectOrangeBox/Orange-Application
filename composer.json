@@ -32,19 +32,19 @@
     "repositories": [
         {
             "type": "git",
-            "url": "git@github.com:ProjectOrangeBox/OrangePackage.git"
+            "url": "https://github.com/ProjectOrangeBox/OrangePackage.git"
         },
         {
             "type": "git",
-            "url": "git@github.com:ProjectOrangeBox/cookies.git"
+            "url": "https://github.com/ProjectOrangeBox/cookies.git"
         },
         {
             "type": "git",
-            "url": "git@github.com:ProjectOrangeBox/files.git"
+            "url": "https://github.com/ProjectOrangeBox/files.git"
         },
         {
             "type": "git",
-            "url": "git@github.com:ProjectOrangeBox/request.git"
+            "url": "https://github.com/ProjectOrangeBox/request.git"
         }
     ]
 }

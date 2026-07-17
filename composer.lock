@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b3371fde6ad6e8c646ce7e52c0321770",
+    "content-hash": "f432ff47447e0c30aa9e9f2f7d3c517f",
     "packages": [
         {
             "name": "brick/varexporter",
@@ -451,7 +451,7 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:ProjectOrangeBox/cookies.git",
+                "url": "https://github.com/ProjectOrangeBox/cookies.git",
                 "reference": "9f3210c34d4f3164f3fead609965bc08bdfc8b64"
             },
             "require": {
@@ -472,7 +472,7 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:ProjectOrangeBox/files.git",
+                "url": "https://github.com/ProjectOrangeBox/files.git",
                 "reference": "0049227aac42efab3af0aae68670b18e460d7d58"
             },
             "require": {
@@ -493,7 +493,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:ProjectOrangeBox/OrangePackage.git",
+                "url": "https://github.com/ProjectOrangeBox/OrangePackage.git",
                 "reference": "765ff62ae7afa99eba564eb3f58951e7b66fadf5"
             },
             "require": {
@@ -514,7 +514,7 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:ProjectOrangeBox/request.git",
+                "url": "https://github.com/ProjectOrangeBox/request.git",
                 "reference": "6f0649c17dd1bbef9b0ba23b680d9ab8f2ab5582"
             },
             "require": {

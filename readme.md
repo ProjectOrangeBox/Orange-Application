@@ -37,7 +37,13 @@ A lightweight PHP MVC framework + example application.
 
 ## Requirements
 
-- PHP **8.2** (tested; older versions may work but are not verified)
+**Docker (recommended):**
+
+- Docker with Compose v2
+
+**Or a local PHP toolchain:**
+
+- PHP **8.2+** (the Docker image uses 8.4)
 - Composer
 - Git
 - A web server (Apache/Nginx) **or** PHP’s built-in dev server
@@ -49,20 +55,52 @@ A lightweight PHP MVC framework + example application.
 Clone the repository:
 
 ```bash
-git clone git@github.com:ProjectOrangeBox/Orange-Application.git webapp
+git clone https://github.com/ProjectOrangeBox/Orange-Application.git webapp
 cd webapp
 ```
 
-Run the installer script:
+### With Docker (recommended)
+
+Build and start the container:
 
 ```bash
-./install/install.sh
+docker compose up -d --build
 ```
 
-Then install PHP dependencies:
+That's it — the container's entrypoint prepares the writable `var/` directories,
+seeds `.env` from `support/samples/sample.env` (only if one doesn't already exist),
+and runs `composer install` on first start. The app is then served at:
+
+```text
+http://localhost:8080
+```
+
+Common commands:
+
+```bash
+docker compose logs -f          # follow logs (incl. the startup/composer output)
+docker compose exec web bash    # shell into the container
+docker compose down             # stop and remove the container
+```
+
+The source directory is mounted into the container, so code edits are picked up
+live — no rebuild needed. Dependencies (`vendor/`) install into your working copy
+on first run; delete `vendor/` and restart to reinstall.
+
+### Without Docker
+
+Install PHP dependencies:
 
 ```bash
 composer install
+```
+
+Copy the sample environment file and create the writable directories:
+
+```bash
+cp support/samples/sample.env .env
+mkdir -p var/logs var/cache var/uploads var/downloads var/temp var/working
+chmod -R 777 var
 ```
 
 Now point your web server document root to:
