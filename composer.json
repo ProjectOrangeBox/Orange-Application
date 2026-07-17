@@ -27,7 +27,7 @@
         "orange/framework": "dev-main",
         "orange/cookies": "dev-master",
         "orange/files": "dev-master",
-        "orange/request": "dev-main"
+        "orange/request": "dev-master"
     },
     "repositories": [
         {
@@ -43,9 +43,8 @@
             "url": "git@github.com:ProjectOrangeBox/files.git"
         },
         {
-            "type": "path",
-            "url": "./vendor/orange/request"
-
+            "type": "git",
+            "url": "git@github.com:ProjectOrangeBox/request.git"
         }
     ]
 }
