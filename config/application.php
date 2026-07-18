@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'h1' => 'Hello World!',
     'this file' => __FILE__,

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <title>Test Documentation</title>
+        <style>
+            body {
+                text-rendering: optimizeLegibility;
+                font-family: Source SansSerif Pro, Arial, sans-serif;
+                font-variant-ligatures: common-ligatures;
+                font-kerning: normal;
+                margin-left: 2rem;
+                background-color: #fff;
+                color: #000;
+            }
+
+            body > ul > li {
+                font-size: larger;
+            }
+
+            h2 {
+                font-size: larger;
+                text-decoration-line: underline;
+                text-decoration-thickness: 2px;
+                margin: 0;
+                padding: 0.5rem 0;
+            }
+
+            ul {
+                list-style: none;
+                margin: 0 0 2rem;
+                padding: 0 0 0 1rem;
+                text-indent: -1rem;
+            }
+
+            .success:before {
+                color: #4e9a06;
+                content: '✓';
+                padding-right: 0.5rem;
+            }
+
+            .defect {
+                color: #a40000;
+            }
+
+            .defect:before {
+                color: #a40000;
+                content: '✗';
+                padding-right: 0.5rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Main Controller</h2>
+        <ul>
+            <li class="success">Index renders the main index view</li>
+            <li class="success">Index returns the rendered view</li>
+            <li class="success">Index merges config driven values</li>
+            <li class="success">Index sets individual values</li>
+            <li class="success">Index merges static values</li>
+        </ul>
+        <h2>Rest Controller</h2>
+        <ul>
+            <li class="success">Index returns json payload</li>
+            <li class="success">Index sets ok response code and json content type</li>
+            <li class="success">Rest response maps success statuses to codes</li>
+            <li class="success">Rest response falls back to 500 for unknown status</li>
+            <li class="success">Rest response encodes current data</li>
+        </ul>
+    </body>
+</html>

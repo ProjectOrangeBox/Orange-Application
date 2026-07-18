@@ -1,0 +1,14 @@
+Main Controller
+ [x] Index renders the main index view
+ [x] Index returns the rendered view
+ [x] Index merges config driven values
+ [x] Index sets individual values
+ [x] Index merges static values
+
+Rest Controller
+ [x] Index returns json payload
+ [x] Index sets ok response code and json content type
+ [x] Rest response maps success statuses to codes
+ [x] Rest response falls back to 500 for unknown status
+ [x] Rest response encodes current data
+

@@ -17,14 +17,11 @@ class RouterDetector
     /**
      * we will use this class to scan the application for route attributes
      * and build the routes array that is used in the Router class
-     *
-     * @param array $paths
-     * @return array
      */
     public static function detect(array $paths, array $routes = []): array
     {
         if (ENVIRONMENT != 'development') {
-            die('The ' . __CLASS__ . ' should only be used in development. You can use the static method export to get the current array');
+            die('The ' . self::class . ' should only be used in development. You can use the static method export to get the current array');
         }
 
         foreach ($paths as $path) {
@@ -40,9 +37,6 @@ class RouterDetector
 
     /**
      * echo the formatted routes array
-     *
-     * @param array $paths
-     * @return void
      */
     public static function export(array $paths): void
     {
@@ -54,7 +48,7 @@ class RouterDetector
     {
         $fullyQualifiedClass = static::getFullyQualifiedClass($file);
 
-        if (!empty($fullyQualifiedClass)) {
+        if ($fullyQualifiedClass !== '' && $fullyQualifiedClass !== '0') {
             $reflectionClass = new ReflectionClass($fullyQualifiedClass);
 
             foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
@@ -71,7 +65,7 @@ class RouterDetector
                     $route = array_filter($route);
 
                     // only add if we have a valid route
-                    if (!empty($route)) {
+                    if ($route !== []) {
                         $route['callback'] = [$fullyQualifiedClass, $reflectionMethod->getName()];
 
                         $routes[] = $route;
@@ -83,9 +77,6 @@ class RouterDetector
 
     /**
      * we need to format the routes array into a string that can be used in the export method
-     *
-     * @param array $routes
-     * @return string
      */
     protected static function format(array $routes): string
     {
@@ -151,14 +142,14 @@ class RouterDetector
             // we need to trim the line to remove any leading or trailing whitespace
             $line = trim($line);
 
-            if (!empty($line)) {
+            if ($line !== '' && $line !== '0') {
                 // we are looking for the namespace
                 if (preg_match('/namespace\s+(.*)\s*;/', $line, $matches, PREG_OFFSET_CAPTURE, 0)) {
                     $namespace = $matches[1][0];
                 }
                 // we are looking for the class
                 if (preg_match('/class\s*([^ ]*).*/', $line, $matches, PREG_OFFSET_CAPTURE, 0)) {
-                    if (!empty($namespace)) {
+                    if ($namespace !== '' && $namespace !== '0') {
                         $fullyQualifiedClass = chr(92) . $namespace . chr(92) . $matches[1][0];
                     }
                     break;

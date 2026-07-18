@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+// user cli script bootstraper
+
 use orange\framework\Application;
 
 // All directories are based off of this root path and
