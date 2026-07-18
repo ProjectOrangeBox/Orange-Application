@@ -48,39 +48,48 @@ final class RestControllerTest extends UnitTestHelper
         $this->assertEquals('application/json', $this->output->getContentType());
     }
 
-    public function testRestResponseMapsSuccessStatusesToCodes(): void
+    public function testResponseMapsSuccessStatusesToCodes(): void
     {
         // drive the protected restResponse() directly with each mapped status
         $expected = [
             'ok' => 200,
+            'get' => 200,
             'getNew' => 200,
             'getAll' => 200,
             'getById' => 200,
+            'read' => 200,
             'create' => 201,
+            'post' => 201,
             'update' => 202,
+            'put' => 202,
+            'patch' => 202,
             'delete' => 202,
-            'failed' => 406,
+            'unknown' => 400,
+            'badMethod' => 405,
+            'validationFail' => 406,
+            'noAuth' => 401,
+            'success' => 202,
         ];
 
         foreach ($expected as $status => $code) {
-            $this->callMethod('restResponse', [$status], $this->instance);
+            $this->callMethod('response', [$status], $this->instance);
 
             $this->assertEquals($code, $this->output->getResponseCode(), 'status "' . $status . '"');
         }
     }
 
-    public function testRestResponseFallsBackTo500ForUnknownStatus(): void
+    public function testResponseFallsBackTo500ForUnknownStatus(): void
     {
-        $this->callMethod('restResponse', ['not-a-real-status'], $this->instance);
+        $this->callMethod('response', ['not-a-real-status'], $this->instance);
 
         $this->assertEquals(500, $this->output->getResponseCode());
     }
 
-    public function testRestResponseEncodesCurrentData(): void
+    public function testResponseEncodesCurrentData(): void
     {
         $this->data->merge(['a' => 1, 'b' => 'two']);
 
-        $json = $this->callMethod('restResponse', ['ok'], $this->instance);
+        $json = $this->callMethod('response', ['ok'], $this->instance);
 
         $this->assertEquals(['a' => 1, 'b' => 'two'], json_decode((string) $json, true));
     }

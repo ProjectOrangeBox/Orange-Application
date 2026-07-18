@@ -8,7 +8,7 @@ Main Controller
 Rest Controller
  [x] Index returns json payload
  [x] Index sets ok response code and json content type
- [x] Rest response maps success statuses to codes
- [x] Rest response falls back to 500 for unknown status
- [x] Rest response encodes current data
+ [x] Response maps success statuses to codes
+ [x] Response falls back to 500 for unknown status
+ [x] Response encodes current data
 
