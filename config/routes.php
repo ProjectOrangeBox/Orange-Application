@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use config\RouterDetector;
+
 // only use this in development mode
 // use export to echo a production level route array
 require_once __DIR__ . '/RouterDetector.php';

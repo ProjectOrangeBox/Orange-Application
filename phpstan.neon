@@ -1,0 +1,46 @@
+parameters:
+    level: 5
+    paths:
+        - application
+        - config
+        - bin
+        - htdocs
+    excludePaths:
+        # plain-PHP view templates: ViewAbstract::generate() extract()s data into
+        # scope right before require-ing these, so every "variable" they use is
+        # legitimately defined at render time but invisible to static analysis -
+        # analysing them produces nothing but noise
+        - application/*/views/*
+    # global helper functions (logMsg, container, config, show404, ...) are
+    # loaded at runtime by Application::preContainer() via dynamic include_once,
+    # not through composer's autoloader, so PHPStan can't see them without an
+    # explicit bootstrap - without this every call site would be flagged as a
+    # call to an undefined function. .phpstan-bootstrap.php stubs the handful of
+    # constants (__ROOT__, ENVIRONMENT, ...) that are normally define()'d by the
+    # real runtime bootstrap before config files load.
+    bootstrapFiles:
+        - vendor/orange/framework/src/helpers/helpers.php
+        - vendor/orange/framework/src/helpers/errors.php
+        - vendor/orange/framework/src/helpers/wrappers.php
+        - .phpstan-bootstrap.php
+    ignoreErrors:
+        -
+            # Container services are resolved through a magic __get(), so PHPStan
+            # has no way to know which property names are valid - this is the
+            # framework's intended DI pattern (see orange/framework/src/Container.php),
+            # not a bug. Applies wherever $container->someService is used, not
+            # just one file, since the pattern recurs anywhere a container is
+            # consumed (config/services.php, bin/exampleCli.php, ...).
+            message: '#^Access to an undefined property orange\\framework\\interfaces\\ContainerInterface::\$#'
+        -
+            # ENVIRONMENT is genuinely a runtime-variable string ('development',
+            # 'production', ...) - .phpstan-bootstrap.php stubs it as one fixed
+            # literal so the constant is defined at all, which makes PHPStan see
+            # any comparison against a *different* literal as statically
+            # always-true/-false. Real behavior varies by environment; this is a
+            # stubbing limitation, not a dead-code bug.
+            identifier: notEqual.alwaysTrue
+            path: config/RouterDetector.php
+        -
+            identifier: deadCode.unreachable
+            path: config/RouterDetector.php
