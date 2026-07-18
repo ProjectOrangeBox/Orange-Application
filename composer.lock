@@ -494,7 +494,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/OrangePackage.git",
-                "reference": "48bf3b54a32485f5100a508b76fdae1eeb1f8266"
+                "reference": "9e6cd09f6f9e0b276281e5f653fed1e676a5c973"
             },
             "require": {
                 "php": ">=8.4"
@@ -512,10 +512,34 @@
                 ],
                 "test:orangeCoverage": [
                     "cd unittest && sh runCoverage.sh"
+                ],
+                "test:orangeMutation": [
+                    "../../bin/infection"
+                ],
+                "type-check": [
+                    "../../bin/phpstan analyse"
+                ],
+                "lint": [
+                    "../../bin/phpcs"
+                ],
+                "lint:fix": [
+                    "../../bin/phpcbf"
+                ],
+                "lint:phpmd": [
+                    "../../bin/phpmd src text phpmd.xml"
+                ],
+                "analyze:deptrac": [
+                    "../../bin/deptrac analyse"
+                ],
+                "rector": [
+                    "../../bin/rector process --dry-run"
+                ],
+                "rector:fix": [
+                    "../../bin/rector process"
                 ]
             },
             "description": "Orange Framework core package",
-            "time": "2026-07-17T21:46:10+00:00"
+            "time": "2026-07-18T20:48:57+00:00"
         },
         {
             "name": "orange/request",
