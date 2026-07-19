@@ -38,10 +38,20 @@ class RouterDetector
     /**
      * echo the formatted routes array
      */
-    public static function export(array $paths): void
+    public static function export(array $paths, array $routes = []): void
     {
         // we will just echo the formatted routes array
-        echo static::format(static::detect($paths));
+        $line[] = '<?php';
+        $line[] = '';
+        $line[] = 'declare(strict_types=1);';
+        $line[] = '';
+        $line[] = 'return [';
+        $line[] = static::format(static::detect($paths));
+        $line[] = static::format($routes);
+        $line[] = '];';
+        $line[] = '';
+
+        echo implode(PHP_EOL, $line);
     }
 
     protected static function scan(array &$routes, string $file): void
@@ -125,10 +135,10 @@ class RouterDetector
 
             $line = trim($line, ', ');
 
-            $output .= '[' . $line . '],' . PHP_EOL;
+            $output .= '    [' . $line . '],' . PHP_EOL;
         }
 
-        return '[' . PHP_EOL . $output . '],' . PHP_EOL;
+        return $output;
     }
 
     protected static function getFullyQualifiedClass(string $file): string
