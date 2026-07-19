@@ -21,7 +21,7 @@ class RouterDetector
     public static function detect(array $paths, array $routes = []): array
     {
         if (ENVIRONMENT != 'development') {
-            die('The ' . self::class . ' should only be used in development. You can use the static method export to get the current array');
+            die('The ' . self::class . ' should only be used in development. You can use the static method export to echo PHP source for a production routes.php file.');
         }
 
         foreach ($paths as $path) {
@@ -46,8 +46,7 @@ class RouterDetector
         $line[] = 'declare(strict_types=1);';
         $line[] = '';
         $line[] = 'return [';
-        $line[] = static::format(static::detect($paths));
-        $line[] = static::format($routes);
+        $line[] = static::format(static::detect($paths, $routes));
         $line[] = '];';
         $line[] = '';
 
