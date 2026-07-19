@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use application\rest\controllers\RestController;
+use api\controllers\RestController;
 use orange\framework\Container;
 use orange\framework\Data;
 use orange\framework\Input;
