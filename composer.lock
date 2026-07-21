@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "31d27743a649355df336266d04375731",
+    "content-hash": "8a00a23a5893a3bfaa7e2f61fec43e05",
     "packages": [
         {
             "name": "brick/varexporter",
@@ -452,7 +452,13 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/cookies.git",
-                "reference": "9f3210c34d4f3164f3fead609965bc08bdfc8b64"
+                "reference": "638846d3181d4eeafe6053bce1d11db505f438f5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/cookies/zipball/638846d3181d4eeafe6053bce1d11db505f438f5",
+                "reference": "638846d3181d4eeafe6053bce1d11db505f438f5",
+                "shasum": ""
             },
             "require": {
                 "php": ">=8.4"
@@ -465,7 +471,7 @@
                 }
             },
             "description": "Orange Cookie Handling package",
-            "time": "2026-03-18T22:35:49+00:00"
+            "time": "2026-07-21T14:41:20+00:00"
         },
         {
             "name": "orange/files",
@@ -474,6 +480,12 @@
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/files.git",
                 "reference": "0049227aac42efab3af0aae68670b18e460d7d58"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/files/zipball/0049227aac42efab3af0aae68670b18e460d7d58",
+                "reference": "0049227aac42efab3af0aae68670b18e460d7d58",
+                "shasum": ""
             },
             "require": {
                 "php": ">=8.4"
@@ -494,7 +506,13 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/OrangePackage.git",
-                "reference": "9e6cd09f6f9e0b276281e5f653fed1e676a5c973"
+                "reference": "9f280e56265441f045690595e445def49b83d31e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/OrangePackage/zipball/9f280e56265441f045690595e445def49b83d31e",
+                "reference": "9f280e56265441f045690595e445def49b83d31e",
+                "shasum": ""
             },
             "require": {
                 "php": ">=8.4"
@@ -517,7 +535,7 @@
                     "../../bin/infection"
                 ],
                 "type-check": [
-                    "../../bin/phpstan analyse"
+                    "../../bin/phpstan analyse --memory-limit=1G"
                 ],
                 "lint": [
                     "../../bin/phpcs"
@@ -536,10 +554,16 @@
                 ],
                 "rector:fix": [
                     "../../bin/rector process"
+                ],
+                "findViews": [
+                    "bin/findViews"
+                ],
+                "installModule": [
+                    "bin/installModule"
                 ]
             },
             "description": "Orange Framework core package",
-            "time": "2026-07-18T20:48:57+00:00"
+            "time": "2026-07-21T01:59:47+00:00"
         },
         {
             "name": "orange/request",
@@ -547,7 +571,13 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/request.git",
-                "reference": "f2bb0468f8c3901e6ba7e8655e4ec0538a9a40a8"
+                "reference": "438efb884cacd7eb3d2db26c376cf1761249399d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/request/zipball/438efb884cacd7eb3d2db26c376cf1761249399d",
+                "reference": "438efb884cacd7eb3d2db26c376cf1761249399d",
+                "shasum": ""
             },
             "require": {
                 "ext-filter": "*",
@@ -595,7 +625,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/request/issues",
                 "source": "https://github.com/ProjectOrangeBox/request"
             },
-            "time": "2026-07-17T13:08:37+00:00"
+            "time": "2026-07-21T14:25:16+00:00"
         },
         {
             "name": "psr/clock",
@@ -1481,16 +1511,16 @@
         },
         {
             "name": "deptrac/deptrac",
-            "version": "4.6.2",
+            "version": "4.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/deptrac/deptrac.git",
-                "reference": "bc9c98102a3ed3acce5ad49f3da989dc9921c648"
+                "reference": "ef6daf9cef2aae88366269f7d65d299ed5cb6ab7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/deptrac/deptrac/zipball/bc9c98102a3ed3acce5ad49f3da989dc9921c648",
-                "reference": "bc9c98102a3ed3acce5ad49f3da989dc9921c648",
+                "url": "https://api.github.com/repos/deptrac/deptrac/zipball/ef6daf9cef2aae88366269f7d65d299ed5cb6ab7",
+                "reference": "ef6daf9cef2aae88366269f7d65d299ed5cb6ab7",
                 "shasum": ""
             },
             "require": {
@@ -1560,9 +1590,9 @@
             ],
             "support": {
                 "issues": "https://github.com/deptrac/deptrac/issues",
-                "source": "https://github.com/deptrac/deptrac/tree/4.6.2"
+                "source": "https://github.com/deptrac/deptrac/tree/4.7.0"
             },
-            "time": "2026-07-01T10:43:37+00:00"
+            "time": "2026-07-21T06:03:25+00:00"
         },
         {
             "name": "doctrine/deprecations",

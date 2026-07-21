@@ -56,20 +56,8 @@
     },
     "repositories": [
         {
-            "type": "git",
-            "url": "https://github.com/ProjectOrangeBox/OrangePackage.git"
-        },
-        {
-            "type": "git",
-            "url": "https://github.com/ProjectOrangeBox/cookies.git"
-        },
-        {
-            "type": "git",
-            "url": "https://github.com/ProjectOrangeBox/files.git"
-        },
-        {
-            "type": "git",
-            "url": "https://github.com/ProjectOrangeBox/request.git"
+            "type": "composer",
+            "url": "https://projectorangebox.github.io/OrangePackages/"
         }
     ],
     "config": {
