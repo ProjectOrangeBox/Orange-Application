@@ -11,6 +11,19 @@ use orange\framework\attributes\AttachService;
 use orange\framework\attributes\Route;
 use orange\framework\controllers\JsonController;
 
+/**
+ * REST endpoints backing the Vue records client — the client side of this
+ * contract is documented in the Vue app's stores/records.ts.
+ *
+ *   GET    /api/index        -> 200 [{id, name, phone, in_office, out_until}, ...]
+ *   GET    /api/read/{id}    -> 200 record                | 404 {"msg": ...}
+ *   POST   /api/create       -> 201 {"id": n}             | 422 {"errors": {...}}
+ *   PUT    /api/update/{id}  -> 200 {"success": true}     | 404 | 422 {"errors": {...}}
+ *   DELETE /api/delete/{id}  -> 204 (no body)             | 404 {"msg": ...}
+ *
+ * Request bodies are JSON (parsed by the framework's Input service).
+ * Validation failures return 422 with messages keyed by input field name.
+ */
 class RestController extends JsonController
 {
     #[AttachService('RecordModel')]
@@ -43,13 +56,8 @@ class RestController extends JsonController
             return $this->validationErrorResponse($record);
         }
 
-        $id = $this->recordModel->create($record);
-
-        if ($id === 0) {
-            return $this->response(422);
-        }
-
-        $this->data->id = $id;
+        // database failures throw (see RecordModel), so a returned id is real
+        $this->data->id = $this->recordModel->create($record);
 
         return $this->response(201);
     }
@@ -57,11 +65,13 @@ class RestController extends JsonController
     #[Route('put', '/api/update/(\d+)', 'rest_update')]
     public function update(string $id): string
     {
-        if (!$this->recordModel->read((int)$id) instanceof \api\models\RecordDto) {
+        $id = (int)$id;
+
+        if (!$this->recordModel->read($id) instanceof \api\models\RecordDto) {
             return $this->notFoundResponse();
         }
 
-        $record = new RecordDto(['id' => (int)$id] + $this->input->request());
+        $record = new RecordDto(['id' => $id] + $this->input->request());
 
         if (!$record->isValid()) {
             return $this->validationErrorResponse($record);
@@ -69,21 +79,26 @@ class RestController extends JsonController
 
         $this->data->success = $this->recordModel->update($record);
 
-        return $this->response(202);
+        return $this->response(200);
     }
 
     #[Route('delete', '/api/delete/(\d+)', 'rest_delete')]
     public function delete(string $id): string
     {
-        if (!$this->recordModel->read((int)$id) instanceof \api\models\RecordDto) {
+        $id = (int)$id;
+
+        if (!$this->recordModel->read($id) instanceof \api\models\RecordDto) {
             return $this->notFoundResponse();
         }
 
-        if (!$this->recordModel->delete((int)$id)) {
-            return $this->response(422);
+        // a false here means the row vanished between the check and the
+        // delete — from the client's view the record is simply not found
+        if (!$this->recordModel->delete($id)) {
+            return $this->notFoundResponse();
         }
 
-        return $this->response(202);
+        // 204 No Content must not carry a body
+        return $this->response(204, '');
     }
 
     /**

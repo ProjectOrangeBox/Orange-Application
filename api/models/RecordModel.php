@@ -4,43 +4,45 @@ declare(strict_types=1);
 
 namespace api\models;
 
-use api\models\RecordDto;
 use orange\framework\base\Singleton;
 use orange\model\Sql;
 use PDO;
 
 /**
- * SQLite-backed CRUD model for the records REST API.
+ * CRUD model for the records REST API.
  *
- * The database file location comes from the .env [db] section's `file` key
- * (default var/records.sqlite, relative paths resolve from __ROOT__). The
- * schema is created automatically on connect and sample records are seeded
- * when the database file is brand new.
+ * The PDO connection is supplied by the container's `pdo` service (see
+ * config/services.php — MySQL in production, in-memory SQLite in the unit
+ * tests). Database errors throw orange\model\exceptions\Sql rather than
+ * failing silently — a swallowed insert error once made create() return 0
+ * with no indication why.
  */
 class RecordModel extends Singleton
 {
     protected Sql $sql;
 
-    public function __construct(protected PDO $pdo)
+    public function __construct(PDO $pdo)
     {
         $this->sql = new Sql([
             'tablename' => 'records',
             'primaryColumn' => 'id',
+            // surface database errors instead of returning 0/false quietly
+            'throwException' => true,
         ], $pdo);
     }
 
     /**
-     * Return All Records
+     * Return all records, oldest first.
      *
-     * @return recordDto[]
+     * @return RecordDto[]
      */
     public function index(): array
     {
         $records = [];
 
-        if ($statement = $this->sql->select('*')->execute()->pdoStatement) {
+        if ($statement = $this->sql->select('*')->orderBy('id')->execute()->pdoStatement) {
             while ($row = $statement->fetch()) {
-                $records[] = new RecordDto($row);
+                $records[] = $this->hydrate($row);
             }
         }
 
@@ -49,10 +51,8 @@ class RecordModel extends Singleton
 
     /**
      * create a new record and return the id
-     *
-     * @param recordDto $record
      */
-    public function create(recordDto $record): int
+    public function create(RecordDto $record): int
     {
         return $this->sql->insert()->set($this->bindings($record))->execute()->lastInsertId();
     }
@@ -60,23 +60,28 @@ class RecordModel extends Singleton
     /**
      * read a record based on the id passed
      *
-     * @return recordDto|null null when no record matches the id
+     * @return RecordDto|null null when no record matches the id
      */
-    public function read(int $id): ?recordDto
+    public function read(int $id): ?RecordDto
     {
         $row = $this->sql->select()->wherePrimary($id)->execute()->row();
 
-        return $row === false ? null : new RecordDto($row);
+        return $row === false ? null : $this->hydrate($row);
     }
 
     /**
      * update a record
      *
-     * @param recordDto $record
+     * Always true on return: errors throw, and the caller has already
+     * 404'd on a missing id. rowCount() is deliberately not consulted —
+     * MySQL reports 0 changed rows when a record is resaved with identical
+     * values, which made no-op updates look like failures.
      */
-    public function update(recordDto $record): bool
+    public function update(RecordDto $record): bool
     {
-        return $this->sql->update()->set($this->bindings($record))->wherePrimary($record->id)->execute()->rowCount() > 0;
+        $this->sql->update()->set($this->bindings($record))->wherePrimary($record->id)->execute();
+
+        return true;
     }
 
     /**
@@ -88,22 +93,45 @@ class RecordModel extends Singleton
     }
 
     /**
+     * Build a RecordDto from a database row.
+     *
+     * Rows run through the DTO's full validation pipeline; a row that fails
+     * silently loses those fields in the JSON output, so data drift is
+     * logged instead of disappearing.
+     */
+    protected function hydrate(array $row): RecordDto
+    {
+        $record = new RecordDto($row);
+
+        if (!$record->isValid()) {
+            logMsg('WARNING', __METHOD__ . ' database row failed dto validation', [
+                'id' => $row['id'] ?? null,
+                'errors' => $record->errors(),
+            ]);
+        }
+
+        return $record;
+    }
+
+    /**
      * Column values for insert/update prepared statements.
      *
      * Sql binds every non-int value as a string, so the DTO's boolean
      * in_office must be converted to a real 0/1 — a PHP false binds as ''
-     * which strict-mode MySQL rejects for an integer column (the insert
-     * fails silently and lastInsertId() returns 0). The primary key is
-     * never a SET column: create() lets auto-increment assign it and
-     * update() targets it through wherePrimary().
-     *
-     * @param recordDto $record
+     * which strict-mode MySQL rejects for an integer column. The primary
+     * key is never a SET column: create() lets auto-increment assign it
+     * and update() targets it through wherePrimary().
      */
-    protected function bindings(recordDto $record): array
+    protected function bindings(RecordDto $record): array
     {
         $columns = $record->asColumns();
 
-        unset($columns['id']);
+        // the #[IsPrimary] column, resolved by the dto itself
+        $primary = $record->primary();
+
+        if ($primary !== null) {
+            unset($columns[$primary]);
+        }
 
         if (array_key_exists('in_office', $columns)) {
             $columns['in_office'] = (int)$columns['in_office'];

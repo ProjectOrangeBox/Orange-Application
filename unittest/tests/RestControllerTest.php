@@ -185,7 +185,7 @@ final class RestControllerTest extends UnitTestHelper
 
         $json = $controller->update('1');
 
-        $this->assertEquals(202, $this->output->getResponseCode());
+        $this->assertEquals(200, $this->output->getResponseCode());
         $this->assertEquals(['success' => true], json_decode($json, true));
     }
 
@@ -222,12 +222,13 @@ final class RestControllerTest extends UnitTestHelper
     public function testUpdateInputDefaultsMissingInOffice(): void
     {
         // an update without in_office falls back to DefaultTo(0) -> false,
-        // while an explicit null out_until is kept so the date can be cleared
+        // while an explicit null out_until is kept so the date can be cleared;
+        // NormalizePhone strips the phone's cosmetic dash
         $dto = new RecordDto(['id' => 7, 'name' => 'Don', 'phone' => '555-1234', 'out_until' => null]);
 
         $this->assertTrue($dto->isValid());
         $this->assertSame(
-            ['id' => 7, 'name' => 'Don', 'phone' => '555-1234', 'in_office' => false, 'out_until' => null],
+            ['id' => 7, 'name' => 'Don', 'phone' => '5551234', 'in_office' => false, 'out_until' => null],
             $dto->asColumns()
         );
     }
