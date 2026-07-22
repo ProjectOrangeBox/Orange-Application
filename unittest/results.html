@@ -59,6 +59,34 @@
             <li class="success">Index sets individual values</li>
             <li class="success">Index merges static values</li>
         </ul>
+        <h2>Record Dto</h2>
+        <ul>
+            <li class="success">Valid vue style payload</li>
+            <li class="success">Primary resolves to id column</li>
+            <li class="success">Id must be an integer</li>
+            <li class="success">Name is required</li>
+            <li class="success">Name is cleaned by hygiene filters</li>
+            <li class="success">Name max length</li>
+            <li class="success">Phone is normalized and validated</li>
+            <li class="success">Phone is required</li>
+            <li class="success">In office defaults and validates</li>
+            <li class="success">Out until accepts null and empty</li>
+            <li class="success">Out until normalizes parseable dates</li>
+            <li class="success">Out until rejects junk dates</li>
+            <li class="success">Database row hydrates valid</li>
+        </ul>
+        <h2>Record Model</h2>
+        <ul>
+            <li class="success">Index returns dtos ordered by id</li>
+            <li class="success">Read returns typed dto</li>
+            <li class="success">Read returns null for missing id</li>
+            <li class="success">Create inserts and returns new id</li>
+            <li class="success">Create never writes the primary column</li>
+            <li class="success">Update persists changes</li>
+            <li class="success">No op update still reports success</li>
+            <li class="success">Delete removes row and reports missing</li>
+            <li class="success">Invalid database row still hydrates</li>
+        </ul>
         <h2>Rest Controller</h2>
         <ul>
             <li class="success">Index returns json list of records</li>
@@ -73,6 +101,10 @@
             <li class="success">Update accepts a valid vue style payload</li>
             <li class="success">Update rejects an invalid payload with 422</li>
             <li class="success">Update input defaults missing in office</li>
+        </ul>
+        <h2>Welcome Controller</h2>
+        <ul>
+            <li class="success">Index returns welcome message</li>
         </ul>
     </body>
 </html>

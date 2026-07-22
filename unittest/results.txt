@@ -5,6 +5,32 @@ Main Controller
  [x] Index sets individual values
  [x] Index merges static values
 
+Record Dto
+ [x] Valid vue style payload
+ [x] Primary resolves to id column
+ [x] Id must be an integer
+ [x] Name is required
+ [x] Name is cleaned by hygiene filters
+ [x] Name max length
+ [x] Phone is normalized and validated
+ [x] Phone is required
+ [x] In office defaults and validates
+ [x] Out until accepts null and empty
+ [x] Out until normalizes parseable dates
+ [x] Out until rejects junk dates
+ [x] Database row hydrates valid
+
+Record Model
+ [x] Index returns dtos ordered by id
+ [x] Read returns typed dto
+ [x] Read returns null for missing id
+ [x] Create inserts and returns new id
+ [x] Create never writes the primary column
+ [x] Update persists changes
+ [x] No op update still reports success
+ [x] Delete removes row and reports missing
+ [x] Invalid database row still hydrates
+
 Rest Controller
  [x] Index returns json list of records
  [x] Index sets ok response code and json content type
@@ -18,4 +44,7 @@ Rest Controller
  [x] Update accepts a valid vue style payload
  [x] Update rejects an invalid payload with 422
  [x] Update input defaults missing in office
+
+Welcome Controller
+ [x] Index returns welcome message
 
