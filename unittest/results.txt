@@ -6,9 +6,16 @@ Main Controller
  [x] Index merges static values
 
 Rest Controller
- [x] Index returns json payload
+ [x] Index returns json list of records
  [x] Index sets ok response code and json content type
- [x] Response maps success statuses to codes
- [x] Response falls back to 500 for unknown status
+ [x] Response sets given status code
+ [x] Response defaults to 200
+ [x] Response returns raw body when provided
  [x] Response encodes current data
+ [x] Not found response sends msg with 404
+ [x] Validation error response sends field keyed errors with 422
+ [x] Create persists a vue style payload
+ [x] Update accepts a valid vue style payload
+ [x] Update rejects an invalid payload with 422
+ [x] Update input defaults missing in office
 

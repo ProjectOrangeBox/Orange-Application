@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use orange\framework\Log;
+use orange\framework\interfaces\LogInterface;
 
 return [
-  'threshold' => LOG::NONE,
+    'threshold' => LogInterface::INFO,
 ];
