@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a00a23a5893a3bfaa7e2f61fec43e05",
+    "content-hash": "2d3afc3e64e4d95c6e242f95a36bad61",
     "packages": [
         {
             "name": "brick/varexporter",
@@ -447,6 +447,368 @@
             "time": "2026-07-04T14:30:18+00:00"
         },
         {
+            "name": "orange/acl",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/acl.git",
+                "reference": "81bd7434cd946f63cf490d564dedf59ea3fab92f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/acl/zipball/81bd7434cd946f63cf490d564dedf59ea3fab92f",
+                "reference": "81bd7434cd946f63cf490d564dedf59ea3fab92f",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "orange/model": "dev-master",
+                "orange/session": "dev-master",
+                "orange/validate": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\acl\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "ACL service plus session-aware user helper for roles, permissions, and access control.",
+            "homepage": "https://github.com/ProjectOrangeBox/acl",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/acl/issues",
+                "source": "https://github.com/ProjectOrangeBox/acl"
+            },
+            "time": "2026-07-22T00:02:08+00:00"
+        },
+        {
+            "name": "orange/asset",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/asset.git",
+                "reference": "674a14dbc7af20fcbb418b135be9319c956c2083"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/asset/zipball/674a14dbc7af20fcbb418b135be9319c956c2083",
+                "reference": "674a14dbc7af20fcbb418b135be9319c956c2083",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\asset\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Asset registration and priority queueing service.",
+            "homepage": "https://github.com/ProjectOrangeBox/asset",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/asset/issues",
+                "source": "https://github.com/ProjectOrangeBox/asset"
+            },
+            "time": "2026-07-21T23:48:35+00:00"
+        },
+        {
+            "name": "orange/auth",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/auth.git",
+                "reference": "a3833b1ebc223a39a3a54329160c98b4c2b061ec"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/auth/zipball/a3833b1ebc223a39a3a54329160c98b4c2b061ec",
+                "reference": "a3833b1ebc223a39a3a54329160c98b4c2b061ec",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\auth\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Simple credential validation service with configurable column names.",
+            "homepage": "https://github.com/ProjectOrangeBox/auth",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/auth/issues",
+                "source": "https://github.com/ProjectOrangeBox/auth"
+            },
+            "time": "2026-07-21T22:02:21+00:00"
+        },
+        {
+            "name": "orange/benchmark",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/benchmark.git",
+                "reference": "d86cc51a18ce7c3f08ffb56dca3566dea0e6029f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/benchmark/zipball/d86cc51a18ce7c3f08ffb56dca3566dea0e6029f",
+                "reference": "d86cc51a18ce7c3f08ffb56dca3566dea0e6029f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\benchmark\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Micro-level timing and memory measurement helpers.",
+            "homepage": "https://github.com/ProjectOrangeBox/benchmark",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/benchmark/issues",
+                "source": "https://github.com/ProjectOrangeBox/benchmark"
+            },
+            "time": "2026-07-21T22:03:30+00:00"
+        },
+        {
+            "name": "orange/bitwise",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/bitwise.git",
+                "reference": "49a0cd93ea4d6d8924a38f12330163fb3e75087f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/bitwise/zipball/49a0cd93ea4d6d8924a38f12330163fb3e75087f",
+                "reference": "49a0cd93ea4d6d8924a38f12330163fb3e75087f",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\bitwise\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Bitwise flag helper for combining and checking named bit values.",
+            "homepage": "https://github.com/ProjectOrangeBox/bitwise",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/bitwise/issues",
+                "source": "https://github.com/ProjectOrangeBox/bitwise"
+            },
+            "time": "2026-07-21T23:47:16+00:00"
+        },
+        {
+            "name": "orange/cache",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/cache.git",
+                "reference": "fcb996f942e09406d065b830224e72abb6015d1b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/cache/zipball/fcb996f942e09406d065b830224e72abb6015d1b",
+                "reference": "fcb996f942e09406d065b830224e72abb6015d1b",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\cache\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Cache adapters covering files, Redis, Memcached, include-based, and dummy backends.",
+            "homepage": "https://github.com/ProjectOrangeBox/cache",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/cache/issues",
+                "source": "https://github.com/ProjectOrangeBox/cache"
+            },
+            "time": "2026-07-21T21:59:59+00:00"
+        },
+        {
+            "name": "orange/collector",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/collector.git",
+                "reference": "03be289466593b7f5144ffeea6cdfa2dfbdc7723"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/collector/zipball/03be289466593b7f5144ffeea6cdfa2dfbdc7723",
+                "reference": "03be289466593b7f5144ffeea6cdfa2dfbdc7723",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\collector\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Event data collector/aggregator.",
+            "homepage": "https://github.com/ProjectOrangeBox/collector",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/collector/issues",
+                "source": "https://github.com/ProjectOrangeBox/collector"
+            },
+            "time": "2026-07-21T22:00:47+00:00"
+        },
+        {
+            "name": "orange/console",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/console.git",
+                "reference": "888796b3f212ccc2303a1c54ee13f949c1f66666"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/console/zipball/888796b3f212ccc2303a1c54ee13f949c1f66666",
+                "reference": "888796b3f212ccc2303a1c54ee13f949c1f66666",
+                "shasum": ""
+            },
+            "require": {
+                "orange/bitwise": "dev-master",
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\console\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "CLI dispatcher utilities for command registration and execution.",
+            "homepage": "https://github.com/ProjectOrangeBox/console",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/console/issues",
+                "source": "https://github.com/ProjectOrangeBox/console"
+            },
+            "time": "2026-07-21T23:56:43+00:00"
+        },
+        {
             "name": "orange/cookies",
             "version": "dev-master",
             "source": {
@@ -474,17 +836,107 @@
             "time": "2026-07-21T14:41:20+00:00"
         },
         {
+            "name": "orange/disc",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/disc.git",
+                "reference": "a07492f1e64a6ff1abba9f2fe13f627899f95e04"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/disc/zipball/a07492f1e64a6ff1abba9f2fe13f627899f95e04",
+                "reference": "a07492f1e64a6ff1abba9f2fe13f627899f95e04",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\disc\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Filesystem synchronisation/management helpers for import/export and file access.",
+            "homepage": "https://github.com/ProjectOrangeBox/disc",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/disc/issues",
+                "source": "https://github.com/ProjectOrangeBox/disc"
+            },
+            "time": "2026-07-21T23:45:42+00:00"
+        },
+        {
+            "name": "orange/fig",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/fig.git",
+                "reference": "841336f8abc524d460fe5c5faa411328b82e7d28"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/fig/zipball/841336f8abc524d460fe5c5faa411328b82e7d28",
+                "reference": "841336f8abc524d460fe5c5faa411328b82e7d28",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/fig.php",
+                    "src/FigException.php"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Lightweight view plugin loader with a bundled set of view helper plugins.",
+            "homepage": "https://github.com/ProjectOrangeBox/fig",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/fig/issues",
+                "source": "https://github.com/ProjectOrangeBox/fig"
+            },
+            "time": "2026-07-21T20:35:10+00:00"
+        },
+        {
             "name": "orange/files",
             "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/files.git",
-                "reference": "0049227aac42efab3af0aae68670b18e460d7d58"
+                "reference": "3e3919e93ad4f66c8dc403c6db5d24a3087f2415"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/files/zipball/0049227aac42efab3af0aae68670b18e460d7d58",
-                "reference": "0049227aac42efab3af0aae68670b18e460d7d58",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/files/zipball/3e3919e93ad4f66c8dc403c6db5d24a3087f2415",
+                "reference": "3e3919e93ad4f66c8dc403c6db5d24a3087f2415",
                 "shasum": ""
             },
             "require": {
@@ -498,19 +950,65 @@
                 }
             },
             "description": "Orange File Handling package",
-            "time": "2026-03-18T23:51:28+00:00"
+            "time": "2026-07-21T19:55:35+00:00"
+        },
+        {
+            "name": "orange/flashmsg",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/flashmsg.git",
+                "reference": "89e446b5326f2645070ad5f7f4561b91bd99d0f1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/flashmsg/zipball/89e446b5326f2645070ad5f7f4561b91bd99d0f1",
+                "reference": "89e446b5326f2645070ad5f7f4561b91bd99d0f1",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "orange/session": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\flashmsg\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Flash messaging with configurable transports.",
+            "homepage": "https://github.com/ProjectOrangeBox/flashmsg",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/flashmsg/issues",
+                "source": "https://github.com/ProjectOrangeBox/flashmsg"
+            },
+            "time": "2026-07-21T23:57:51+00:00"
         },
         {
             "name": "orange/framework",
-            "version": "dev-main",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/ProjectOrangeBox/OrangePackage.git",
+                "url": "https://github.com/ProjectOrangeBox/orange.git",
                 "reference": "9f280e56265441f045690595e445def49b83d31e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/OrangePackage/zipball/9f280e56265441f045690595e445def49b83d31e",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/orange/zipball/9f280e56265441f045690595e445def49b83d31e",
                 "reference": "9f280e56265441f045690595e445def49b83d31e",
                 "shasum": ""
             },
@@ -566,24 +1064,384 @@
             "time": "2026-07-21T01:59:47+00:00"
         },
         {
+            "name": "orange/handlebars",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/handlebars.git",
+                "reference": "91d3a95fbabd5089a3053d2355c3beab067bca20"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/handlebars/zipball/91d3a95fbabd5089a3053d2355c3beab067bca20",
+                "reference": "91d3a95fbabd5089a3053d2355c3beab067bca20",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\handlebars\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Handlebars view integration with plugin caching.",
+            "homepage": "https://github.com/ProjectOrangeBox/handlebars",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/handlebars/issues",
+                "source": "https://github.com/ProjectOrangeBox/handlebars"
+            },
+            "time": "2026-07-21T23:49:28+00:00"
+        },
+        {
+            "name": "orange/language",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/language.git",
+                "reference": "da007b08f7989330c74abb644ae46df35dae7ce8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/language/zipball/da007b08f7989330c74abb644ae46df35dae7ce8",
+                "reference": "da007b08f7989330c74abb644ae46df35dae7ce8",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\language\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Translation and localisation service.",
+            "homepage": "https://github.com/ProjectOrangeBox/language",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/language/issues",
+                "source": "https://github.com/ProjectOrangeBox/language"
+            },
+            "time": "2026-07-21T22:00:18+00:00"
+        },
+        {
+            "name": "orange/mergeview",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/mergeview.git",
+                "reference": "4be7dc04d040d99c80857943dab86e7cd08a86c7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/mergeview/zipball/4be7dc04d040d99c80857943dab86e7cd08a86c7",
+                "reference": "4be7dc04d040d99c80857943dab86e7cd08a86c7",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\mergeview\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "View composition/merging utilities.",
+            "homepage": "https://github.com/ProjectOrangeBox/mergeview",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/mergeview/issues",
+                "source": "https://github.com/ProjectOrangeBox/mergeview"
+            },
+            "time": "2026-07-21T23:51:07+00:00"
+        },
+        {
+            "name": "orange/model",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/model.git",
+                "reference": "fba8af2976db4bbb8082b06d894dfae84847dff4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/model/zipball/fba8af2976db4bbb8082b06d894dfae84847dff4",
+                "reference": "fba8af2976db4bbb8082b06d894dfae84847dff4",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "orange/validate": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\model\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Database abstraction helpers (CRUD, SQL builder, string builder).",
+            "homepage": "https://github.com/ProjectOrangeBox/model",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/model/issues",
+                "source": "https://github.com/ProjectOrangeBox/model"
+            },
+            "time": "2026-07-22T00:00:26+00:00"
+        },
+        {
+            "name": "orange/negotiate",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/negotiate.git",
+                "reference": "6bb50fecb177607d9449f0654d04f68623418737"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/negotiate/zipball/6bb50fecb177607d9449f0654d04f68623418737",
+                "reference": "6bb50fecb177607d9449f0654d04f68623418737",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\negotiate\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "HTTP content negotiation helpers (accept headers, formats).",
+            "homepage": "https://github.com/ProjectOrangeBox/negotiate",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/negotiate/issues",
+                "source": "https://github.com/ProjectOrangeBox/negotiate"
+            },
+            "time": "2026-07-21T23:52:41+00:00"
+        },
+        {
+            "name": "orange/observer",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/observer.git",
+                "reference": "789e189e9dce9cc9e22ae1e37f714bca4264f555"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/observer/zipball/789e189e9dce9cc9e22ae1e37f714bca4264f555",
+                "reference": "789e189e9dce9cc9e22ae1e37f714bca4264f555",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\observer\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Observer pattern implementation for inter-service messaging.",
+            "homepage": "https://github.com/ProjectOrangeBox/observer",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/observer/issues",
+                "source": "https://github.com/ProjectOrangeBox/observer"
+            },
+            "time": "2026-07-21T23:53:32+00:00"
+        },
+        {
+            "name": "orange/priority",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/priority.git",
+                "reference": "4c3ed768da476f1271f88b7cb299bca41053cab3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/priority/zipball/4c3ed768da476f1271f88b7cb299bca41053cab3",
+                "reference": "4c3ed768da476f1271f88b7cb299bca41053cab3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\priority\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Priority queue helper for ordering items by weight.",
+            "homepage": "https://github.com/ProjectOrangeBox/priority",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/priority/issues",
+                "source": "https://github.com/ProjectOrangeBox/priority"
+            },
+            "time": "2026-07-21T22:00:36+00:00"
+        },
+        {
+            "name": "orange/quickview",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/quickview.git",
+                "reference": "d2a341c1774e9d1cb7ad8840af91439130975cf0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/quickview/zipball/d2a341c1774e9d1cb7ad8840af91439130975cf0",
+                "reference": "d2a341c1774e9d1cb7ad8840af91439130975cf0",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\quickview\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Minimal view rendering helper for rapid output.",
+            "homepage": "https://github.com/ProjectOrangeBox/quickview",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/quickview/issues",
+                "source": "https://github.com/ProjectOrangeBox/quickview"
+            },
+            "time": "2026-07-21T22:01:26+00:00"
+        },
+        {
             "name": "orange/request",
             "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/request.git",
-                "reference": "438efb884cacd7eb3d2db26c376cf1761249399d"
+                "reference": "5d953ba6bfac21210c284bedebaf6c3227cb91c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/request/zipball/438efb884cacd7eb3d2db26c376cf1761249399d",
-                "reference": "438efb884cacd7eb3d2db26c376cf1761249399d",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/request/zipball/5d953ba6bfac21210c284bedebaf6c3227cb91c7",
+                "reference": "5d953ba6bfac21210c284bedebaf6c3227cb91c7",
                 "shasum": ""
             },
             "require": {
                 "ext-filter": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "php": ">=8.3"
+                "orange/rules": "dev-master",
+                "php": ">=8.4"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.5 || ^11.0"
@@ -612,7 +1470,7 @@
                     "email": "donmyers@me.com"
                 }
             ],
-            "description": "Attribute-driven request input validation and filtering for PHP 8.3+",
+            "description": "Attribute-driven request input validation and filtering for PHP 8.4+",
             "homepage": "https://github.com/ProjectOrangeBox/request",
             "keywords": [
                 "attributes",
@@ -625,7 +1483,238 @@
                 "issues": "https://github.com/ProjectOrangeBox/request/issues",
                 "source": "https://github.com/ProjectOrangeBox/request"
             },
-            "time": "2026-07-21T14:25:16+00:00"
+            "time": "2026-07-21T21:40:47+00:00"
+        },
+        {
+            "name": "orange/rules",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/rules.git",
+                "reference": "9555ded3b4563ebc54a98638a8dcb1cb8e83cdf9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/rules/zipball/9555ded3b4563ebc54a98638a8dcb1cb8e83cdf9",
+                "reference": "9555ded3b4563ebc54a98638a8dcb1cb8e83cdf9",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\rules\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Shared, pluggable validation/filter/cast rule implementations for orange/validate and orange/request.",
+            "homepage": "https://github.com/ProjectOrangeBox/rules",
+            "keywords": [
+                "filter",
+                "rules",
+                "validation"
+            ],
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/rules/issues",
+                "source": "https://github.com/ProjectOrangeBox/rules"
+            },
+            "time": "2026-07-22T00:31:45+00:00"
+        },
+        {
+            "name": "orange/session",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/session.git",
+                "reference": "a57112e84427c3789221b804089d9bf65862994c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/session/zipball/a57112e84427c3789221b804089d9bf65862994c",
+                "reference": "a57112e84427c3789221b804089d9bf65862994c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\session\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Session wrapper with configurable storage behaviour.",
+            "homepage": "https://github.com/ProjectOrangeBox/session",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/session/issues",
+                "source": "https://github.com/ProjectOrangeBox/session"
+            },
+            "time": "2026-07-21T22:02:55+00:00"
+        },
+        {
+            "name": "orange/snippets",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/snippets.git",
+                "reference": "e6b07d99f0ab92bc06d0570983d4cb2658ebd129"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/snippets/zipball/e6b07d99f0ab92bc06d0570983d4cb2658ebd129",
+                "reference": "e6b07d99f0ab92bc06d0570983d4cb2658ebd129",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\snippets\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Reusable HTML/text snippet registry.",
+            "homepage": "https://github.com/ProjectOrangeBox/snippets",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/snippets/issues",
+                "source": "https://github.com/ProjectOrangeBox/snippets"
+            },
+            "time": "2026-07-21T23:54:16+00:00"
+        },
+        {
+            "name": "orange/stash",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/stash.git",
+                "reference": "aed3c6cce05172c52fbc2bd2ded9295f4649d33d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/stash/zipball/aed3c6cce05172c52fbc2bd2ded9295f4649d33d",
+                "reference": "aed3c6cce05172c52fbc2bd2ded9295f4649d33d",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "orange/session": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\stash\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Simple storage abstraction for transient data.",
+            "homepage": "https://github.com/ProjectOrangeBox/stash",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/stash/issues",
+                "source": "https://github.com/ProjectOrangeBox/stash"
+            },
+            "time": "2026-07-21T23:59:05+00:00"
+        },
+        {
+            "name": "orange/validate",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/validate.git",
+                "reference": "c56198c442dd2201f885d100282185011c000f9a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/validate/zipball/c56198c442dd2201f885d100282185011c000f9a",
+                "reference": "c56198c442dd2201f885d100282185011c000f9a",
+                "shasum": ""
+            },
+            "require": {
+                "orange/framework": "dev-master",
+                "orange/rules": "dev-master",
+                "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\validate\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Validation, filtering, remapping, and notation helpers with a pluggable rule system.",
+            "homepage": "https://github.com/ProjectOrangeBox/validate",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/validate/issues",
+                "source": "https://github.com/ProjectOrangeBox/validate"
+            },
+            "time": "2026-07-21T21:57:30+00:00"
         },
         {
             "name": "psr/clock",
@@ -6730,10 +7819,34 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "orange/acl": 20,
+        "orange/asset": 20,
+        "orange/auth": 20,
+        "orange/benchmark": 20,
+        "orange/bitwise": 20,
+        "orange/cache": 20,
+        "orange/collector": 20,
+        "orange/console": 20,
         "orange/cookies": 20,
+        "orange/disc": 20,
+        "orange/fig": 20,
         "orange/files": 20,
+        "orange/flashmsg": 20,
         "orange/framework": 20,
-        "orange/request": 20
+        "orange/handlebars": 20,
+        "orange/language": 20,
+        "orange/mergeview": 20,
+        "orange/model": 20,
+        "orange/negotiate": 20,
+        "orange/observer": 20,
+        "orange/priority": 20,
+        "orange/quickview": 20,
+        "orange/request": 20,
+        "orange/rules": 20,
+        "orange/session": 20,
+        "orange/snippets": 20,
+        "orange/stash": 20,
+        "orange/validate": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
