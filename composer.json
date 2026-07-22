@@ -6,6 +6,9 @@
             "email": "donmyers@me.com"
         }
     ],
+		"config": {
+        "preferred-install": "source"
+    },
     "autoload": {
         "psr-4": {
             "application\\": "application",
@@ -51,13 +54,10 @@
         "orange/negotiate": "dev-master",
         "orange/observer": "dev-master",
         "orange/priority": "dev-master",
-        "orange/quickview": "dev-master",
         "orange/request": "dev-master",
-        "orange/rules": "dev-master",
         "orange/session": "dev-master",
         "orange/snippets": "dev-master",
-        "orange/stash": "dev-master",
-        "orange/validate": "dev-master"
+        "orange/stash": "dev-master"
     },
     "scripts": {
         "test": "cd unittest && sh runUnitTests.sh",
