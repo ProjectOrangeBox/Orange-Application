@@ -6,13 +6,10 @@
             "email": "donmyers@me.com"
         }
     ],
-		"config": {
-        "preferred-install": "source"
-    },
     "autoload": {
         "psr-4": {
             "application\\": "application",
-            "api\\":"api"
+            "api\\": "api"
         },
         "files": [],
         "classmap": []
@@ -22,10 +19,7 @@
         "phpunit/php-code-coverage": "^14.2",
         "squizlabs/php_codesniffer": "3.*",
         "phpstan/phpstan": "^2.2",
-        "infection/infection": "^0.34",
-        "phpmd/phpmd": "^2.15",
-        "rector/rector": "^2.0",
-        "deptrac/deptrac": "^4.0"
+        "rector/rector": "^2.0"
     },
     "require": {
         "nesbot/carbon": "3.8.4",
@@ -34,11 +28,11 @@
         "zordius/lightncandy": "1.*",
         "brick/varexporter": "0.*",
         "orange/framework": "dev-master",
+        "orange/bitwise": "dev-master",
         "orange/acl": "dev-master",
         "orange/asset": "dev-master",
         "orange/auth": "dev-master",
         "orange/benchmark": "dev-master",
-        "orange/bitwise": "dev-master",
         "orange/cache": "dev-master",
         "orange/collector": "dev-master",
         "orange/console": "dev-master",
@@ -54,10 +48,11 @@
         "orange/negotiate": "dev-master",
         "orange/observer": "dev-master",
         "orange/priority": "dev-master",
-        "orange/request": "dev-master",
+        "orange/dto": "dev-master",
         "orange/session": "dev-master",
         "orange/snippets": "dev-master",
-        "orange/stash": "dev-master"
+        "orange/stash": "dev-master",
+        "orange/validate": "dev-master"
     },
     "scripts": {
         "test": "cd unittest && sh runUnitTests.sh",
@@ -85,8 +80,5 @@
         }
     ],
     "config": {
-        "allow-plugins": {
-            "infection/extension-installer": true
-        }
     }
 }

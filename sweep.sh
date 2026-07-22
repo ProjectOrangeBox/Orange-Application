@@ -6,7 +6,7 @@ checks=(
   "composer lint:fix"
   "composer rector:fix"
   "composer type-check"
-  "composer test:orange"
+  "composer test"
 )
 
 for check in "${checks[@]}"; do
