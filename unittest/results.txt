@@ -29,7 +29,7 @@ Record Model
  [x] Create never writes the primary column
  [x] Update persists changes
  [x] No op update still reports success
- [x] Delete removes row and reports missing
+ [ ] Delete removes row and reports missing
  [x] Invalid database row still hydrates
 
 Rest Controller
