@@ -100,7 +100,7 @@ class RecordModel extends Singleton
      */
     public function delete(int $id): bool
     {
-        return $this->sql->delete()->wherePrimary($id)->limit(1)->execute()->rowCount() > 0;
+        return $this->sql->delete()->wherePrimary($id)->execute()->rowCount() > 0;
     }
 
     /**
