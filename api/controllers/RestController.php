@@ -66,7 +66,7 @@ class RestController extends JsonController
     {
         $id = (int)$id;
 
-        if (!$this->recordModel->read($id) instanceof \api\models\RecordDto) {
+        if (!$this->recordModel->exists($id)) {
             return $this->notFoundResponse('Record not found');
         }
 
@@ -86,7 +86,7 @@ class RestController extends JsonController
     {
         $id = (int)$id;
 
-        if (!$this->recordModel->read($id) instanceof \api\models\RecordDto) {
+        if (!$this->recordModel->exists($id)) {
             return $this->notFoundResponse('Record not found');
         }
 

@@ -225,12 +225,14 @@ final class RestControllerTest extends UnitTestHelper
     {
         // an update without in_office falls back to DefaultTo(0) -> false,
         // while an explicit null out_until is kept so the date can be cleared;
-        // NormalizePhone strips the phone's cosmetic dash
+        // NormalizePhone strips the phone's cosmetic dash. The columns shape
+        // carries in_office as 0/1 (DbCast) while the property stays bool
         $dto = new RecordDto(['id' => 7, 'name' => 'Don', 'phone' => '555-1234', 'out_until' => null]);
 
         $this->assertTrue($dto->isValid());
+        $this->assertFalse($dto->in_office);
         $this->assertSame(
-            ['id' => 7, 'name' => 'Don', 'phone' => '5551234', 'in_office' => false, 'out_until' => null],
+            ['id' => 7, 'name' => 'Don', 'phone' => '5551234', 'in_office' => 0, 'out_until' => null],
             $dto->asColumns()
         );
     }

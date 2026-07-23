@@ -82,6 +82,12 @@ final class RecordModelTest extends UnitTestHelper
         $this->assertNull($this->model->read(999));
     }
 
+    public function testExistsReportsSeededAndMissingIds(): void
+    {
+        $this->assertTrue($this->model->exists(2));
+        $this->assertFalse($this->model->exists(999));
+    }
+
     public function testCreateInsertsAndReturnsNewId(): void
     {
         $id = $this->model->create($this->dto());

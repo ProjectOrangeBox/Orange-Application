@@ -24,6 +24,7 @@ Record Model
  [x] Index returns dtos ordered by id
  [x] Read returns typed dto
  [x] Read returns null for missing id
+ [x] Exists reports seeded and missing ids
  [x] Create inserts and returns new id
  [x] Create never writes the primary column
  [x] Update persists changes

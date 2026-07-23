@@ -54,7 +54,7 @@ class RecordModel extends Singleton
      */
     public function create(RecordDto $record): int
     {
-        return $this->sql->insert()->set($this->bindings($record))->execute()->lastInsertId();
+        return $this->sql->insert()->set($record->asColumns(withoutPrimary: true))->execute()->lastInsertId();
     }
 
     /**
@@ -64,9 +64,20 @@ class RecordModel extends Singleton
      */
     public function read(int $id): ?RecordDto
     {
-        $row = $this->sql->select()->wherePrimary($id)->execute()->row();
+        $row = $this->sql->select()->wherePrimary($id)->limit(1)->execute()->row();
 
         return $row === false ? null : $this->hydrate($row);
+    }
+
+    /**
+     * report whether a record with this id exists
+     *
+     * Cheaper than read() for a bare existence check — fetches a single
+     * column instead of hydrating (and validating) a full dto.
+     */
+    public function exists(int $id): bool
+    {
+        return $this->sql->select('id')->wherePrimary($id)->limit(1)->execute()->column() !== false;
     }
 
     /**
@@ -79,7 +90,7 @@ class RecordModel extends Singleton
      */
     public function update(RecordDto $record): bool
     {
-        $this->sql->update()->set($this->bindings($record))->wherePrimary($record->id)->execute();
+        $this->sql->update()->set($record->asColumns(withoutPrimary: true))->wherePrimary($record->primaryValue())->execute();
 
         return true;
     }
@@ -89,7 +100,7 @@ class RecordModel extends Singleton
      */
     public function delete(int $id): bool
     {
-        return $this->sql->delete()->wherePrimary($id)->execute()->rowCount() > 0;
+        return $this->sql->delete()->wherePrimary($id)->limit(1)->execute()->rowCount() > 0;
     }
 
     /**
@@ -111,32 +122,5 @@ class RecordModel extends Singleton
         }
 
         return $record;
-    }
-
-    /**
-     * Column values for insert/update prepared statements.
-     *
-     * Sql binds every non-int value as a string, so the DTO's boolean
-     * in_office must be converted to a real 0/1 — a PHP false binds as ''
-     * which strict-mode MySQL rejects for an integer column. The primary
-     * key is never a SET column: create() lets auto-increment assign it
-     * and update() targets it through wherePrimary().
-     */
-    protected function bindings(RecordDto $record): array
-    {
-        $columns = $record->asColumns();
-
-        // the #[IsPrimary] column, resolved by the dto itself
-        $primary = $record->primary();
-
-        if ($primary !== null) {
-            unset($columns[$primary]);
-        }
-
-        if (array_key_exists('in_office', $columns)) {
-            $columns['in_office'] = (int)$columns['in_office'];
-        }
-
-        return $columns;
     }
 }
