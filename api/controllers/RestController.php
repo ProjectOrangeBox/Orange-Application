@@ -52,7 +52,7 @@ class RestController extends JsonController
         $record = new RecordDto($this->input->request());
 
         if (!$record->isValid()) {
-            return $this->errorsResponse($record->errors());
+            return $this->errorsResponse($record->allErrors());
         }
 
         // database failures throw (see RecordModel), so a returned id is real
@@ -73,7 +73,7 @@ class RestController extends JsonController
         $record = new RecordDto(['id' => $id] + $this->input->request());
 
         if (!$record->isValid()) {
-            return $this->errorsResponse($record->errors());
+            return $this->errorsResponse($record->allErrors());
         }
 
         $this->data->success = $this->recordModel->update($record);
