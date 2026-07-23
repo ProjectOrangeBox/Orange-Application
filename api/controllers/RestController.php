@@ -6,7 +6,6 @@ namespace api\controllers;
 
 use api\models\RecordDto;
 use api\models\RecordModel;
-use orange\dto\Dto;
 use orange\framework\attributes\AttachService;
 use orange\framework\attributes\Route;
 use orange\framework\controllers\JsonController;
@@ -41,7 +40,7 @@ class RestController extends JsonController
         $record = $this->recordModel->read((int)$id);
 
         if (!$record instanceof \api\models\RecordDto) {
-            return $this->notFoundResponse();
+            return $this->notFoundResponse('Record not found');
         }
 
         return $this->response(200, json_encode($record, $this->jsonFlags));
@@ -53,7 +52,7 @@ class RestController extends JsonController
         $record = new RecordDto($this->input->request());
 
         if (!$record->isValid()) {
-            return $this->validationErrorResponse($record);
+            return $this->errorsResponse($record->errors());
         }
 
         // database failures throw (see RecordModel), so a returned id is real
@@ -68,13 +67,13 @@ class RestController extends JsonController
         $id = (int)$id;
 
         if (!$this->recordModel->read($id) instanceof \api\models\RecordDto) {
-            return $this->notFoundResponse();
+            return $this->notFoundResponse('Record not found');
         }
 
         $record = new RecordDto(['id' => $id] + $this->input->request());
 
         if (!$record->isValid()) {
-            return $this->validationErrorResponse($record);
+            return $this->errorsResponse($record->errors());
         }
 
         $this->data->success = $this->recordModel->update($record);
@@ -88,44 +87,15 @@ class RestController extends JsonController
         $id = (int)$id;
 
         if (!$this->recordModel->read($id) instanceof \api\models\RecordDto) {
-            return $this->notFoundResponse();
+            return $this->notFoundResponse('Record not found');
         }
 
         // a false here means the row vanished between the check and the
         // delete — from the client's view the record is simply not found
         if (!$this->recordModel->delete($id)) {
-            return $this->notFoundResponse();
+            return $this->notFoundResponse('Record not found');
         }
 
-        // 204 No Content must not carry a body
-        return $this->response(204, '');
-    }
-
-    /**
-     * Converts DTO validation errors into a JSON payload the Vue client can
-     * display, keyed by input field name:
-     *
-     *   {"errors": {"in_office": ["in_office must contain a boolean"]}}
-     *
-     * Sent with 422 Unprocessable Entity — the REST convention for a
-     * well-formed request that fails semantic validation.
-     */
-    protected function validationErrorResponse(Dto $dto): string
-    {
-        $this->data->errors = $dto->errors();
-
-        return $this->response(422);
-    }
-
-    /**
-     * 404 with a display message the Vue client shows in its error panel:
-     *
-     *   {"msg": "Record not found"}
-     */
-    protected function notFoundResponse(string $msg = 'Record not found'): string
-    {
-        $this->data->msg = $msg;
-
-        return $this->response(404);
+        return $this->noContentResponse();
     }
 }

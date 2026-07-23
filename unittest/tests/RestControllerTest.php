@@ -127,22 +127,24 @@ final class RestControllerTest extends UnitTestHelper
         $this->assertEquals(['a' => 1, 'b' => 'two'], json_decode((string) $json, true));
     }
 
-    public function testNotFoundResponseSendsMsgWith404(): void
+    public function testMissingRecordSendsMsgWith404(): void
     {
-        $json = $this->callMethod('notFoundResponse', [], $this->instance);
+        // exercises JsonController::notFoundResponse() through the real
+        // endpoint path, including the app-specific display message
+        $json = $this->instance->read('999');
 
         $this->assertEquals(404, $this->output->getResponseCode());
         $this->assertEquals('application/json', $this->output->getContentType());
         $this->assertEquals(['msg' => 'Record not found'], json_decode((string) $json, true));
     }
 
-    public function testValidationErrorResponseSendsFieldKeyedErrorsWith422(): void
+    public function testErrorsResponseSendsFieldKeyedErrorsWith422(): void
     {
         // id fails Integer, in_office fails IsBoolean; name satisfies
         // MaxLength(64) so it stays error-free
         $dto = new RecordDto(['id' => 'abc', 'name' => 'Myers', 'phone' => '555', 'in_office' => 'maybe']);
 
-        $json = $this->callMethod('validationErrorResponse', [$dto], $this->instance);
+        $json = $this->callMethod('errorsResponse', [$dto->errors()], $this->instance);
 
         $this->assertEquals(422, $this->output->getResponseCode());
         $this->assertEquals('application/json', $this->output->getContentType());
