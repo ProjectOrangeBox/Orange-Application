@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:php8.4
+FROM dunglas/frankenphp:php8.5
 
 # install-php-extensions ships with the FrankenPHP image and pulls in whatever
 # system libraries each extension needs, so there are no manual build deps here.
@@ -12,6 +12,11 @@ RUN install-php-extensions \
         bcmath \
         mbstring \
         opcache \
+        apcu \
+        memcached \
+        redis \
+        igbinary \
+        msgpack \
     && apt-get update && apt-get install -y --no-install-recommends \
         git \
         unzip \
