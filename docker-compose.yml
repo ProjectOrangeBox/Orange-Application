@@ -3,5 +3,14 @@ services:
     build: .
     ports:
       - "8080:80"
+      - "8443:443"
     volumes:
       - .:/var/www/html
+      # Persist Caddy's TLS certificates and state so a restart does not
+      # re-issue them (and burn Let's Encrypt rate limits in production).
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,17 +1,9 @@
-FROM php:8.4-apache
+FROM dunglas/frankenphp:php8.4
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        libzip-dev \
-        libpng-dev \
-        libjpeg-dev \
-        libfreetype6-dev \
-        libicu-dev \
-        libonig-dev \
-        git \
-        unzip \
-        openssh-client \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" \
+# install-php-extensions ships with the FrankenPHP image and pulls in whatever
+# system libraries each extension needs, so there are no manual build deps here.
+# git/unzip/openssh-client are what Composer needs to resolve VCS/dist packages.
+RUN install-php-extensions \
         pdo_mysql \
         mysqli \
         gd \
@@ -20,23 +12,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         bcmath \
         mbstring \
         opcache \
-    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+    && apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+        openssh-client \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN a2enmod rewrite
 
 # PHP Composer (pinned to v2 from the official image).
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/htdocs
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
-        /etc/apache2/sites-available/*.conf \
-        /etc/apache2/apache2.conf
+# Public web root. Caddy serves from here, so worker.php, .env, config/ and
+# vendor/ all sit one level up and are unreachable over HTTP.
+ENV SERVER_ROOT=/var/www/html/htdocs
 
-# Fold install.sh (var/ dirs, .env seed) + composer install into container startup,
-# run against the mounted source. install/install.sh can now be removed.
+COPY Caddyfile /etc/caddy/Caddyfile
+
+# Prepares var/ dirs, seeds .env, runs composer install, and selects worker vs
+# classic mode from ENVIRONMENT in .env. See docker-entrypoint.sh.
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-CMD ["apache2-foreground"]
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]

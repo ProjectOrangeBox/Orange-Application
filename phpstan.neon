@@ -40,7 +40,7 @@ parameters:
             # always-true/-false. Real behavior varies by environment; this is a
             # stubbing limitation, not a dead-code bug.
             identifier: notEqual.alwaysTrue
-            path: config/RouterDetector.php
+            path: config/development/RouterDetector.php
         -
             identifier: deadCode.unreachable
-            path: config/RouterDetector.php
+            path: config/development/RouterDetector.php

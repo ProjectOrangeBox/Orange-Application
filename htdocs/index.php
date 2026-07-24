@@ -20,4 +20,7 @@ if (file_exists(__ROOT__ . '/bootstrap.php')) {
 require_once __ROOT__ . '/vendor/autoload.php';
 
 // and away we go!
-Application::make([__ROOT__ . '/.env'], [__ROOT__ . '/config'])->http();
+// no config directories are passed on purpose - Application only appends
+// config/{ENVIRONMENT} to the cascade when the caller supplies none, so passing
+// config/ explicitly would silently disable the per-environment overrides
+Application::make([__ROOT__ . '/.env'])->http();

@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace config;
+namespace config\development;
 
+// required now that this file declares a namespace - unqualified class names
+// no longer fall back to the global namespace the way function names do
 use ReflectionClass;
 use ReflectionMethod;
 use orange\framework\attributes\Route;

@@ -68,12 +68,17 @@ docker compose up -d --build
 ```
 
 That's it — the container's entrypoint prepares the writable `var/` directories,
-seeds `.env` from `support/samples/sample.env` (only if one doesn't already exist),
-and runs `composer install` on first start. The app is then served at:
+seeds `.env` from `env.sample` (only if one doesn't already exist), and runs
+`composer install` on first start. The app is then served at:
 
 ```text
 http://localhost:8080
+https://localhost:8443
 ```
+
+The container runs [FrankenPHP](https://frankenphp.dev/) (PHP 8.4 with an
+embedded Caddy web server), which terminates TLS itself — `localhost` gets a
+self-signed certificate, so expect a browser warning on the HTTPS port.
 
 Common commands:
 
@@ -87,6 +92,22 @@ The source directory is mounted into the container, so code edits are picked up
 live — no rebuild needed. Dependencies (`vendor/`) install into your working copy
 on first run; delete `vendor/` and restart to reinstall.
 
+#### Serving mode
+
+`ENVIRONMENT` in `.env` decides how the app is served. The entrypoint reads it
+at startup, so **changing it requires a container restart**:
+
+| `ENVIRONMENT` | Mode | Behavior |
+| --- | --- | --- |
+| anything but `production` | Classic | PHP is re-read from disk on every request, exactly like the previous Apache setup. Edits appear on reload. |
+| `production` | Worker | The app boots once and stays resident between requests (much faster). Code is held in memory — restart the container to pick up a deploy. |
+
+Worker mode runs [worker.php](worker.php), which sits outside `htdocs/` and so
+is never reachable over HTTP. It builds a fresh DI container per request, so no
+request state leaks between requests. `SERVER_NAME` and `MAX_REQUESTS` in `.env`
+tune the hostname/TLS certificate and worker recycling — see [env.sample](env.sample)
+for the full documentation.
+
 ### Without Docker
 
 Install PHP dependencies:
@@ -98,7 +119,7 @@ composer install
 Copy the sample environment file and create the writable directories:
 
 ```bash
-cp support/samples/sample.env .env
+cp env.sample .env
 mkdir -p var/logs var/cache var/uploads var/downloads var/temp var/working
 chmod -R 777 var
 ```
@@ -160,9 +181,11 @@ application/   # HMVC modules (examples: people, rest, shared, welcome)
 config/        # configuration
 htdocs/        # public web root (index.php entry point)
 install/       # install script
-support/       # samples and helpers (sample.env, etc.)
 bin/           # scripts/utilities
 vendor/        # Composer dependencies
+Caddyfile      # FrankenPHP/Caddy web server config (baked into the image)
+worker.php     # FrankenPHP worker entry point (production mode only)
+env.sample     # documented .env template
 ```
 
 ---
