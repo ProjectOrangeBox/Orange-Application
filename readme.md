@@ -15,8 +15,10 @@ A lightweight PHP MVC framework + example application.
   - [Quick start](#quick-start)
   - [Configuration (.env)](#configuration-env)
   - [Run locally](#run-locally)
-    - [Option A: PHP built-in server (fastest)](#option-a-php-built-in-server-fastest)
-    - [Option B: Apache/Nginx](#option-b-apachenginx)
+    - [Option A: PHP built-in server (fastest to start)](#option-a-php-built-in-server-fastest-to-start)
+    - [Option B: FrankenPHP (what Docker uses)](#option-b-frankenphp-what-docker-uses)
+    - [Option C: Apache](#option-c-apache)
+    - [Option D: Nginx](#option-d-nginx)
   - [Project structure](#project-structure)
   - [Testing](#testing)
   - [Architecture overview](#architecture-overview)
@@ -46,7 +48,7 @@ A lightweight PHP MVC framework + example application.
 - PHP **8.2+** (the Docker image uses 8.4)
 - Composer
 - Git
-- A web server (Apache/Nginx) **or** PHP’s built-in dev server
+- A web server (FrankenPHP, Apache, or Nginx) **or** PHP’s built-in dev server
 
 ---
 
@@ -92,15 +94,30 @@ The source directory is mounted into the container, so code edits are picked up
 live — no rebuild needed. Dependencies (`vendor/`) install into your working copy
 on first run; delete `vendor/` and restart to reinstall.
 
-#### Serving mode
+#### Serving modes
 
-`ENVIRONMENT` in `.env` decides how the app is served. The entrypoint reads it
-at startup, so **changing it requires a container restart**:
+FrankenPHP serves the app in one of two modes, selected by the `ENVIRONMENT`
+value in `.env`. The entrypoint reads it once at startup, so **switching modes
+requires a container restart** (`docker compose restart web`):
 
 | `ENVIRONMENT` | Mode | Behavior |
 | --- | --- | --- |
-| anything but `production` | Classic | PHP is re-read from disk on every request, exactly like the previous Apache setup. Edits appear on reload. |
-| `production` | Worker | The app boots once and stays resident between requests (much faster). Code is held in memory — restart the container to pick up a deploy. |
+| anything but `production` (e.g. `development`) | **Classic** | PHP is re-read from disk on every request. Edits appear immediately on reload — best for local development. |
+| `production` | **Worker** | The app boots once and stays resident in memory between requests, so it is much faster. Code is held in memory — restart the container to pick up a deploy. |
+
+**How to set the mode:** edit `ENVIRONMENT` in `.env`, then restart:
+
+```bash
+# Classic mode (live-reload development)
+ENVIRONMENT=development
+
+# Worker mode (fast, production)
+ENVIRONMENT=production
+```
+
+```bash
+docker compose restart web   # apply the change
+```
 
 Worker mode runs [worker.php](worker.php), which sits outside `htdocs/` and so
 is never reachable over HTTP. It builds a fresh DI container per request, so no
@@ -154,9 +171,19 @@ env('KEY_NAME', 'default-value');
 
 ## Run locally
 
-### Option A: PHP built-in server (fastest)
+The Docker setup above (FrankenPHP) is the recommended way to run this project,
+but the app is a plain PHP front-controller and will run under any web server.
+Two rules apply to all of them:
 
-From the repo root:
+- The public **document root is `htdocs/`** — everything above it (`.env`,
+  `config/`, `vendor/`, `worker.php`) must stay unreachable over HTTP.
+- Every request that is **not a real file must be routed to `htdocs/index.php`**,
+  the single front controller. The framework reads the original `REQUEST_URI`,
+  so no special path rewriting is needed beyond that.
+
+### Option A: PHP built-in server (fastest to start)
+
+Great for quick local work (not for production). From the repo root:
 
 ```bash
 php -S 127.0.0.1:8000 -t htdocs
@@ -168,9 +195,60 @@ Then open:
 http://127.0.0.1:8000
 ```
 
-### Option B: Apache/Nginx
+### Option B: FrankenPHP (what Docker uses)
 
-Configure your vhost/site to use `htdocs/` as the document root.
+[FrankenPHP](https://frankenphp.dev/) is a single binary that bundles PHP with
+the Caddy web server, and is what the Docker container runs. The included
+[Caddyfile](Caddyfile) is the reference configuration — its `php_server`
+directive serves static files from `htdocs/` and routes everything else to
+`index.php`. It also drives the two [serving modes](#serving-modes) (classic vs.
+worker) described above.
+
+To run FrankenPHP directly (outside Docker), [install it](https://frankenphp.dev/docs/#installation)
+and serve `htdocs/`:
+
+```bash
+frankenphp php-server -r htdocs/
+```
+
+### Option C: Apache
+
+Point a virtual host's `DocumentRoot` at `htdocs/` and allow `.htaccess`
+overrides (`AllowOverride All`) with `mod_rewrite` enabled. The included
+[htdocs/.htaccess](htdocs/.htaccess) already contains the front-controller
+rewrite:
+
+```apache
+RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+```
+
+### Option D: Nginx
+
+Nginx doesn't read `.htaccess`, so add the equivalent front-controller routing
+to your server block (PHP served by php-fpm):
+
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+    root /path/to/webapp/htdocs;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass unix:/run/php/php-fpm.sock;   # or 127.0.0.1:9000
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+}
+```
 
 ---
 
