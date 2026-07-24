@@ -2,8 +2,8 @@ services:
   web:
     build: .
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - .:/var/www/html
       # Persist Caddy's TLS certificates and state so a restart does not

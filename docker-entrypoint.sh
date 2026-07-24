@@ -62,11 +62,6 @@ if [ "$ENVIRONMENT" = "production" ]; then
     echo "[entrypoint] ENVIRONMENT=production -> FrankenPHP worker mode"
     export FRANKENPHP_CONFIG="worker $APP_DIR/worker.php"
 
-    # Production is expected to be reached on the standard ports, so Caddy's
-    # automatic HTTP->HTTPS redirect points somewhere real. Leave it on.
-    export CADDY_GLOBAL_OPTIONS=""
-    export CADDY_SITE_ADDRESS="$SERVER_NAME"
-
     cat > "$OPCACHE_INI" <<'INI'
 opcache.enable=1
 opcache.validate_timestamps=0
@@ -83,23 +78,6 @@ else
     echo "[entrypoint] ENVIRONMENT=$ENVIRONMENT -> FrankenPHP classic mode"
     export FRANKENPHP_CONFIG=""
 
-    # Compose publishes 80 as 8080 and 443 as 8443, so Caddy's automatic
-    # HTTP->HTTPS redirect would send browsers to https://host/ on port 443 and
-    # dead-end. Disable the redirect and declare both schemes explicitly so
-    # plain HTTP is served on :80 instead of only being redirected away.
-    export CADDY_GLOBAL_OPTIONS="auto_https disable_redirects"
-
-    case "$SERVER_NAME" in
-        # already scheme- or port-qualified: use as-is
-        :* | http://* | https://*)
-            CADDY_SITE_ADDRESS="$SERVER_NAME"
-            ;;
-        *)
-            CADDY_SITE_ADDRESS="http://$SERVER_NAME, https://$SERVER_NAME"
-            ;;
-    esac
-    export CADDY_SITE_ADDRESS
-
     cat > "$OPCACHE_INI" <<'INI'
 opcache.enable=1
 opcache.validate_timestamps=1
@@ -108,6 +86,39 @@ INI
 
     COMPOSER_FLAGS=""
 fi
+
+# How Caddy binds and does TLS is decided by SERVER_NAME, NOT by worker/classic
+# mode - a production build tested locally still needs the local TLS behavior.
+#
+# The trap this avoids: Caddy's automatic HTTP->HTTPS redirect always points at
+# the standard port 443, but compose publishes the container's 443 on host 8443.
+# So on a local host the redirect from http://host:8080 lands on https://host/
+# (443), where nothing is listening, and the page never loads. The fix is to
+# serve both schemes with the redirect off whenever the host is a local one.
+case "$SERVER_NAME" in
+    :* | http://* | https://*)
+        # explicit scheme/port in .env - honor it exactly as written
+        CADDY_SITE_ADDRESS="$SERVER_NAME"
+        CADDY_GLOBAL_OPTIONS=""
+        ;;
+    localhost | *.localhost | 127.0.0.1 | ::1 | 0.0.0.0)
+        # local dev/testing: serve http AND https with no cross-port redirect,
+        # so both published ports (8080 and 8443) work. localhost still gets a
+        # self-signed cert on the https side.
+        echo "[entrypoint] local host '$SERVER_NAME' -> serving http+https, redirect off"
+        CADDY_SITE_ADDRESS="http://$SERVER_NAME, https://$SERVER_NAME"
+        CADDY_GLOBAL_OPTIONS="auto_https disable_redirects"
+        ;;
+    *)
+        # a real domain: full automatic HTTPS (Let's Encrypt) with the standard
+        # HTTP->HTTPS redirect. Assumes the container is published on the
+        # standard ports 80/443 - see docker-compose.yml notes for production.
+        echo "[entrypoint] domain '$SERVER_NAME' -> automatic HTTPS with redirect"
+        CADDY_SITE_ADDRESS="$SERVER_NAME"
+        CADDY_GLOBAL_OPTIONS=""
+        ;;
+esac
+export CADDY_SITE_ADDRESS CADDY_GLOBAL_OPTIONS
 
 echo "[entrypoint] serving $SERVER_NAME from $APP_DIR/htdocs"
 
