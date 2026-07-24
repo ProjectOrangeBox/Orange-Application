@@ -452,12 +452,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/acl.git",
-                "reference": "81bd7434cd946f63cf490d564dedf59ea3fab92f"
+                "reference": "1f8b0789cd7878a944612fcd4942e7dd212fc89e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/acl/zipball/81bd7434cd946f63cf490d564dedf59ea3fab92f",
-                "reference": "81bd7434cd946f63cf490d564dedf59ea3fab92f",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/acl/zipball/1f8b0789cd7878a944612fcd4942e7dd212fc89e",
+                "reference": "1f8b0789cd7878a944612fcd4942e7dd212fc89e",
                 "shasum": ""
             },
             "require": {
@@ -477,6 +477,11 @@
                     "orange\\acl\\": "src/"
                 }
             },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -488,11 +493,18 @@
             ],
             "description": "ACL service plus session-aware user helper for roles, permissions, and access control.",
             "homepage": "https://github.com/ProjectOrangeBox/acl",
+            "keywords": [
+                "access-control",
+                "acl",
+                "authorization",
+                "permissions",
+                "roles"
+            ],
             "support": {
                 "issues": "https://github.com/ProjectOrangeBox/acl/issues",
                 "source": "https://github.com/ProjectOrangeBox/acl"
             },
-            "time": "2026-07-22T00:02:08+00:00"
+            "time": "2026-07-23T20:17:44+00:00"
         },
         {
             "name": "orange/asset",
@@ -500,12 +512,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/asset.git",
-                "reference": "674a14dbc7af20fcbb418b135be9319c956c2083"
+                "reference": "3b7eaa94772fe65de8164b2039c40677f03fddea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/asset/zipball/674a14dbc7af20fcbb418b135be9319c956c2083",
-                "reference": "674a14dbc7af20fcbb418b135be9319c956c2083",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/asset/zipball/3b7eaa94772fe65de8164b2039c40677f03fddea",
+                "reference": "3b7eaa94772fe65de8164b2039c40677f03fddea",
                 "shasum": ""
             },
             "require": {
@@ -537,7 +549,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/asset/issues",
                 "source": "https://github.com/ProjectOrangeBox/asset"
             },
-            "time": "2026-07-21T23:48:35+00:00"
+            "time": "2026-07-23T20:17:56+00:00"
         },
         {
             "name": "orange/auth",
@@ -545,12 +557,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/auth.git",
-                "reference": "af9892ad53c41523e0ca066e1c8b6d0ef48b5f18"
+                "reference": "9af12ed66620226283c95cdb104cc6e734672487"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/auth/zipball/af9892ad53c41523e0ca066e1c8b6d0ef48b5f18",
-                "reference": "af9892ad53c41523e0ca066e1c8b6d0ef48b5f18",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/auth/zipball/9af12ed66620226283c95cdb104cc6e734672487",
+                "reference": "9af12ed66620226283c95cdb104cc6e734672487",
                 "shasum": ""
             },
             "require": {
@@ -582,7 +594,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/auth/issues",
                 "source": "https://github.com/ProjectOrangeBox/auth"
             },
-            "time": "2026-07-22T22:50:57+00:00"
+            "time": "2026-07-23T20:18:08+00:00"
         },
         {
             "name": "orange/benchmark",
@@ -590,12 +602,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/benchmark.git",
-                "reference": "d86cc51a18ce7c3f08ffb56dca3566dea0e6029f"
+                "reference": "24288d2ad2cad02678458017e19f51600fa96c97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/benchmark/zipball/d86cc51a18ce7c3f08ffb56dca3566dea0e6029f",
-                "reference": "d86cc51a18ce7c3f08ffb56dca3566dea0e6029f",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/benchmark/zipball/24288d2ad2cad02678458017e19f51600fa96c97",
+                "reference": "24288d2ad2cad02678458017e19f51600fa96c97",
                 "shasum": ""
             },
             "require": {
@@ -626,7 +638,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/benchmark/issues",
                 "source": "https://github.com/ProjectOrangeBox/benchmark"
             },
-            "time": "2026-07-21T22:03:30+00:00"
+            "time": "2026-07-23T20:19:15+00:00"
         },
         {
             "name": "orange/bitwise",
@@ -634,12 +646,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/bitwise.git",
-                "reference": "49a0cd93ea4d6d8924a38f12330163fb3e75087f"
+                "reference": "e8bb8a4f7490311512162d54800475b965784cca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/bitwise/zipball/49a0cd93ea4d6d8924a38f12330163fb3e75087f",
-                "reference": "49a0cd93ea4d6d8924a38f12330163fb3e75087f",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/bitwise/zipball/e8bb8a4f7490311512162d54800475b965784cca",
+                "reference": "e8bb8a4f7490311512162d54800475b965784cca",
                 "shasum": ""
             },
             "require": {
@@ -671,7 +683,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/bitwise/issues",
                 "source": "https://github.com/ProjectOrangeBox/bitwise"
             },
-            "time": "2026-07-21T23:47:16+00:00"
+            "time": "2026-07-23T20:19:06+00:00"
         },
         {
             "name": "orange/cache",
@@ -679,12 +691,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/cache.git",
-                "reference": "fcb996f942e09406d065b830224e72abb6015d1b"
+                "reference": "9b38b99eca7e2a74cb4e567ec89488e990c74192"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/cache/zipball/fcb996f942e09406d065b830224e72abb6015d1b",
-                "reference": "fcb996f942e09406d065b830224e72abb6015d1b",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/cache/zipball/9b38b99eca7e2a74cb4e567ec89488e990c74192",
+                "reference": "9b38b99eca7e2a74cb4e567ec89488e990c74192",
                 "shasum": ""
             },
             "require": {
@@ -716,7 +728,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/cache/issues",
                 "source": "https://github.com/ProjectOrangeBox/cache"
             },
-            "time": "2026-07-21T21:59:59+00:00"
+            "time": "2026-07-23T20:18:56+00:00"
         },
         {
             "name": "orange/collector",
@@ -724,12 +736,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/collector.git",
-                "reference": "03be289466593b7f5144ffeea6cdfa2dfbdc7723"
+                "reference": "653e0264af46743685b8477d2211a0234fa0aa8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/collector/zipball/03be289466593b7f5144ffeea6cdfa2dfbdc7723",
-                "reference": "03be289466593b7f5144ffeea6cdfa2dfbdc7723",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/collector/zipball/653e0264af46743685b8477d2211a0234fa0aa8f",
+                "reference": "653e0264af46743685b8477d2211a0234fa0aa8f",
                 "shasum": ""
             },
             "require": {
@@ -760,7 +772,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/collector/issues",
                 "source": "https://github.com/ProjectOrangeBox/collector"
             },
-            "time": "2026-07-21T22:00:47+00:00"
+            "time": "2026-07-23T20:18:47+00:00"
         },
         {
             "name": "orange/console",
@@ -768,12 +780,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/console.git",
-                "reference": "888796b3f212ccc2303a1c54ee13f949c1f66666"
+                "reference": "bb64aa95fd6043c5594e96bc90854af73855cc10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/console/zipball/888796b3f212ccc2303a1c54ee13f949c1f66666",
-                "reference": "888796b3f212ccc2303a1c54ee13f949c1f66666",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/console/zipball/bb64aa95fd6043c5594e96bc90854af73855cc10",
+                "reference": "bb64aa95fd6043c5594e96bc90854af73855cc10",
                 "shasum": ""
             },
             "require": {
@@ -806,7 +818,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/console/issues",
                 "source": "https://github.com/ProjectOrangeBox/console"
             },
-            "time": "2026-07-21T23:56:43+00:00"
+            "time": "2026-07-23T20:18:37+00:00"
         },
         {
             "name": "orange/cookies",
@@ -814,12 +826,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/cookies.git",
-                "reference": "638846d3181d4eeafe6053bce1d11db505f438f5"
+                "reference": "50a21f42d03e9d3a29e3be34797fa7facb3efdb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/cookies/zipball/638846d3181d4eeafe6053bce1d11db505f438f5",
-                "reference": "638846d3181d4eeafe6053bce1d11db505f438f5",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/cookies/zipball/50a21f42d03e9d3a29e3be34797fa7facb3efdb8",
+                "reference": "50a21f42d03e9d3a29e3be34797fa7facb3efdb8",
                 "shasum": ""
             },
             "require": {
@@ -833,7 +845,7 @@
                 }
             },
             "description": "Orange Cookie Handling package",
-            "time": "2026-07-21T14:41:20+00:00"
+            "time": "2026-07-23T20:18:27+00:00"
         },
         {
             "name": "orange/disc",
@@ -841,12 +853,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/disc.git",
-                "reference": "a07492f1e64a6ff1abba9f2fe13f627899f95e04"
+                "reference": "3e2507acaa3bd2a4a2850318d8984538368961f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/disc/zipball/a07492f1e64a6ff1abba9f2fe13f627899f95e04",
-                "reference": "a07492f1e64a6ff1abba9f2fe13f627899f95e04",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/disc/zipball/3e2507acaa3bd2a4a2850318d8984538368961f1",
+                "reference": "3e2507acaa3bd2a4a2850318d8984538368961f1",
                 "shasum": ""
             },
             "require": {
@@ -877,7 +889,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/disc/issues",
                 "source": "https://github.com/ProjectOrangeBox/disc"
             },
-            "time": "2026-07-21T23:45:42+00:00"
+            "time": "2026-07-23T20:17:11+00:00"
         },
         {
             "name": "orange/dto",
@@ -885,12 +897,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/request.git",
-                "reference": "3114e63c4f0c28f2f1f9f997b6a051621db4d46e"
+                "reference": "650407d698590489eae6fef1690e391c9e247413"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/request/zipball/3114e63c4f0c28f2f1f9f997b6a051621db4d46e",
-                "reference": "3114e63c4f0c28f2f1f9f997b6a051621db4d46e",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/request/zipball/650407d698590489eae6fef1690e391c9e247413",
+                "reference": "650407d698590489eae6fef1690e391c9e247413",
                 "shasum": ""
             },
             "require": {
@@ -944,7 +956,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/dto/issues",
                 "source": "https://github.com/ProjectOrangeBox/dto"
             },
-            "time": "2026-07-23T03:02:43+00:00"
+            "time": "2026-07-23T20:16:46+00:00"
         },
         {
             "name": "orange/fig",
@@ -952,12 +964,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/fig.git",
-                "reference": "d837486922c13ce8563a19dca2ed02ba24ed9042"
+                "reference": "c1988cff7f1a02a9e790f243036b92e450c797b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/fig/zipball/d837486922c13ce8563a19dca2ed02ba24ed9042",
-                "reference": "d837486922c13ce8563a19dca2ed02ba24ed9042",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/fig/zipball/c1988cff7f1a02a9e790f243036b92e450c797b8",
+                "reference": "c1988cff7f1a02a9e790f243036b92e450c797b8",
                 "shasum": ""
             },
             "require": {
@@ -990,7 +1002,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/fig/issues",
                 "source": "https://github.com/ProjectOrangeBox/fig"
             },
-            "time": "2026-07-22T22:51:29+00:00"
+            "time": "2026-07-23T20:16:59+00:00"
         },
         {
             "name": "orange/files",
@@ -998,16 +1010,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/files.git",
-                "reference": "65911c91e68cc99d5b85fabf0cfefcbdafb87986"
+                "reference": "3e2eaef9e24eb51909ced99a8159a864de3deef3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/files/zipball/65911c91e68cc99d5b85fabf0cfefcbdafb87986",
-                "reference": "65911c91e68cc99d5b85fabf0cfefcbdafb87986",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/files/zipball/3e2eaef9e24eb51909ced99a8159a864de3deef3",
+                "reference": "3e2eaef9e24eb51909ced99a8159a864de3deef3",
                 "shasum": ""
             },
             "require": {
+                "ext-fileinfo": "*",
+                "orange/framework": "dev-master",
                 "php": ">=8.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^13.2"
             },
             "default-branch": true,
             "type": "library",
@@ -1016,8 +1033,33 @@
                     "orange\\files\\": "src/"
                 }
             },
-            "description": "Orange File Handling package",
-            "time": "2026-07-22T12:05:13+00:00"
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Uploaded-file handling: normalizes $_FILES into validated, movable UploadObject instances.",
+            "homepage": "https://github.com/ProjectOrangeBox/files",
+            "keywords": [
+                "file-upload",
+                "files",
+                "mime",
+                "upload"
+            ],
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/files/issues",
+                "source": "https://github.com/ProjectOrangeBox/files"
+            },
+            "time": "2026-07-23T20:16:24+00:00"
         },
         {
             "name": "orange/flashmsg",
@@ -1025,12 +1067,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/flashmsg.git",
-                "reference": "89e446b5326f2645070ad5f7f4561b91bd99d0f1"
+                "reference": "0e35be8493dfbf60aa59d224650cca81369bc2be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/flashmsg/zipball/89e446b5326f2645070ad5f7f4561b91bd99d0f1",
-                "reference": "89e446b5326f2645070ad5f7f4561b91bd99d0f1",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/flashmsg/zipball/0e35be8493dfbf60aa59d224650cca81369bc2be",
+                "reference": "0e35be8493dfbf60aa59d224650cca81369bc2be",
                 "shasum": ""
             },
             "require": {
@@ -1048,6 +1090,11 @@
                     "orange\\flashmsg\\": "src/"
                 }
             },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -1057,13 +1104,20 @@
                     "email": "donmyers@me.com"
                 }
             ],
-            "description": "Flash messaging with configurable transports.",
+            "description": "Flash messaging for traditional (PRG + session) and SPA (JSON response) delivery from one queue.",
             "homepage": "https://github.com/ProjectOrangeBox/flashmsg",
+            "keywords": [
+                "flash",
+                "flash-messages",
+                "notifications",
+                "spa",
+                "toast"
+            ],
             "support": {
                 "issues": "https://github.com/ProjectOrangeBox/flashmsg/issues",
                 "source": "https://github.com/ProjectOrangeBox/flashmsg"
             },
-            "time": "2026-07-21T23:57:51+00:00"
+            "time": "2026-07-23T20:16:13+00:00"
         },
         {
             "name": "orange/framework",
@@ -1136,17 +1190,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/handlebars.git",
-                "reference": "91d3a95fbabd5089a3053d2355c3beab067bca20"
+                "reference": "a70dacda8cefb9eff3d0e90497415c571074d124"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/handlebars/zipball/91d3a95fbabd5089a3053d2355c3beab067bca20",
-                "reference": "91d3a95fbabd5089a3053d2355c3beab067bca20",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/handlebars/zipball/a70dacda8cefb9eff3d0e90497415c571074d124",
+                "reference": "a70dacda8cefb9eff3d0e90497415c571074d124",
                 "shasum": ""
             },
             "require": {
                 "orange/framework": "dev-master",
-                "php": ">=8.4"
+                "php": ">=8.4",
+                "zordius/lightncandy": "1.*"
             },
             "require-dev": {
                 "phpunit/phpunit": "^13.2"
@@ -1173,7 +1228,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/handlebars/issues",
                 "source": "https://github.com/ProjectOrangeBox/handlebars"
             },
-            "time": "2026-07-21T23:49:28+00:00"
+            "time": "2026-07-23T20:15:58+00:00"
         },
         {
             "name": "orange/language",
@@ -1181,12 +1236,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/language.git",
-                "reference": "da007b08f7989330c74abb644ae46df35dae7ce8"
+                "reference": "fe18fa83de1ac9e0ffedb4a92316ca282cc0a9df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/language/zipball/da007b08f7989330c74abb644ae46df35dae7ce8",
-                "reference": "da007b08f7989330c74abb644ae46df35dae7ce8",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/language/zipball/fe18fa83de1ac9e0ffedb4a92316ca282cc0a9df",
+                "reference": "fe18fa83de1ac9e0ffedb4a92316ca282cc0a9df",
                 "shasum": ""
             },
             "require": {
@@ -1218,7 +1273,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/language/issues",
                 "source": "https://github.com/ProjectOrangeBox/language"
             },
-            "time": "2026-07-21T22:00:18+00:00"
+            "time": "2026-07-23T20:15:48+00:00"
         },
         {
             "name": "orange/mergeview",
@@ -1226,12 +1281,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/mergeview.git",
-                "reference": "4be7dc04d040d99c80857943dab86e7cd08a86c7"
+                "reference": "579564f58654f672b33b7a81961df17a34d3430d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/mergeview/zipball/4be7dc04d040d99c80857943dab86e7cd08a86c7",
-                "reference": "4be7dc04d040d99c80857943dab86e7cd08a86c7",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/mergeview/zipball/579564f58654f672b33b7a81961df17a34d3430d",
+                "reference": "579564f58654f672b33b7a81961df17a34d3430d",
                 "shasum": ""
             },
             "require": {
@@ -1263,7 +1318,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/mergeview/issues",
                 "source": "https://github.com/ProjectOrangeBox/mergeview"
             },
-            "time": "2026-07-21T23:51:07+00:00"
+            "time": "2026-07-23T20:15:37+00:00"
         },
         {
             "name": "orange/model",
@@ -1271,12 +1326,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/model.git",
-                "reference": "fef8354b8df400a4b85c68a2736a6a9034e0802b"
+                "reference": "de73ac7b37ad0740d913c498015f9452165c62c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/model/zipball/fef8354b8df400a4b85c68a2736a6a9034e0802b",
-                "reference": "fef8354b8df400a4b85c68a2736a6a9034e0802b",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/model/zipball/de73ac7b37ad0740d913c498015f9452165c62c7",
+                "reference": "de73ac7b37ad0740d913c498015f9452165c62c7",
                 "shasum": ""
             },
             "require": {
@@ -1309,7 +1364,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/model/issues",
                 "source": "https://github.com/ProjectOrangeBox/model"
             },
-            "time": "2026-07-22T12:05:34+00:00"
+            "time": "2026-07-23T20:15:26+00:00"
         },
         {
             "name": "orange/negotiate",
@@ -1317,12 +1372,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/negotiate.git",
-                "reference": "561f6f68982f95c0cf6e3563d5229186d68e441d"
+                "reference": "687bf66a28e6cbd1ad61a968f1546d9efae3a3a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/negotiate/zipball/561f6f68982f95c0cf6e3563d5229186d68e441d",
-                "reference": "561f6f68982f95c0cf6e3563d5229186d68e441d",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/negotiate/zipball/687bf66a28e6cbd1ad61a968f1546d9efae3a3a0",
+                "reference": "687bf66a28e6cbd1ad61a968f1546d9efae3a3a0",
                 "shasum": ""
             },
             "require": {
@@ -1354,7 +1409,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/negotiate/issues",
                 "source": "https://github.com/ProjectOrangeBox/negotiate"
             },
-            "time": "2026-07-22T12:05:59+00:00"
+            "time": "2026-07-23T20:15:14+00:00"
         },
         {
             "name": "orange/observer",
@@ -1362,12 +1417,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/observer.git",
-                "reference": "789e189e9dce9cc9e22ae1e37f714bca4264f555"
+                "reference": "1c6499cf784c8b76c9fa5ad9108e47a8ed58e71c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/observer/zipball/789e189e9dce9cc9e22ae1e37f714bca4264f555",
-                "reference": "789e189e9dce9cc9e22ae1e37f714bca4264f555",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/observer/zipball/1c6499cf784c8b76c9fa5ad9108e47a8ed58e71c",
+                "reference": "1c6499cf784c8b76c9fa5ad9108e47a8ed58e71c",
                 "shasum": ""
             },
             "require": {
@@ -1398,7 +1453,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/observer/issues",
                 "source": "https://github.com/ProjectOrangeBox/observer"
             },
-            "time": "2026-07-21T23:53:32+00:00"
+            "time": "2026-07-23T20:15:02+00:00"
         },
         {
             "name": "orange/priority",
@@ -1406,12 +1461,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/priority.git",
-                "reference": "4c3ed768da476f1271f88b7cb299bca41053cab3"
+                "reference": "21c339ad1e714522ffdfac7f705579af89f87415"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/priority/zipball/4c3ed768da476f1271f88b7cb299bca41053cab3",
-                "reference": "4c3ed768da476f1271f88b7cb299bca41053cab3",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/priority/zipball/21c339ad1e714522ffdfac7f705579af89f87415",
+                "reference": "21c339ad1e714522ffdfac7f705579af89f87415",
                 "shasum": ""
             },
             "require": {
@@ -1442,7 +1497,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/priority/issues",
                 "source": "https://github.com/ProjectOrangeBox/priority"
             },
-            "time": "2026-07-21T22:00:36+00:00"
+            "time": "2026-07-23T20:14:27+00:00"
         },
         {
             "name": "orange/session",
@@ -1450,12 +1505,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/session.git",
-                "reference": "a57112e84427c3789221b804089d9bf65862994c"
+                "reference": "0fcb23acbf8974c13890beb7cb32b3197ca48a47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/session/zipball/a57112e84427c3789221b804089d9bf65862994c",
-                "reference": "a57112e84427c3789221b804089d9bf65862994c",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/session/zipball/0fcb23acbf8974c13890beb7cb32b3197ca48a47",
+                "reference": "0fcb23acbf8974c13890beb7cb32b3197ca48a47",
                 "shasum": ""
             },
             "require": {
@@ -1486,7 +1541,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/session/issues",
                 "source": "https://github.com/ProjectOrangeBox/session"
             },
-            "time": "2026-07-21T22:02:55+00:00"
+            "time": "2026-07-23T20:14:15+00:00"
         },
         {
             "name": "orange/snippets",
@@ -1494,12 +1549,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/snippets.git",
-                "reference": "e6b07d99f0ab92bc06d0570983d4cb2658ebd129"
+                "reference": "6b468af38d45e8e208ac9b06fc0201ef31571ae2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/snippets/zipball/e6b07d99f0ab92bc06d0570983d4cb2658ebd129",
-                "reference": "e6b07d99f0ab92bc06d0570983d4cb2658ebd129",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/snippets/zipball/6b468af38d45e8e208ac9b06fc0201ef31571ae2",
+                "reference": "6b468af38d45e8e208ac9b06fc0201ef31571ae2",
                 "shasum": ""
             },
             "require": {
@@ -1531,7 +1586,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/snippets/issues",
                 "source": "https://github.com/ProjectOrangeBox/snippets"
             },
-            "time": "2026-07-21T23:54:16+00:00"
+            "time": "2026-07-23T20:13:44+00:00"
         },
         {
             "name": "orange/stash",
@@ -1539,12 +1594,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/stash.git",
-                "reference": "aed3c6cce05172c52fbc2bd2ded9295f4649d33d"
+                "reference": "c975eb48104e47e6ceee5878c07a9530556a951d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/stash/zipball/aed3c6cce05172c52fbc2bd2ded9295f4649d33d",
-                "reference": "aed3c6cce05172c52fbc2bd2ded9295f4649d33d",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/stash/zipball/c975eb48104e47e6ceee5878c07a9530556a951d",
+                "reference": "c975eb48104e47e6ceee5878c07a9530556a951d",
                 "shasum": ""
             },
             "require": {
@@ -1577,7 +1632,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/stash/issues",
                 "source": "https://github.com/ProjectOrangeBox/stash"
             },
-            "time": "2026-07-21T23:59:05+00:00"
+            "time": "2026-07-23T20:13:25+00:00"
         },
         {
             "name": "orange/validate",
@@ -1585,12 +1640,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/validate.git",
-                "reference": "13e4f6eb7ea2b6b362c15c05fe2352af9f5c604e"
+                "reference": "a6a7de3e15213a1a49889181ea5a15da0de21cee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/validate/zipball/13e4f6eb7ea2b6b362c15c05fe2352af9f5c604e",
-                "reference": "13e4f6eb7ea2b6b362c15c05fe2352af9f5c604e",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/validate/zipball/a6a7de3e15213a1a49889181ea5a15da0de21cee",
+                "reference": "a6a7de3e15213a1a49889181ea5a15da0de21cee",
                 "shasum": ""
             },
             "require": {
@@ -1622,7 +1677,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/validate/issues",
                 "source": "https://github.com/ProjectOrangeBox/validate"
             },
-            "time": "2026-07-22T22:52:06+00:00"
+            "time": "2026-07-23T20:13:14+00:00"
         },
         {
             "name": "psr/clock",
