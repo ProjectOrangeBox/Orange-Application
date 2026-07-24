@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 use api\models\RecordModel;
-use orange\files\Files;
-use orange\flashmsg\Flashmsg;
 use orange\framework\interfaces\ContainerInterface;
 
 return [
@@ -39,20 +37,4 @@ return [
         return $pdo;
     },
     'RecordModel' => fn(ContainerInterface $container): RecordModel => RecordModel::getInstance($container->pdo),
-    // flash messages - delivered to JSON responses by the before.output
-    // listener in event.php. Session argument is null (this app is a
-    // stateless JSON API); pass a session service instead to enable the
-    // cross-request redirect()/keep() flows
-    'flash' => fn(ContainerInterface $container): Flashmsg => Flashmsg::getInstance(
-        [],
-        null,
-        $container->input,
-        $container->output,
-        $container->data,
-        $container->events,
-    ),
-    // uploaded-file handling (orange/files) - its config defaults 'mimes'
-    // from the framework output config, so isOneOf('png', ...) extension
-    // matching works with no wiring here
-    'files' => fn(ContainerInterface $container): Files => Files::getInstance($container->config->files, $container->input),
 ];
