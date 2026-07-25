@@ -51,6 +51,7 @@ printf '%-14s %-8s %-9s %-9s %-6s\n' PACKAGE PHPCS RECTOR PHPSTAN TESTS
 printf '%-14s %-8s %-9s %-9s %-6s\n' '-------' '-----' '------' '-------' '-----'
 
 overall=0
+untested=()
 for dir in "$ORANGE"/*/; do
   pkg=$(basename "$dir")
   [ -f "$dir/phpstan.neon" ] || [ -f "$dir/phpcs.xml" ] || continue
@@ -81,10 +82,22 @@ for dir in "$ORANGE"/*/; do
   fi
 
   # tests (only if the package ships a runner - dir is unittest/ or unittests/)
+  #
+  # A runner with no test files behind it still exits 0, so "pass" there means
+  # nothing was checked. phpunit says so on stdout - report that as "none" to
+  # keep it out of the green column.
   tst="-"
   for td in unittest unittests; do
     if [ -f "$dir/$td/runUnitTests.sh" ]; then
-      if ( cd "$dir/$td" && sh runUnitTests.sh ) >/tmp/sa.tst 2>&1; then tst="pass"; else tst="FAIL"; overall=1; fi
+      if ( cd "$dir/$td" && sh runUnitTests.sh ) >/tmp/sa.tst 2>&1; then
+        if grep -q 'No tests executed!' /tmp/sa.tst; then
+          tst="none"; untested+=("$pkg")
+        else
+          tst="pass"
+        fi
+      else
+        tst="FAIL"; overall=1
+      fi
       break
     fi
   done
@@ -95,4 +108,11 @@ done
 rm -f /tmp/sa.pcs /tmp/sa.rec /tmp/sa.pst /tmp/sa.tst
 echo ""
 [ "$overall" -eq 0 ] && echo "All green." || echo "Some checks need attention (see columns above)."
+
+if [ ${#untested[@]} -gt 0 ]; then
+  echo ""
+  echo "TESTS=none (${#untested[@]}) - a runner but no test files, so nothing was verified:"
+  echo "  ${untested[*]}"
+fi
+
 exit "$overall"
