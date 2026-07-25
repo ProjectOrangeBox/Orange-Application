@@ -9,6 +9,7 @@ namespace config\development;
 use orange\framework\attributes\Route;
 use orange\framework\exceptions\filesystem\DirectoryNotFound;
 use orange\framework\exceptions\filesystem\DirectoryNotWritable;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -20,6 +21,12 @@ use ReflectionMethod;
  */
 class RouterDetector
 {
+    private const string PHP_CLASS_PATTERN = '/\A\\\\?[A-Za-z_]\w*(?:\\\\[A-Za-z_]\w*)*\z/';
+    private const string PHP_METHOD_PATTERN = '/\A[A-Za-z_]\w*\z/';
+    private const string ROUTE_METHOD_PATTERN = '/\A(?:\*|[A-Za-z]+)\z/';
+    private const string ROUTE_NAME_PATTERN = '/\A[A-Za-z][A-Za-z0-9_.-]*\z/';
+    private const string ROUTE_URL_PATTERN = '/\A\/[A-Za-z0-9\/_.:;,@&=%+*?^$|\\\\()[\]{}<>-]*\z/';
+
     /**
      * Scan controller paths for Route attributes and merge them with any
      * manually supplied routes used by Router::getUrl().
@@ -134,6 +141,7 @@ class RouterDetector
                     $line .= '[';
 
                     foreach ($route['method'] as $m) {
+                        static::assertMatches(self::ROUTE_METHOD_PATTERN, (string)$m, 'route method');
                         $line .= $q . $m . $q . ',';
                     }
 
@@ -141,6 +149,7 @@ class RouterDetector
 
                     $line .= ']';
                 } else {
+                    static::assertMatches(self::ROUTE_METHOD_PATTERN, (string)$route['method'], 'route method');
                     $line .= $q . $route['method'] . $q;
                 }
 
@@ -148,10 +157,23 @@ class RouterDetector
             }
 
             if (isset($route['url'])) {
+                static::assertMatches(self::ROUTE_URL_PATTERN, (string)$route['url'], 'route URL');
                 $line .= $q . 'url' . $q . ' => ' . $q . $route['url'] . $q . ', ';
             }
 
             if (isset($route['callback'])) {
+                if (
+                    !is_array($route['callback'])
+                    || !isset($route['callback'][0], $route['callback'][1])
+                    || !is_string($route['callback'][0])
+                    || !is_string($route['callback'][1])
+                ) {
+                    throw new InvalidArgumentException('Invalid route callback.');
+                }
+
+                static::assertMatches(self::PHP_CLASS_PATTERN, $route['callback'][0], 'route callback class');
+                static::assertMatches(self::PHP_METHOD_PATTERN, $route['callback'][1], 'route callback method');
+
                 $line .= $q . 'callback' . $q . ' => [';
 
                 $line .= $route['callback'][0] . '::class, ' . $q . $route['callback'][1] . $q;
@@ -160,6 +182,7 @@ class RouterDetector
             }
 
             if (isset($route['name'])) {
+                static::assertMatches(self::ROUTE_NAME_PATTERN, (string)$route['name'], 'route name');
                 $line .= $q . 'name' . $q . ' => ' . $q . $route['name'] . $q;
             }
 
@@ -172,6 +195,13 @@ class RouterDetector
         $php[] = '];';
 
         return implode(PHP_EOL, $php) . PHP_EOL;
+    }
+
+    protected static function assertMatches(string $pattern, string $value, string $label): void
+    {
+        if (preg_match($pattern, $value) !== 1) {
+            throw new InvalidArgumentException('Invalid ' . $label . ': ' . $value);
+        }
     }
 
     protected static function getFullyQualifiedClass(string $file): string
