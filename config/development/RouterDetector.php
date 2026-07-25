@@ -4,62 +4,84 @@ declare(strict_types=1);
 
 namespace config\development;
 
-// required now that this file declares a namespace - unqualified class names
-// no longer fall back to the global namespace the way function names do
+// This file is namespaced, so framework classes and PHP reflection classes need
+// explicit imports rather than relying on global-namespace resolution.
+use orange\framework\attributes\Route;
+use orange\framework\exceptions\filesystem\DirectoryNotFound;
+use orange\framework\exceptions\filesystem\DirectoryNotWritable;
 use ReflectionClass;
 use ReflectionMethod;
-use orange\framework\attributes\Route;
 
 /**
- * ONLY USE IN DEVELOPMENT
+ * Development-only route scanner.
+ *
+ * Production should consume a pre-generated plain PHP route array instead of
+ * reflecting over every controller file on each request.
  */
-
 class RouterDetector
 {
     /**
-     * we will use this class to scan the application for route attributes
-     * and build the routes array that is used in the Router class
+     * Scan controller paths for Route attributes and merge them with any
+     * manually supplied routes used by Router::getUrl().
+     *
+     * Passing $productionPathWrite also refreshes the production route snapshot
+     * while running in development.
      */
-    public static function detect(array $paths, array $routes = []): array
+    public static function detect(array $paths, array $routes = [], ?string $productionPathWrite = null): array
     {
         if (ENVIRONMENT != 'development') {
-            die('The ' . self::class . ' should only be used in development. You can use the static method export to echo PHP source for a production routes.php file.');
+            echo 'The ' . self::class . ' should only be used in development.' . PHP_EOL;
+            echo 'For production export a static array for /config/production/routes.php' . PHP_EOL;
+            echo 'or add the production write path as the 3rd argument and detect will auto write it for you.' . PHP_EOL;
+            echo 'This can then be committed and picked up automatically in production.' . PHP_EOL;
+
+            exit(1);
         }
 
+        $routes = static::findRoutesInProvidedPaths($paths, $routes);
+
+        if ($productionPathWrite) {
+            if (!is_dir($productionPathWrite)) {
+                throw new DirectoryNotFound($productionPathWrite);
+            }
+
+            if (!is_writable($productionPathWrite)) {
+                throw new DirectoryNotWritable($productionPathWrite);
+            }
+
+            file_put_contents($productionPathWrite . '/routes.php', static::formatForProduction($routes));
+        }
+
+        return $routes;
+    }
+
+    public static function export(array $paths, array $routes = []): string
+    {
+        echo static::formatForProduction(static::findRoutesInProvidedPaths($paths, $routes));
+
+        exit(0);
+    }
+
+    protected static function findRoutesInProvidedPaths(array $paths, array $routes): array
+    {
         foreach ($paths as $path) {
-            // we need to recursively scan the directory for php files
+            // Each configured module root is scanned recursively so new
+            // controller files are picked up without touching this config.
             foreach (static::rglob($path, '*.php') as $file) {
-                // we need to scan the file for route attributes
-                static::scan($routes, $file);
+                static::scanPath($routes, $file);
             }
         }
 
         return $routes;
     }
 
-    /**
-     * echo the formatted routes array
-     */
-    public static function export(array $paths, array $routes = []): void
-    {
-        // we will just echo the formatted routes array
-        $line[] = '<?php';
-        $line[] = '';
-        $line[] = 'declare(strict_types=1);';
-        $line[] = '';
-        $line[] = 'return [';
-        $line[] = static::format(static::detect($paths, $routes));
-        $line[] = '];';
-        $line[] = '';
-
-        echo implode(PHP_EOL, $line);
-    }
-
-    protected static function scan(array &$routes, string $file): void
+    protected static function scanPath(array &$routes, string $file): void
     {
         $fullyQualifiedClass = static::getFullyQualifiedClass($file);
 
         if ($fullyQualifiedClass !== '' && $fullyQualifiedClass !== '0') {
+            // Reflection depends on Composer autoloading for the application/api
+            // namespaces configured in composer.json.
             $reflectionClass = new ReflectionClass($fullyQualifiedClass);
 
             foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
@@ -72,10 +94,10 @@ class RouterDetector
                     $route['name'] = $routeInstance->name;
                     $route['method'] = $routeInstance->method;
 
-                    // remove empty values
+                    // Route fields are optional except for the callback that is
+                    // derived from the reflected class and method below.
                     $route = array_filter($route);
 
-                    // only add if we have a valid route
                     if ($route !== []) {
                         $route['callback'] = [$fullyQualifiedClass, $reflectionMethod->getName()];
 
@@ -87,78 +109,86 @@ class RouterDetector
     }
 
     /**
-     * we need to format the routes array into a string that can be used in the export method
+     * Format the route table as a complete PHP config file for production.
      */
-    protected static function format(array $routes): string
+    protected static function formatForProduction(array $routes): string
     {
-        $output = '';
-        $t = chr(39);
+        $q = chr(39);
+        $ts = str_repeat(' ', 8);
+
+        $php[] = '<?php';
+        $php[] = '';
+        $php[] = 'declare(strict_types=1);';
+        $php[] = '';
+        $php[] = 'return [';
+        $php[] = '    ' . $q . 'routes' . $q . ' => [';
 
         // ['method' => '*', 'url' => '/', 'callback' => [\orange\framework\controllers\HomeController::class, 'index'], 'name' => 'home'],
         foreach ($routes as $route) {
             $line = '';
 
             if (isset($route['method'])) {
-                $line .= $t . 'method' . $t . ' => ';
+                $line .= $q . 'method' . $q . ' => ';
 
                 if (is_array($route['method'])) {
                     $line .= '[';
 
                     foreach ($route['method'] as $m) {
-                        $line .= $t . $m . $t . ',';
+                        $line .= $q . $m . $q . ',';
                     }
 
                     $line = rtrim($line, ',');
 
                     $line .= ']';
                 } else {
-                    $line .= $t . $route['method'] . $t;
+                    $line .= $q . $route['method'] . $q;
                 }
 
                 $line .= ', ';
             }
 
             if (isset($route['url'])) {
-                $line .= $t . 'url' . $t . ' => ' . $t . $route['url'] . $t . ', ';
+                $line .= $q . 'url' . $q . ' => ' . $q . $route['url'] . $q . ', ';
             }
 
             if (isset($route['callback'])) {
-                $line .= $t . 'callback' . $t . ' => [';
+                $line .= $q . 'callback' . $q . ' => [';
 
-                $line .= $route['callback'][0] . '::class, ' . $t . $route['callback'][1] . $t;
+                $line .= $route['callback'][0] . '::class, ' . $q . $route['callback'][1] . $q;
 
                 $line .= '], ';
             }
 
             if (isset($route['name'])) {
-                $line .= $t . 'name' . $t . ' => ' . $t . $route['name'] . $t;
+                $line .= $q . 'name' . $q . ' => ' . $q . $route['name'] . $q;
             }
 
             $line = trim($line, ', ');
 
-            $output .= '    [' . $line . '],' . PHP_EOL;
+            $php[] = $ts . '[' . $line . '],';
         }
 
-        return $output;
+        $php[] = '    ]';
+        $php[] = '];';
+
+        return implode(PHP_EOL, $php) . PHP_EOL;
     }
 
     protected static function getFullyQualifiedClass(string $file): string
     {
-        // we need to keep track of the current namespace and class so we can build the callback
         $fullyQualifiedClass = '';
         $namespace = '';
 
-        // we need to read the file into an array of lines
+        // Lightweight parser for PSR-4 controller files. This intentionally only
+        // needs namespace + class name, because Reflection handles attributes.
         foreach (file($file) as $line) {
-            // we need to trim the line to remove any leading or trailing whitespace
             $line = trim($line);
 
             if ($line !== '' && $line !== '0') {
-                // we are looking for the namespace
                 if (preg_match('/namespace\s+(.*)\s*;/', $line, $matches, PREG_OFFSET_CAPTURE, 0)) {
                     $namespace = $matches[1][0];
                 }
-                // we are looking for the class
+
                 if (preg_match('/class\s*([^ ]*).*/', $line, $matches, PREG_OFFSET_CAPTURE, 0)) {
                     if ($namespace !== '' && $namespace !== '0') {
                         $fullyQualifiedClass = chr(92) . $namespace . chr(92) . $matches[1][0];

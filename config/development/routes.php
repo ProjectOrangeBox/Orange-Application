@@ -17,5 +17,5 @@ return [
         ['url' => '/assets/js', 'name' => 'javascript'],
         ['url' => '/assets/css', 'name' => 'css'],
         ['url' => '/images', 'name' => 'images'],
-    ]),
+    ], __ROOT__ . '/config/production'),
 ];
