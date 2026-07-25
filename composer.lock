@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3d087175a2a1869931d8308a03bc28a9",
+    "content-hash": "9720081042f70928d782a511d94ed320",
     "packages": [
         {
             "name": "aplus/cache",
@@ -2984,6 +2984,48 @@
             "time": "2025-08-01T08:46:24+00:00"
         },
         {
+            "name": "orange/testkit",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/testkit.git",
+                "reference": "9bc7f0bfac8e8f362e196590764af40eefcecdc5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/testkit/zipball/9bc7f0bfac8e8f362e196590764af40eefcecdc5",
+                "reference": "9bc7f0bfac8e8f362e196590764af40eefcecdc5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4",
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Shared PHPUnit base helper (unitTestHelper) for orange/* package test suites.",
+            "homepage": "https://github.com/ProjectOrangeBox/testkit",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/testkit/issues",
+                "source": "https://github.com/ProjectOrangeBox/testkit"
+            },
+            "time": "2026-07-25T02:32:20+00:00"
+        },
+        {
             "name": "phar-io/manifest",
             "version": "2.0.4",
             "source": {
@@ -5017,6 +5059,7 @@
         "orange/session": 20,
         "orange/snippets": 20,
         "orange/stash": 20,
+        "orange/testkit": 20,
         "orange/validate": 20
     },
     "prefer-stable": false,

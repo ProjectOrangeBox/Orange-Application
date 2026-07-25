@@ -10,7 +10,7 @@ use api\models\RecordModel;
  * bindings behavior (primary excluded, boolean stored as 0/1), ordering,
  * and how database rows hydrate back through the DTO.
  */
-final class RecordModelTest extends UnitTestHelper
+final class RecordModelTest extends unitTestHelper
 {
     protected RecordModel $model;
     protected PDO $pdo;

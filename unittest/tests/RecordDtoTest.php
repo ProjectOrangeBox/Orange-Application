@@ -8,7 +8,7 @@ use api\models\RecordDto;
  * Per-field rule matrix for the records DTO — the validation and
  * normalization contract the REST API enforces on every payload.
  */
-final class RecordDtoTest extends UnitTestHelper
+final class RecordDtoTest extends unitTestHelper
 {
     /**
      * A fully valid Vue-style payload; override single fields per test.

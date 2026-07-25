@@ -19,7 +19,8 @@
         "phpunit/php-code-coverage": "^14.2",
         "squizlabs/php_codesniffer": "3.*",
         "phpstan/phpstan": "^2.2",
-        "rector/rector": "^2.0"
+        "rector/rector": "^2.0",
+        "orange/testkit": "dev-master"
     },
     "require": {
         "nesbot/carbon": "3.8.4",

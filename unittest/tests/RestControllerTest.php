@@ -10,7 +10,7 @@ use orange\framework\Data;
 use orange\framework\Input;
 use orange\framework\Output;
 
-final class RestControllerTest extends UnitTestHelper
+final class RestControllerTest extends unitTestHelper
 {
     protected $instance;
     protected Data $data;

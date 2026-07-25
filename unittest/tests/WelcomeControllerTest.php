@@ -8,7 +8,7 @@ use orange\framework\Data;
 use orange\framework\Input;
 use orange\framework\Output;
 
-final class WelcomeControllerTest extends UnitTestHelper
+final class WelcomeControllerTest extends unitTestHelper
 {
     protected $instance;
     protected Data $data;
