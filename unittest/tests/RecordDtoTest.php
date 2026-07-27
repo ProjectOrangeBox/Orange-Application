@@ -43,6 +43,37 @@ final class RecordDtoTest extends unitTestHelper
         $this->assertSame('id', new RecordDto($this->validInput())->primary());
     }
 
+    public function testSchemaCanBeReadStatically(): void
+    {
+        $schema = RecordDto::schema();
+
+        $this->assertSame(RecordDto::class, $schema['class']);
+        $this->assertSame(['id', 'name', 'phone', 'in_office', 'out_until'], $schema['columns']);
+        $this->assertSame([], $schema['tables']);
+        $this->assertSame(['id'], $schema['primaries']);
+        $this->assertSame(['id', 'name', 'phone', 'in_office', 'out_until'], array_keys($schema['properties']));
+
+        $this->assertSame([
+            'fieldName' => 'name',
+            'column' => 'name',
+            'table' => null,
+            'label' => 'name',
+            'type' => 'string',
+            'nullable' => false,
+            'primary' => false,
+            'dbCast' => null,
+            'dtoArray' => null,
+        ], array_diff_key($schema['properties']['name'], ['rules' => true]));
+        $this->assertSame(['Trim', 'StripControlChars', 'CollapseSpaces', 'IsRequired', 'MaxLength'], array_column($schema['properties']['name']['rules'], 'name'));
+        $this->assertSame([64], $schema['properties']['name']['rules'][4]['arguments']);
+
+        $this->assertTrue($schema['properties']['id']['primary']);
+        $this->assertSame('int', $schema['properties']['id']['type']);
+        $this->assertSame('?string', $schema['properties']['out_until']['type']);
+        $this->assertTrue($schema['properties']['out_until']['nullable']);
+        $this->assertSame('int', $schema['properties']['in_office']['dbCast']);
+    }
+
     public function testIdMustBeAnInteger(): void
     {
         $dto = new RecordDto($this->validInput(['id' => 'abc']));

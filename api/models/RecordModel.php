@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace api\models;
 
+use api\models\RecordDto;
 use orange\framework\base\Singleton;
 use orange\model\Sql;
 use PDO;
@@ -19,13 +20,24 @@ use PDO;
  */
 class RecordModel extends Singleton
 {
+    protected array $schema;
     protected Sql $sql;
+    protected array $indexColumns;
+    protected array $readColumns;
+    protected string $tablename = 'records';
+    protected string $primaryColumn = 'id';
 
     public function __construct(PDO $pdo)
     {
+        $this->schema = RecordDto::schema();
+        // all columns on this DTO belong to records
+        $this->indexColumns = $this->schema['columns'];
+        $this->readColumns = $this->schema['columns'];
+
         $this->sql = new Sql([
-            'tablename' => 'records',
-            'primaryColumn' => 'id',
+            // Both table name and primary column name are hard coded to model
+            'tablename' => $this->tablename,
+            'primaryColumn' => $this->primaryColumn,
             // surface database errors instead of returning 0/false quietly
             'throwException' => true,
         ], $pdo);
@@ -40,7 +52,7 @@ class RecordModel extends Singleton
     {
         $records = [];
 
-        if ($statement = $this->sql->select('*')->orderBy('id')->execute()->pdoStatement) {
+        if ($statement = $this->sql->select($this->indexColumns)->orderBy($this->primaryColumn)->execute()->pdoStatement) {
             while ($row = $statement->fetch()) {
                 $records[] = $this->hydrate($row);
             }
@@ -64,7 +76,7 @@ class RecordModel extends Singleton
      */
     public function read(int $id): ?RecordDto
     {
-        $row = $this->sql->select()->wherePrimary($id)->limit(1)->execute()->row();
+        $row = $this->sql->select($this->readColumns)->wherePrimary($id)->limit(1)->execute()->row();
 
         return $row === false ? null : $this->hydrate($row);
     }
@@ -77,7 +89,7 @@ class RecordModel extends Singleton
      */
     public function exists(int $id): bool
     {
-        return $this->sql->select('id')->wherePrimary($id)->limit(1)->execute()->column() !== false;
+        return $this->sql->select($this->primaryColumn)->wherePrimary($id)->limit(1)->execute()->column() !== false;
     }
 
     /**
@@ -116,7 +128,7 @@ class RecordModel extends Singleton
 
         if (!$record->isValid()) {
             logMsg('WARNING', __METHOD__ . ' database row failed dto validation', [
-                'id' => $row['id'] ?? null,
+                $this->primaryColumn => $row[$this->primaryColumn] ?? null,
                 'errors' => $record->errors(),
             ]);
         }

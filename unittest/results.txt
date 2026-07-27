@@ -8,6 +8,7 @@ Main Controller
 Record Dto
  [x] Valid vue style payload
  [x] Primary resolves to id column
+ [x] Schema can be read statically
  [x] Id must be an integer
  [x] Name is required
  [x] Name is cleaned by hygiene filters
