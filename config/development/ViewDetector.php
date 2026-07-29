@@ -9,10 +9,6 @@ namespace config\development;
 use orange\framework\exceptions\filesystem\DirectoryNotFound;
 use orange\framework\exceptions\filesystem\DirectoryNotWritable;
 use InvalidArgumentException;
-use FilesystemIterator;
-use RecursiveCallbackFilterIterator;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 
 /**
  * Development-only view scanner.
@@ -323,10 +319,31 @@ class ViewDetector
     }
 
     /**
-     * Find every views/ directory under a root.
+     * Find every views directory under a root.
      *
      * Once one is found the walk stops descending into it - everything below is
      * view content, not another module.
+     *
+     * Deliberately an explicit stack rather than RecursiveIteratorIterator.
+     * Three things went wrong with the iterator version, and all three are
+     * easier to simply not have:
+     *
+     *  - It matched a *constructed* path ($parent . '/views') rather than the
+     *    directory the listing actually reported. aplus/debug ships its views in
+     *    'Views', which a case-insensitive filesystem resolves and a case
+     *    sensitive one does not - so a Mac and a Linux box generated different
+     *    view maps from identical source. Using the real name from the listing
+     *    is the fix; matching it case-insensitively is what keeps both platforms
+     *    agreeing on the answer.
+     *
+     *  - Rejecting a directory in the filter both stops the descent and hides it
+     *    from the iteration, so the views directory had to be inferred from its
+     *    parent. Here it is recorded and simply not pushed back on the stack.
+     *
+     *  - getChildren() on an unreadable or vanished directory throws
+     *    UnexpectedValueException from inside the iteration, taking down the
+     *    whole request. A directory that cannot be opened holds no views worth
+     *    failing a page over.
      *
      * @return list<string>
      */
@@ -337,31 +354,42 @@ class ViewDetector
         }
 
         $found = [];
+        $stack = [$root];
 
-        $directory = new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_PATHNAME);
+        while ($stack !== []) {
+            $directory = array_pop($stack);
 
-        $filter = new RecursiveCallbackFilterIterator($directory, static function ($current, $key, $iterator): bool {
-            if (!$iterator->hasChildren()) {
-                return false;
+            // unreadable, a dangling symlink, or removed since the parent was
+            // listed - skip it rather than fail the scan
+            if (!is_readable($directory) || ($entries = @scandir($directory)) === false) {
+                continue;
             }
 
-            $name = basename((string)$current);
+            foreach ($entries as $entry) {
+                if ($entry === '.' || $entry === '..') {
+                    continue;
+                }
 
-            // reject descends into tooling directories, and into the contents of
-            // a views directory once we have seen the directory itself
-            return $name !== self::VIEW_DIRECTORY && !in_array($name, self::PRUNE, true);
-        });
+                $path = $directory . DIRECTORY_SEPARATOR . $entry;
 
-        // SELF_FIRST so directories are yielded, not just files. The filter above
-        // rejects the views directory itself, which both stops the descent and
-        // keeps it out of this iteration - so look for it on the parent instead
-        $iterator = new RecursiveIteratorIterator($filter, RecursiveIteratorIterator::SELF_FIRST);
+                if (!is_dir($path)) {
+                    continue;
+                }
 
-        foreach ([$root, ...iterator_to_array($iterator, false)] as $path) {
-            $candidate = rtrim((string)$path, '/') . '/' . self::VIEW_DIRECTORY;
+                // the real name from the listing, folded - so 'Views' and
+                // 'views' are the same directory on every filesystem
+                if (mb_convert_case($entry, MB_CASE_LOWER, 'UTF-8') === self::VIEW_DIRECTORY) {
+                    $found[] = $path;
 
-            if (is_dir($candidate)) {
-                $found[] = $candidate;
+                    // everything below is view content, not another module
+                    continue;
+                }
+
+                if (in_array($entry, self::PRUNE, true)) {
+                    continue;
+                }
+
+                $stack[] = $path;
             }
         }
 
@@ -375,20 +403,46 @@ class ViewDetector
     /**
      * Every view file under one views directory, at any depth.
      *
+     * Same explicit walk as findViewDirectories() and for the same reason: a
+     * directory that cannot be opened should cost the views inside it, not the
+     * whole request.
+     *
      * @return list<string>
      */
     protected static function findViewFiles(string $viewDirectory): array
     {
         $files = [];
+        $stack = [$viewDirectory];
 
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($viewDirectory, FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_PATHNAME),
-            RecursiveIteratorIterator::LEAVES_ONLY
-        );
+        while ($stack !== []) {
+            $directory = array_pop($stack);
 
-        foreach ($iterator as $path) {
-            if (str_ends_with((string)$path, self::EXTENSION)) {
-                $files[] = (string)$path;
+            if (!is_readable($directory)) {
+                continue;
+            }
+
+            $entries = @scandir($directory);
+
+            if ($entries === false) {
+                continue;
+            }
+
+            foreach ($entries as $entry) {
+                if ($entry === '.' || $entry === '..') {
+                    continue;
+                }
+
+                $path = $directory . DIRECTORY_SEPARATOR . $entry;
+
+                if (is_dir($path)) {
+                    $stack[] = $path;
+
+                    continue;
+                }
+
+                if (str_ends_with($entry, self::EXTENSION)) {
+                    $files[] = $path;
+                }
             }
         }
 

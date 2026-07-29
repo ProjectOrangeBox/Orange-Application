@@ -54,6 +54,10 @@
         "orange/markdown": "dev-master"
     },
     "scripts": {
+        "build:production": [
+            "@php bin/detectExport",
+            "@php bin/configExport"
+        ],
         "config:export": "@php bin/configExport",
         "test": "cd unittest && sh runUnitTests.sh",
         "test:orange": "cd vendor/orange/framework/unittest && sh runUnitTests.sh",

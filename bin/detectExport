@@ -1,0 +1,54 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use orange\framework\Application;
+
+/*
+ * Regenerate config/production/routes.php and config/production/views.php.
+ *
+ * Both are written as a side effect of loading their development counterparts:
+ * config/development/routes.php calls RouterDetector::detect() and
+ * config/development/views.php calls ViewDetector::detect(), each with the
+ * production directory as their write path. So all this has to do is boot as
+ * development and ask for those two sections.
+ *
+ * ENVIRONMENT is defined here rather than read from .env because both detectors
+ * refuse to run outside development - this script has to be development no
+ * matter what the machine is configured as, in the same way bin/configExport
+ * has to be production.
+ *
+ * Run before bin/configExport, never after: the config snapshot merges these two
+ * files in as ordinary sections, so building it against stale ones bakes the
+ * stale routes and views and freezes them. "composer build:production" runs the
+ * pair in the right order.
+ */
+
+define('__ROOT__', realpath(__DIR__ . '/../'));
+define('__WWW__', __ROOT__ . '/htdocs');
+
+// development, whatever .env says - see above
+define('ENVIRONMENT', 'development');
+define('DEBUG', true);
+
+require_once __ROOT__ . '/vendor/autoload.php';
+
+// 'config snapshot' => null: development ignores the snapshot anyway, but being
+// explicit keeps this working if that ever changes
+$container = Application::make([__ROOT__ . '/.env'])->run(['config snapshot' => null]);
+
+foreach (['routes', 'views'] as $section) {
+    // loading the section is what triggers the detector behind it
+    $container->config->get($section);
+
+    $file = __ROOT__ . '/config/production/' . $section . '.php';
+
+    if (!is_file($file)) {
+        echo 'Expected ' . $section . ' to write ' . str_replace(__ROOT__, '', $file) . ', but it is not there.' . PHP_EOL;
+
+        exit(1);
+    }
+
+    echo 'Wrote ' . str_replace(__ROOT__, '', $file) . PHP_EOL;
+}

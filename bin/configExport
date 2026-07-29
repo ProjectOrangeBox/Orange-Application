@@ -44,6 +44,48 @@ $container = $application->run(['config snapshot' => null]);
 $config = $container->config;
 
 /*
+ * The snapshot merges config/production/{routes,views}.php in as ordinary
+ * sections, so building it against stale ones bakes the stale values and then
+ * freezes them - regenerating routes.php afterwards has no effect until this
+ * runs again. That failure is completely silent, so it is checked instead.
+ *
+ * "composer build:production" regenerates both first and this never fires.
+ */
+$prerequisites = [
+    'routes' => [__ROOT__ . '/application', __ROOT__ . '/api'],
+    'views'  => [__ROOT__ . '/application', __ROOT__ . '/api', __ROOT__ . '/vendor/orange'],
+];
+
+$stale = [];
+
+foreach ($prerequisites as $name => $sources) {
+    $generated = __ROOT__ . '/config/production/' . $name . '.php';
+
+    if (!is_file($generated)) {
+        $stale[$name] = 'missing';
+
+        continue;
+    }
+
+    if (($newest = newestSource($sources)) > filemtime($generated)) {
+        $stale[$name] = 'older than its sources (newest change ' . date('Y-m-d H:i:s', $newest) . ')';
+    }
+}
+
+if ($stale !== []) {
+    echo 'Refusing to build the config snapshot - it would bake stale generated config:' . PHP_EOL;
+
+    foreach ($stale as $name => $why) {
+        echo '  config/production/' . $name . '.php: ' . $why . PHP_EOL;
+    }
+
+    echo PHP_EOL . 'Run: composer build:production' . PHP_EOL;
+
+    exit(1);
+}
+
+
+/*
  * Sections that are not really configuration and must never be baked.
  *
  * config/input.php returns Input::fromGlobals() - the live $_GET/$_POST/$_SERVER
@@ -94,3 +136,57 @@ $file = ConfigDetector::write($sections, $deferred, __ROOT__ . '/config/producti
 echo 'Wrote ' . str_replace(__ROOT__, '', $file) . PHP_EOL;
 echo '  baked    (' . count($sections) . '): ' . implode(', ', array_keys($sections)) . PHP_EOL;
 echo '  deferred (' . count($deferred) . '): ' . implode(', ', array_keys($deferred)) . PHP_EOL;
+
+/**
+ * Newest modification time of any .php file under these roots.
+ *
+ * An explicit stack rather than RecursiveIteratorIterator, for the same reason
+ * ViewDetector uses one: getChildren() throws UnexpectedValueException from
+ * inside the iteration when a directory cannot be opened, and a build step
+ * should not die because something under vendor/ is unreadable. Prunes the same
+ * tool directories - the walk costs what it traverses.
+ *
+ * @param list<string> $roots
+ */
+function newestSource(array $roots): int
+{
+    $prune = ['.git', '.svn', '.hg', '.idea', '.vscode', 'node_modules', 'unittest', 'tests'];
+    $newest = 0;
+    $stack = $roots;
+
+    while ($stack !== []) {
+        $directory = array_pop($stack);
+
+        if (!is_dir($directory) || !is_readable($directory)) {
+            continue;
+        }
+
+        $entries = @scandir($directory);
+
+        if ($entries === false) {
+            continue;
+        }
+
+        foreach ($entries as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $path = $directory . DIRECTORY_SEPARATOR . $entry;
+
+            if (is_dir($path)) {
+                if (!in_array($entry, $prune, true)) {
+                    $stack[] = $path;
+                }
+
+                continue;
+            }
+
+            if (str_ends_with($entry, '.php')) {
+                $newest = max($newest, (int)filemtime($path));
+            }
+        }
+    }
+
+    return $newest;
+}
