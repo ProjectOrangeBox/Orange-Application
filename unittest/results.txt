@@ -1,3 +1,12 @@
+Calendar Controller
+ [x] Month returns events for requested month
+ [x] Create rejects invalid payload
+ [x] Create update and delete
+
+Calendar Event Model
+ [x] Month returns only requested month ordered by date
+ [x] Create read update and delete
+
 Main Controller
  [x] Index renders the main index view
  [x] Index returns the rendered view

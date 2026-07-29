@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace api\models;
 
 use orange\dto\attributes\DbCast;
-use orange\dto\attributes\FieldName;
 use orange\dto\attributes\filters\CollapseSpaces;
 use orange\dto\attributes\filters\DefaultTo;
 use orange\dto\attributes\filters\NormalizeDateTime;
@@ -29,7 +28,6 @@ class RecordDto extends Dto
     #[IsPrimary()]
     #[Integer()]
     #[ToInteger()]
-    #[FieldName('id')]
     public protected(set) int $id;
 
     // filters run in declaration order and later rules see the filtered
@@ -39,7 +37,6 @@ class RecordDto extends Dto
     #[CollapseSpaces()]
     #[IsRequired()]
     #[MaxLength(64)]
-    #[FieldName('name')]
     public protected(set) string $name;
 
     // NormalizePhone canonicalizes '(555) 123-4567' -> '5551234567' before
@@ -49,7 +46,6 @@ class RecordDto extends Dto
     #[ValidPhoneNumber()]
     #[IsRequired()]
     #[MaxLength(64)]
-    #[FieldName('phone')]
     public protected(set) string $phone;
 
     // the domain value is a real bool; DbCast emits 0/1 in asColumns() for
@@ -59,7 +55,6 @@ class RecordDto extends Dto
     #[IsBoolean()]
     #[ToBoolean()]
     #[DbCast('int')]
-    #[FieldName('in_office')]
     public protected(set) bool $in_office;
 
     // no removal rule here: the client clears the date by sending an explicit
@@ -69,6 +64,5 @@ class RecordDto extends Dto
     #[NullIfEmpty()]
     #[ValidDate()]
     #[NormalizeDateTime()]
-    #[FieldName('out_until')]
     public protected(set) ?string $out_until = null;
 }

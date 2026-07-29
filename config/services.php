@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use api\models\RecordModel;
+use api\models\CalendarEventModel;
 use orange\framework\interfaces\ContainerInterface;
 
 return [
@@ -37,4 +38,5 @@ return [
         return $pdo;
     },
     'RecordModel' => fn(ContainerInterface $container): RecordModel => RecordModel::getInstance($container->pdo),
+    'CalendarEventModel' => fn(ContainerInterface $container): CalendarEventModel => CalendarEventModel::getInstance($container->pdo),
 ];
