@@ -111,10 +111,13 @@ final class RecordDtoTest extends unitTestHelper
 
     public function testNameMaxLength(): void
     {
-        // MaxLength(64) is strictly less than: 63 passes, 64 fails
+        // MaxLength(64) is inclusive: 64 is the limit, so 64 passes and 65 fails.
+        // It used to be exclusive, which rejected a name the varchar(64) column
+        // would have stored quite happily.
         $this->assertTrue(new RecordDto($this->validInput(['name' => str_repeat('a', 63)]))->isValid());
+        $this->assertTrue(new RecordDto($this->validInput(['name' => str_repeat('a', 64)]))->isValid());
 
-        $dto = new RecordDto($this->validInput(['name' => str_repeat('a', 64)]));
+        $dto = new RecordDto($this->validInput(['name' => str_repeat('a', 65)]));
 
         $this->assertFalse($dto->isValid());
         $this->assertArrayHasKey('name', $dto->errors());

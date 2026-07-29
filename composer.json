@@ -53,7 +53,6 @@
         "orange/session": "dev-master",
         "orange/snippets": "dev-master",
         "orange/stash": "dev-master",
-        "orange/validate": "dev-master",
         "aplus/cache": "^4.3",
         "aplus/session": "^4.1"
     },
