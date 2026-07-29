@@ -25,8 +25,6 @@
     "require": {
         "nesbot/carbon": "3.*",
         "monolog/monolog": "3.*",
-        "michelf/php-markdown": "2.*",
-        "zordius/lightncandy": "1.*",
         "brick/varexporter": "0.*",
         "orange/framework": "dev-master",
         "orange/bitwise": "dev-master",
@@ -52,9 +50,11 @@
         "orange/dto": "dev-master",
         "orange/session": "dev-master",
         "orange/snippets": "dev-master",
-        "orange/stash": "dev-master"
+        "orange/stash": "dev-master",
+        "orange/markdown": "dev-master"
     },
     "scripts": {
+        "config:export": "@php bin/configExport",
         "test": "cd unittest && sh runUnitTests.sh",
         "test:orange": "cd vendor/orange/framework/unittest && sh runUnitTests.sh",
         "test:orangeCoverage": "cd vendor/orange/framework/unittest && sh runCoverage.sh",

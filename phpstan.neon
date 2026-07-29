@@ -11,6 +11,9 @@ parameters:
         # legitimately defined at render time but invisible to static analysis -
         # analysing them produces nothing but noise
         - application/*/views/*
+        # generated snapshots - rewritten wholesale by the detectors, and the
+        # config one is a 2000-line literal that says nothing about the code
+        - config/production/*
     # global helper functions (logMsg, container, config, show404, ...) are
     # loaded at runtime by Application::preContainer() via dynamic include_once,
     # not through composer's autoloader, so PHPStan can't see them without an
@@ -38,9 +41,20 @@ parameters:
             # literal so the constant is defined at all, which makes PHPStan see
             # any comparison against a *different* literal as statically
             # always-true/-false. Real behavior varies by environment; this is a
-            # stubbing limitation, not a dead-code bug.
+            # stubbing limitation, not a dead-code bug. Both detectors guard
+            # themselves the same way, so both need the same pair of exemptions.
             identifier: notEqual.alwaysTrue
-            path: config/development/RouterDetector.php
+            paths:
+                - config/development/RouterDetector.php
+                - config/development/ViewDetector.php
+        -
+            # same stubbing limitation, opposite direction: ConfigDetector
+            # refuses to run unless ENVIRONMENT is production, and the bootstrap
+            # stub happens to be that literal
+            identifier: notEqual.alwaysFalse
+            path: config/development/ConfigDetector.php
         -
             identifier: deadCode.unreachable
-            path: config/development/RouterDetector.php
+            paths:
+                - config/development/RouterDetector.php
+                - config/development/ViewDetector.php

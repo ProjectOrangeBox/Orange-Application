@@ -1,0 +1,96 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use config\development\ConfigDetector;
+use orange\framework\Application;
+
+/*
+ * Build config/production/config.php - every configuration section, merged, as
+ * one plain PHP array.
+ *
+ * ENVIRONMENT and DEBUG are defined here, before anything else loads, because
+ * Application define()s both from .env behind a defined() guard. Setting them
+ * first is what makes this a *production* snapshot: it decides that the cascade
+ * merges config/production rather than config/development, and that a value
+ * like 'debug' => DEBUG freezes to false. That is also why this cannot run
+ * inside an ordinary development request - by then both constants are already
+ * development values and cannot be redefined.
+ *
+ * Run it after RouterDetector and ViewDetector have written their own
+ * production files, since this reads those as part of the cascade:
+ *
+ *     composer config:export
+ */
+
+define('__ROOT__', realpath(__DIR__ . '/../'));
+define('__WWW__', __ROOT__ . '/htdocs');
+
+// production, whatever .env says - see above
+define('ENVIRONMENT', 'production');
+define('DEBUG', false);
+
+require_once __ROOT__ . '/vendor/autoload.php';
+require_once __ROOT__ . '/config/development/ConfigDetector.php';
+
+$application = Application::make([__ROOT__ . '/.env']);
+
+// run() bootstraps the container without matching a route or sending output.
+// 'config snapshot' => null is what stops Config demanding the snapshot this
+// script exists to create - it discovers the production cascade instead
+$container = $application->run(['config snapshot' => null]);
+
+$config = $container->config;
+
+/*
+ * Sections that are not really configuration and must never be baked.
+ *
+ * config/input.php returns Input::fromGlobals() - the live $_GET/$_POST/$_SERVER
+ * of whatever process loads it. Freezing that would commit this machine's whole
+ * environment to git and then hand every production request the build-time URI,
+ * method and headers.
+ */
+const DEFERRED = ['input'];
+
+$sections = [];
+$deferred = [];
+$skipped = [];
+
+foreach ($config->sections() as $name) {
+    // 'config' would be this snapshot reading itself once it exists
+    if ($name === 'config') {
+        continue;
+    }
+
+    if (in_array($name, DEFERRED, true)) {
+        // record where it lives, not what it currently evaluates to
+        $deferred[$name] = $config->files($name);
+
+        continue;
+    }
+
+    try {
+        $sections[$name] = $config->get($name);
+    } catch (Throwable $e) {
+        // a section that cannot even be loaded is a broken config file, and
+        // baking a half-built snapshot would hide it
+        $skipped[$name] = $e->getMessage();
+    }
+}
+
+if ($skipped !== []) {
+    echo 'Refusing to write a partial snapshot - these sections failed to load:' . PHP_EOL;
+
+    foreach ($skipped as $name => $message) {
+        echo '  ' . $name . ': ' . $message . PHP_EOL;
+    }
+
+    exit(1);
+}
+
+$file = ConfigDetector::write($sections, $deferred, __ROOT__ . '/config/production');
+
+echo 'Wrote ' . str_replace(__ROOT__, '', $file) . PHP_EOL;
+echo '  baked    (' . count($sections) . '): ' . implode(', ', array_keys($sections)) . PHP_EOL;
+echo '  deferred (' . count($deferred) . '): ' . implode(', ', array_keys($deferred)) . PHP_EOL;

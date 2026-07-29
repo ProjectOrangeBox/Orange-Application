@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use orange\framework\interfaces\ConfigInterface;
 use orange\framework\interfaces\ViewInterface;
-use orange\framework\interfaces\DirectorySearchInterface;
+use orange\framework\interfaces\ViewFinderInterface;
 
 /**
  * Lightweight test doubles for the framework services that application
@@ -74,16 +74,11 @@ class MockViewService implements ViewInterface
     /** @var array<int, array{name: string, value: mixed}> */
     public array $changeCalls = [];
 
-    public function __construct(private ?DirectorySearchInterface $search = null)
+    public function render(string $viewFile = '', array $data = [], array $options = []): string
     {
-        $this->search ??= new MockDirectorySearch();
-    }
+        $this->renderCalls[] = ['view' => $viewFile, 'data' => $data];
 
-    public function render(string $view = '', array $data = [], array $options = []): string
-    {
-        $this->renderCalls[] = ['view' => $view, 'data' => $data];
-
-        return 'rendered:' . $view;
+        return 'rendered:' . $viewFile;
     }
 
     public function renderString(string $string, array $data = [], array $options = []): string
@@ -99,132 +94,37 @@ class MockViewService implements ViewInterface
 
         return $this;
     }
-
-    public function search(): DirectorySearchInterface
-    {
-        return $this->search;
-    }
 }
 
+
 /**
- * DirectorySearch double. Every method is an inert no-op - BaseController's
- * constructor calls search()->addDirectory() to register a controller's local
- * view path, which is irrelevant when the view itself is a MockViewService.
+ * ViewFinder double.
+ *
+ * BaseController::renderView() resolves a name to a path through this before
+ * handing it to the view engine, so a controller test needs one on the
+ * container. It echoes the name back rather than consulting a map, which keeps
+ * the assertions about *what was asked for* - MockViewService returns
+ * 'rendered:<path>', so a test still sees the view name it expected.
  */
-class MockDirectorySearch implements DirectorySearchInterface
+class MockViewFinderService implements ViewFinderInterface
 {
-    public function addDirectory(string $directory, ?int $pend = null): self
+    /** @var array<int, array{view: string, namespace: string}> */
+    public array $findCalls = [];
+
+    public function find(string $view, string $namespace = ''): string
     {
-        return $this;
+        $this->findCalls[] = ['view' => $view, 'namespace' => $namespace];
+
+        return $view;
     }
 
-    public function addDirectories(array $directories, ?int $pend = null): self
+    public function exists(string $view, string $namespace = ''): bool
     {
-        return $this;
+        return true;
     }
 
-    public function removeDirectory(string $directory, bool $removeFoundResources = false): self
-    {
-        return $this;
-    }
-
-    public function removeDirectories(array $directories, bool $removeFoundResources = false): self
-    {
-        return $this;
-    }
-
-    public function listDirectories(): array
+    public function all(): array
     {
         return [];
-    }
-
-    public function directoryExists(string $directory): bool
-    {
-        return false;
-    }
-
-    public function replaceDirectories(array $directories, bool $removeFoundResources = false): self
-    {
-        return $this;
-    }
-
-    public function addResource(string $resource, string $absolutePath): self
-    {
-        return $this;
-    }
-
-    public function addResources(array $resources): self
-    {
-        return $this;
-    }
-
-    public function removeResource(string $resource): self
-    {
-        return $this;
-    }
-
-    public function removeResources(array $resources): self
-    {
-        return $this;
-    }
-
-    public function list(): array
-    {
-        return [];
-    }
-
-    public function exists(string $resource): bool
-    {
-        return false;
-    }
-
-    public function replaceResources(array $resources): self
-    {
-        return $this;
-    }
-
-    public function flushDirectories(bool $flushResources = true): self
-    {
-        return $this;
-    }
-
-    public function flushResources(): self
-    {
-        return $this;
-    }
-
-    public function find(string $resource): array
-    {
-        return [];
-    }
-
-    public function findFirst(string $resource): string
-    {
-        return '';
-    }
-
-    public function findLast(string $resource): string
-    {
-        return '';
-    }
-
-    public function findAll(): array
-    {
-        return [];
-    }
-
-    public function lock(): self
-    {
-        return $this;
-    }
-
-    public function unlock(): self
-    {
-        return $this;
-    }
-
-    public function isLocked(): bool
-    {
-        return false;
     }
 }

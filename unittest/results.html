@@ -62,6 +62,20 @@
             <li class="success">Month returns only requested month ordered by date</li>
             <li class="success">Create read update and delete</li>
         </ul>
+        <h2>Config Detector</h2>
+        <ul>
+            <li class="success">The committed snapshot has both sections</li>
+            <li class="success">Input is deferred rather than baked</li>
+            <li class="success">The snapshot holds no build machine paths</li>
+            <li class="success">Time and machine dependent values stay expressions</li>
+            <li class="success">Export rewrites dynamic values as expressions</li>
+            <li class="success">Export rewrites first class callables</li>
+            <li class="success">Exported file is valid php that round trips</li>
+            <li class="success">Is stale when the snapshot is missing</li>
+            <li class="success">Is stale when a config file is newer</li>
+            <li class="success">Production boots from the snapshot</li>
+            <li class="success">Production fails loudly without a snapshot</li>
+        </ul>
         <h2>Main Controller</h2>
         <ul>
             <li class="success">Index renders the main index view</li>
@@ -114,6 +128,18 @@
             <li class="success">Update accepts a valid vue style payload</li>
             <li class="success">Update rejects an invalid payload with 422</li>
             <li class="success">Update input defaults missing in office</li>
+        </ul>
+        <h2>View Detector</h2>
+        <ul>
+            <li class="success">Scan finds views</li>
+            <li class="success">Every scanned path is absolute and exists</li>
+            <li class="success">Every snapshot path is absolute and exists</li>
+            <li class="success">Production snapshot matches a fresh scan</li>
+            <li class="success">Every generated key is lower cased</li>
+            <li class="success">Hand written aliases are normalized on both sides</li>
+            <li class="success">Hand written extras hold their keys against the scan</li>
+            <li class="success">A case collision is recorded rather than overwriting</li>
+            <li class="success">Application views are namespaced and vendor views are not</li>
         </ul>
         <h2>Welcome Controller</h2>
         <ul>

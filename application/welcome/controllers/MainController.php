@@ -40,8 +40,9 @@ class MainController extends BaseController
         $this->data['name'] = 'Johnny Appleseed';
 
         // render it!
-        // auto detect view on therefore it loads /main/index.php
-        // from the local view path
-        return $this->view->render('main/index');
+        // renderView() resolves the name against this controller's own module
+        // first - 'application/welcome/main/index' - so a view of the same name
+        // shipped by a package is only used when this module has none
+        return $this->renderView('main/index');
     }
 }

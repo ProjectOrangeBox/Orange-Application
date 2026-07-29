@@ -7,6 +7,7 @@ use orange\framework\Container;
 use orange\framework\Data;
 use orange\framework\Input;
 use orange\framework\Output;
+use orange\framework\interfaces\RouterInterface;
 
 final class MainControllerTest extends unitTestHelper
 {
@@ -39,6 +40,12 @@ final class MainControllerTest extends unitTestHelper
         $container->set('output', Output::newInstance([], Input::newInstance([])));
         $container->set('data', $this->data);
         $container->set('view', $this->view);
+        // BaseController attaches the router now that it, not the view engine,
+        // resolves $c/$m view names - so every controller needs one present
+        $container->set('router', $this->createStub(RouterInterface::class));
+        // renderView() resolves the name through the view finder before the
+        // view engine ever sees it, so controllers need one of these too
+        $container->set('viewFinder', new MockViewFinderService());
 
         $this->instance = new MainController();
     }

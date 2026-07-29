@@ -7,6 +7,19 @@ Calendar Event Model
  [x] Month returns only requested month ordered by date
  [x] Create read update and delete
 
+Config Detector
+ [x] The committed snapshot has both sections
+ [x] Input is deferred rather than baked
+ [x] The snapshot holds no build machine paths
+ [x] Time and machine dependent values stay expressions
+ [x] Export rewrites dynamic values as expressions
+ [x] Export rewrites first class callables
+ [x] Exported file is valid php that round trips
+ [x] Is stale when the snapshot is missing
+ [x] Is stale when a config file is newer
+ [x] Production boots from the snapshot
+ [x] Production fails loudly without a snapshot
+
 Main Controller
  [x] Index renders the main index view
  [x] Index returns the rendered view
@@ -55,6 +68,17 @@ Rest Controller
  [x] Update accepts a valid vue style payload
  [x] Update rejects an invalid payload with 422
  [x] Update input defaults missing in office
+
+View Detector
+ [x] Scan finds views
+ [x] Every scanned path is absolute and exists
+ [x] Every snapshot path is absolute and exists
+ [x] Production snapshot matches a fresh scan
+ [x] Every generated key is lower cased
+ [x] Hand written aliases are normalized on both sides
+ [x] Hand written extras hold their keys against the scan
+ [x] A case collision is recorded rather than overwriting
+ [x] Application views are namespaced and vendor views are not
 
 Welcome Controller
  [x] Index returns welcome message
