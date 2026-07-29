@@ -23,7 +23,7 @@
         "orange/testkit": "dev-master"
     },
     "require": {
-        "nesbot/carbon": "3.8.4",
+        "nesbot/carbon": "3.*",
         "monolog/monolog": "3.*",
         "michelf/php-markdown": "2.*",
         "zordius/lightncandy": "1.*",
@@ -52,9 +52,7 @@
         "orange/dto": "dev-master",
         "orange/session": "dev-master",
         "orange/snippets": "dev-master",
-        "orange/stash": "dev-master",
-        "aplus/cache": "^4.3",
-        "aplus/session": "^4.1"
+        "orange/stash": "dev-master"
     },
     "scripts": {
         "test": "cd unittest && sh runUnitTests.sh",
@@ -81,6 +79,8 @@
             "url": "https://projectorangebox.github.io/OrangePackages/"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "config": {
     }
 }
