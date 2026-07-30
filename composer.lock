@@ -1010,12 +1010,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/cache.git",
-                "reference": "532fe8e9e64a81ff6c83828a116fdb2bcbd00f4c"
+                "reference": "b5dd77f3dc8393f04e0ee305cd23079fd7e7c396"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/cache/zipball/532fe8e9e64a81ff6c83828a116fdb2bcbd00f4c",
-                "reference": "532fe8e9e64a81ff6c83828a116fdb2bcbd00f4c",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/cache/zipball/b5dd77f3dc8393f04e0ee305cd23079fd7e7c396",
+                "reference": "b5dd77f3dc8393f04e0ee305cd23079fd7e7c396",
                 "shasum": ""
             },
             "require": {
@@ -1049,7 +1049,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/cache/issues",
                 "source": "https://github.com/ProjectOrangeBox/cache"
             },
-            "time": "2026-07-30T19:47:00+00:00"
+            "time": "2026-07-30T20:49:31+00:00"
         },
         {
             "name": "orange/collector",
