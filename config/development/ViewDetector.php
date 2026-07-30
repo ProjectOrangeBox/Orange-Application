@@ -63,6 +63,12 @@ use InvalidArgumentException;
  * declaration order; vendor roots come from the generated autoload map and go
  * last. Nothing is hardcoded here - add a PSR-4 entry, run dump-autoload, and
  * its views are picked up.
+ *
+ * @phpstan-type ViewSections array{
+ *     views?: array<string, string>,
+ *     'view fallbacks'?: array<string, string>,
+ *     'view aliases'?: array<string, string>
+ * }
  */
 class ViewDetector
 {
@@ -84,7 +90,7 @@ class ViewDetector
      * Passing $productionPathWrite also refreshes the production snapshot while
      * running in development, exactly as RouterDetector::detect() does.
      *
-     * @param array $extraViews same three-section shape as the return value;
+     * @param ViewSections $extraViews same three-section shape as the return value;
      *        these are applied before anything is scanned, so they win a
      *        fallback key. This is where hand-written 'view aliases' go.
      * @param string|null $productionPathWrite directory to write views.php into
@@ -120,6 +126,8 @@ class ViewDetector
 
     /**
      * Print the production file to stdout instead of writing it.
+     *
+     * @param ViewSections $extraViews
      */
     public static function export(array $extraViews = []): string
     {
@@ -133,6 +141,7 @@ class ViewDetector
     /**
      * Walk every root, in priority order, collecting all three sections.
      *
+     * @param ViewSections $extraViews
      * @return array{0: array<string, string>, 1: array<string, string>, 2: array<string, string>, 3: array<string, array<string, list<string>>>}
      */
     protected static function findViewsInPsr4Roots(array $extraViews): array

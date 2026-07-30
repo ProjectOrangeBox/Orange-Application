@@ -18,6 +18,13 @@ use ReflectionMethod;
  *
  * Production should consume a pre-generated plain PHP route array instead of
  * reflecting over every controller file on each request.
+ *
+ * A route entry carries string values except for 'method', which may be a list,
+ * and 'callback', which is a [class, method] pair - hence mixed values rather
+ * than a stricter shape. formatForProduction() re-checks each field it uses
+ * before writing it out, so nothing here relies on the shape being trusted.
+ *
+ * @phpstan-type RouteEntry array<string, mixed>
  */
 class RouterDetector
 {
@@ -33,6 +40,10 @@ class RouterDetector
      *
      * Passing $productionPathWrite also refreshes the production route snapshot
      * while running in development.
+     *
+     * @param list<string> $paths
+     * @param list<RouteEntry> $routes
+     * @return list<RouteEntry>
      */
     public static function detect(array $paths, array $routes = [], ?string $productionPathWrite = null): array
     {
@@ -62,6 +73,10 @@ class RouterDetector
         return $routes;
     }
 
+    /**
+     * @param list<string> $paths
+     * @param list<RouteEntry> $routes
+     */
     public static function export(array $paths, array $routes = []): string
     {
         echo static::formatForProduction(static::findRoutesInProvidedPaths($paths, $routes));
@@ -69,6 +84,11 @@ class RouterDetector
         exit(0);
     }
 
+    /**
+     * @param list<string> $paths
+     * @param list<RouteEntry> $routes
+     * @return list<RouteEntry>
+     */
     protected static function findRoutesInProvidedPaths(array $paths, array $routes): array
     {
         foreach ($paths as $path) {
@@ -82,11 +102,17 @@ class RouterDetector
         return $routes;
     }
 
+    /**
+     * @param list<RouteEntry> $routes
+     */
     protected static function scanPath(array &$routes, string $file): void
     {
         $fullyQualifiedClass = static::getFullyQualifiedClass($file);
 
-        if ($fullyQualifiedClass !== '' && $fullyQualifiedClass !== '0') {
+        // class_exists() also does the work of narrowing this to a class-string
+        // for ReflectionClass. A parsed name that will not autoload - a file the
+        // PSR-4 roots do not cover - is skipped rather than thrown from.
+        if ($fullyQualifiedClass !== '' && $fullyQualifiedClass !== '0' && class_exists($fullyQualifiedClass)) {
             // Reflection depends on Composer autoloading for the application/api
             // namespaces configured in composer.json.
             $reflectionClass = new ReflectionClass($fullyQualifiedClass);
@@ -96,6 +122,11 @@ class RouterDetector
 
                 if (!empty($attributes)) {
                     $routeInstance = $attributes[0]->newInstance();
+
+                    // Start clean each time: 'callback' survives the array_filter
+                    // below, so a leftover from the previous method would let a
+                    // Route carrying no url, name or method still emit an entry.
+                    $route = [];
 
                     $route['url'] = $routeInstance->url;
                     $route['name'] = $routeInstance->name;
@@ -117,6 +148,8 @@ class RouterDetector
 
     /**
      * Format the route table as a complete PHP config file for production.
+     *
+     * @param list<RouteEntry> $routes
      */
     protected static function formatForProduction(array $routes): string
     {
@@ -209,9 +242,11 @@ class RouterDetector
         $fullyQualifiedClass = '';
         $namespace = '';
 
+        // An unreadable file yields no class rather than a fatal - the scan walks
+        // whatever the glob returned and should not die on one bad entry.
         // Lightweight parser for PSR-4 controller files. This intentionally only
         // needs namespace + class name, because Reflection handles attributes.
-        foreach (file($file) as $line) {
+        foreach (file($file) ?: [] as $line) {
             $line = trim($line);
 
             if ($line !== '' && $line !== '0') {
@@ -231,14 +266,16 @@ class RouterDetector
         return $fullyQualifiedClass;
     }
 
+    /**
+     * @return list<string>
+     */
     protected static function rglob(string $path, string $pattern): array
     {
-        $paths = glob($path . '/*', GLOB_MARK | GLOB_ONLYDIR | GLOB_NOSORT);
-        $files = glob($path . '/' . $pattern);
-
-        if (!is_array($files)) {
-            $files = [];
-        }
+        // glob() returns false on failure, so both calls are normalised before
+        // use - the directory one was not, and an unreadable directory made the
+        // foreach below fatal.
+        $paths = glob($path . '/*', GLOB_MARK | GLOB_ONLYDIR | GLOB_NOSORT) ?: [];
+        $files = glob($path . '/' . $pattern) ?: [];
 
         foreach ($paths as $subpath) {
             $files = array_merge($files, static::rglob($subpath, $pattern));

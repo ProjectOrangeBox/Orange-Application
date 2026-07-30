@@ -97,7 +97,7 @@ class ConfigDetector
     /**
      * Merge the whole cascade and write it to $productionPathWrite/config.php.
      *
-     * @param array $config every bakeable section, already merged - see bin/configExport
+     * @param array<string, mixed> $config every bakeable section, already merged - see bin/configExport
      * @param array<string, list<string>> $deferred section => files, for sections
      *        that must be evaluated per request rather than baked
      * @param string $productionPathWrite directory to write config.php into
@@ -130,6 +130,9 @@ class ConfigDetector
 
     /**
      * Render the merged cascade as a complete PHP config file.
+     *
+     * @param array<string, mixed> $config
+     * @param array<string, list<string>> $deferred
      */
     public static function export(array $config, array $deferred = []): string
     {
@@ -210,7 +213,8 @@ class ConfigDetector
      * has to be built by a process already configured as production rather than
      * patched up afterwards.
      *
-     * @return array{0: array, 1: array<string, string>}
+     * @param array<string, mixed> $config
+     * @return array{0: array<string, mixed>, 1: array<string, string>}
      */
     protected static function extractExpressions(array $config): array
     {
