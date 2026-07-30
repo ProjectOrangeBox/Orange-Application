@@ -21,7 +21,12 @@ RUN install-php-extensions \
         git \
         unzip \
         openssh-client \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+# APCu is off on the CLI by default, and PHPUnit runs on the CLI - so without
+# this orange/cache's ApcuCache tests cannot run at all (apcu_enabled() returns
+# false and the backend refuses to initialize). Only affects the CLI SAPI; the
+# web workers already had APCu.
+    && printf 'apc.enable_cli=1\n' > "$PHP_INI_DIR/conf.d/zz-apcu-cli.ini"
 
 # PHP Composer (pinned to v2 from the official image).
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
