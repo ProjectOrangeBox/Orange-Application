@@ -23,8 +23,6 @@
         "orange/testkit": "dev-master"
     },
     "require": {
-        "nesbot/carbon": "3.*",
-        "monolog/monolog": "3.*",
         "brick/varexporter": "0.*",
         "orange/framework": "dev-master",
         "orange/bitwise": "dev-master",

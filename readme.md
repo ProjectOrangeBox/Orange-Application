@@ -460,11 +460,66 @@ Any web server works, subject to two rules: the document root must be `htdocs/`,
 ```bash
 composer test          # application tests
 composer test:orange   # framework core tests
-composer type-check    # PHPStan level 5
+composer type-check    # PHPStan level 8
 composer lint          # PSR-12
 ./sweep.sh             # all four, in order, stopping at first failure
-./sweep-all.sh         # status matrix across all 26 packages
+./sweep-all.sh         # status matrix across every orange package
 ```
+
+### Optional libraries
+
+Neither of these is required and neither is installed. They are worth knowing about because the
+framework is built to accept the first and deliberately leaves the second to you.
+
+**Monolog** — the framework's own logger writes to a file and that is all it does. `Log`
+implements PSR-3 `LoggerInterface`, and `config/log.php` takes a `handler` key that accepts *any*
+PSR-3 logger; supply one and the framework stops writing files and forwards every call to it
+instead. That is the seam to reach for as soon as logs need to go somewhere a file cannot —
+syslog, Slack, Sentry, a rotating set, or several at once.
+
+```bash
+composer require monolog/monolog
+```
+
+```php
+// config/log.php
+use orange\framework\interfaces\LogInterface;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+$monolog = new Logger('app');
+$monolog->pushHandler(new StreamHandler(__ROOT__ . '/var/logs/app.log', Logger::DEBUG));
+
+return [
+    'threshold' => LogInterface::ALL,
+    'handler' => $monolog,   // must implement Psr\Log\LoggerInterface
+];
+```
+
+A handler that is not an object throws `InvalidValue`; one that is an object but not PSR-3 throws
+`IncorrectInterface`. With a handler set, `filepath` is no longer required to be writable — the
+handler owns its own storage.
+
+**Carbon** — there is no date/time abstraction anywhere in the framework, by choice: PHP's own
+`DateTimeImmutable` covers most of what an application needs. Carbon is worth adding when the
+application itself does real calendar work — relative phrasing ("3 days ago"), fluent arithmetic,
+localized formatting, or timezone juggling — none of which is the framework's business.
+
+```bash
+composer require nesbot/carbon
+```
+
+```php
+use Carbon\Carbon;
+
+$due = Carbon::parse($record->out_until);
+
+$this->data['out_until_human'] = $due->diffForHumans();      // "in 3 days"
+$this->data['is_overdue']      = $due->isPast();
+```
+
+Both were previously required by this application and used by neither, so they were removed. Add
+them back when something actually calls for them.
 
 ---
 
