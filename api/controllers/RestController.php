@@ -11,8 +11,13 @@ use orange\framework\attributes\Route;
 use orange\framework\controllers\JsonController;
 
 /**
- * REST endpoints backing the Vue records client — the client side of this
- * contract is documented in the Vue app's stores/records.ts.
+ * REST endpoints for the records table.
+ *
+ * There is no client in this repo, so the contract below is the whole of it.
+ * (An earlier comment here pointed at a Vue app's stores/records.ts; no such
+ * file was ever in this repo, and the client that did exist — compiled into a
+ * webpack bundle, tinybind rather than Vue — bound fields this API no longer
+ * serves. Both are gone.)
  *
  *   GET    /api/index        -> 200 [{id, name, phone, in_office, out_until}, ...]
  *   GET    /api/read/{id}    -> 200 record                | 404 {"msg": ...}

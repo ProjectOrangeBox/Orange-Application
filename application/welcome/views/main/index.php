@@ -331,7 +331,9 @@
         </div>
     </div>
 </div>
-<script src="/assets/bundle.js"></script>
+<!-- Popper is included in the "bundle" build, which the collapsing navbar and
+     the modals on this page both need. -->
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
 <?= $script ?>
 <?= $js ?>
 <?php include __DIR__ . '/../partials/footer.php' ?>
