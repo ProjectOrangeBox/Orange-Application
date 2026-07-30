@@ -1010,12 +1010,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/cache.git",
-                "reference": "2be49d7f1df49d80512f910ea5ef2341f4f1664c"
+                "reference": "3e74964b15395a5252863e948dd6eb8ae085a8e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/cache/zipball/2be49d7f1df49d80512f910ea5ef2341f4f1664c",
-                "reference": "2be49d7f1df49d80512f910ea5ef2341f4f1664c",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/cache/zipball/3e74964b15395a5252863e948dd6eb8ae085a8e6",
+                "reference": "3e74964b15395a5252863e948dd6eb8ae085a8e6",
                 "shasum": ""
             },
             "require": {
@@ -1049,7 +1049,7 @@
                 "issues": "https://github.com/ProjectOrangeBox/cache/issues",
                 "source": "https://github.com/ProjectOrangeBox/cache"
             },
-            "time": "2026-07-30T17:19:10+00:00"
+            "time": "2026-07-30T19:27:15+00:00"
         },
         {
             "name": "orange/collector",
@@ -1451,12 +1451,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ProjectOrangeBox/orange.git",
-                "reference": "78ec8370e9c9b92c07017e06c8c42cf6a7788cf1"
+                "reference": "04a2138f3b6f5b43eb5e8b9516e4b3ca1da2d816"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ProjectOrangeBox/orange/zipball/78ec8370e9c9b92c07017e06c8c42cf6a7788cf1",
-                "reference": "78ec8370e9c9b92c07017e06c8c42cf6a7788cf1",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/orange/zipball/04a2138f3b6f5b43eb5e8b9516e4b3ca1da2d816",
+                "reference": "04a2138f3b6f5b43eb5e8b9516e4b3ca1da2d816",
                 "shasum": ""
             },
             "require": {
@@ -1512,7 +1512,7 @@
                 ]
             },
             "description": "Orange Framework core package",
-            "time": "2026-07-30T15:35:10+00:00"
+            "time": "2026-07-30T19:27:29+00:00"
         },
         {
             "name": "orange/handlebars",
