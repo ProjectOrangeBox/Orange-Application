@@ -481,8 +481,18 @@ composer test:orange   # framework core tests
 composer type-check    # PHPStan level 8
 composer lint          # PSR-12
 ./sweep.sh             # all four, in order, stopping at first failure
-./sweep-all.sh         # status matrix across every orange package
 ```
+
+Each `vendor/orange/*` package carries the same four gates and is checked on its own, from its own directory — so its `phpcs.xml`, `phpstan.neon` and `rector.php` apply rather than the app's:
+
+```bash
+cd vendor/orange/cache
+./sweep.sh                                  # that package's full gauntlet
+cd unittest && sh runUnitTests.sh           # just its tests
+cd unittest && sh runUnitTests.sh RedisCacheTest   # one test file
+```
+
+The packages are developed in place as git clones (a `--prefer-source` install), so a fix goes in, gets swept, and is committed in that package's own repository.
 
 ### Optional libraries
 
