@@ -57,6 +57,9 @@
             "@php bin/configExport"
         ],
         "config:export": "@php bin/configExport",
+        "types:export": "@php bin/dtoExport",
+        "types:check": "@php bin/dtoExport --check",
+        "types:publish": "@php bin/dtoExport --publish",
         "test": "cd unittest && sh runUnitTests.sh",
         "test:orange": "cd vendor/orange/framework/unittest && sh runUnitTests.sh",
         "test:orangeCoverage": "cd vendor/orange/framework/unittest && sh runCoverage.sh",

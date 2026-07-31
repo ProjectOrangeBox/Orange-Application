@@ -1,0 +1,268 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use orange\dto\Dto;
+use orange\dto\attributes\IsPrimary;
+
+/*
+ * Generate TypeScript interfaces from the application's Dto classes.
+ *
+ * The Vue front end consumes this API and had its own hand-written copies of
+ * these shapes, which is a contract duplicated in two languages and kept in step
+ * by memory. The Dto already declares the authoritative version - property
+ * names, PHP types, nullability, and which property is the primary key - so the
+ * TypeScript is derived from it rather than maintained beside it.
+ *
+ *   php bin/dtoExport            regenerate types/api.d.ts
+ *   php bin/dtoExport --check    exit 1 if regenerating would change it
+ *   php bin/dtoExport --publish  also write ../api-types/index.d.ts
+ *
+ * --check is what CI runs: the committed file is the source of truth, so a Dto
+ * edited without regenerating fails the build the same way a stale
+ * config/production snapshot would.
+ *
+ * Unlike the three detectors this needs no ENVIRONMENT: it only reflects over
+ * classes, so it never builds a Dto or touches the container.
+ */
+
+define('__ROOT__', realpath(__DIR__ . '/../'));
+
+require_once __ROOT__ . '/vendor/autoload.php';
+
+/*
+ * Exported names, where the class name alone will not do.
+ *
+ * The default is the class name minus its "Dto" suffix, which is what
+ * CalendarEventDto gets. RecordDto cannot take it: "Record" is one of
+ * TypeScript's own built-in utility types (Record<K, V>), so an interface by
+ * that name would shadow it for every file that imports this one. The front end
+ * had already settled on RecordItem/RecordInput, so those names are kept.
+ *
+ * 'input' is optional and defaults to <interface> . 'Input'.
+ *
+ * @var array<class-string, array{interface: string, input?: string}>
+ */
+const NAME_OVERRIDES = [
+    'api\models\RecordDto' => ['interface' => 'RecordItem', 'input' => 'RecordInput'],
+];
+
+/** PHP scalar type => TypeScript type. */
+const TYPE_MAP = [
+    'int' => 'number',
+    'float' => 'number',
+    'string' => 'string',
+    'bool' => 'boolean',
+    'array' => 'unknown[]',
+];
+
+/**
+ * Does this file declare the class its filename implies?
+ *
+ * Cheap textual check, deliberately made before class_exists(): the PSR-4 roots
+ * also contain views, which are plain PHP templates that render when included.
+ * Autoloading one executes it rather than defining anything, which is a page of
+ * HTML on stdout and, for a view expecting request-time state, a fatal.
+ */
+function declaresClass(string $file, string $className): bool
+{
+    $source = (string) file_get_contents($file);
+
+    return preg_match('/^\s*(?:final\s+|abstract\s+|readonly\s+)*class\s+' . preg_quote($className, '/') . '\b/mi', $source) === 1;
+}
+
+/**
+ * Every class extending Dto under the PSR-4 roots, in a stable order.
+ *
+ * @return list<class-string<Dto>>
+ */
+function findDtos(): array
+{
+    $composer = json_decode((string) file_get_contents(__ROOT__ . '/composer.json'), true);
+    $roots = is_array($composer) ? ($composer['autoload']['psr-4'] ?? []) : [];
+    $found = [];
+
+    foreach ((array) $roots as $prefix => $directory) {
+        $base = __ROOT__ . '/' . trim((string) $directory, '/');
+
+        if (!is_dir($base)) {
+            continue;
+        }
+
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS));
+
+        foreach ($files as $file) {
+            if (!$file instanceof SplFileInfo || $file->getExtension() !== 'php') {
+                continue;
+            }
+
+            // PSR-4 guarantees the class name from the path, so no parsing:
+            // api/models/RecordDto.php under the "api\" root is api\models\RecordDto.
+            $relative = substr($file->getPathname(), strlen($base) + 1);
+            $class = $prefix . str_replace('/', '\\', substr($relative, 0, -4));
+
+            // class_exists() autoloads, and a view is plain PHP that renders
+            // when it is included - pointing the autoloader at one executes the
+            // template instead of defining a class. Confirm the file actually
+            // declares the class its path implies before asking for it.
+            if (!declaresClass($file->getPathname(), $file->getBasename('.php'))) {
+                continue;
+            }
+
+            if (class_exists($class) && is_subclass_of($class, Dto::class)) {
+                $found[] = $class;
+            }
+        }
+    }
+
+    // The scan order is filesystem order, which differs between machines - and
+    // this output is committed and diffed, so it has to be deterministic.
+    sort($found);
+
+    return $found;
+}
+
+/**
+ * The TypeScript type for one property, including its null union.
+ */
+function typeFor(ReflectionProperty $property): string
+{
+    $type = $property->getType();
+
+    if (!$type instanceof ReflectionNamedType) {
+        // A union or intersection type has no single obvious mapping; emitting
+        // unknown keeps the file valid and makes the gap visible in review
+        // rather than inventing a shape.
+        return 'unknown';
+    }
+
+    $name = $type->getName();
+    $typescript = TYPE_MAP[$name] ?? 'unknown';
+
+    return $type->allowsNull() ? $typescript . ' | null' : $typescript;
+}
+
+/**
+ * @param class-string<Dto> $class
+ * @return array{interface: string, input: string}
+ */
+function namesFor(string $class): array
+{
+    $override = NAME_OVERRIDES[$class] ?? null;
+    $short = new ReflectionClass($class)->getShortName();
+    $interface = $override['interface'] ?? (str_ends_with($short, 'Dto') ? substr($short, 0, -3) : $short);
+
+    return [
+        'interface' => $interface,
+        'input' => $override['input'] ?? $interface . 'Input',
+    ];
+}
+
+/**
+ * @param list<class-string<Dto>> $classes
+ */
+function render(array $classes): string
+{
+    $out = [
+        '// Generated from the PHP Dto classes by bin/dtoExport - do not edit.',
+        '//',
+        '// Regenerate with "composer types:export" in the Orange-Application repo',
+        '// after changing a Dto. CI fails when this file and the Dto classes',
+        '// disagree, so it cannot quietly fall behind.',
+        '',
+    ];
+
+    foreach ($classes as $class) {
+        $names = namesFor($class);
+        $reflection = new ReflectionClass($class);
+        $primaries = [];
+        $lines = [];
+
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            if ($property->isStatic()) {
+                continue;
+            }
+
+            $lines[] = '  ' . $property->getName() . ': ' . typeFor($property);
+
+            if ($property->getAttributes(IsPrimary::class) !== []) {
+                $primaries[] = "'" . $property->getName() . "'";
+            }
+        }
+
+        if ($lines === []) {
+            continue;
+        }
+
+        $out[] = '/** Generated from ' . $class . '. */';
+        $out[] = 'export interface ' . $names['interface'] . ' {';
+        $out = array_merge($out, $lines);
+        $out[] = '}';
+        $out[] = '';
+
+        // The create/update payloads are the record without its primary key -
+        // the server assigns that. Derived with Omit so the two shapes cannot
+        // drift from each other.
+        if ($primaries !== []) {
+            $out[] = 'export type ' . $names['input'] . ' = Omit<' . $names['interface'] . ', ' . implode(' | ', $primaries) . '>';
+            $out[] = '';
+        }
+    }
+
+    return implode(PHP_EOL, $out);
+}
+
+// $argv only exists when register_argc_argv is on, which is the default for the
+// CLI SAPI but not guaranteed by it - $_SERVER carries the same list either way.
+$arguments = is_array($_SERVER['argv'] ?? null) ? array_slice($_SERVER['argv'], 1) : [];
+$check = in_array('--check', $arguments, true);
+$publish = in_array('--publish', $arguments, true);
+
+$classes = findDtos();
+
+if ($classes === []) {
+    echo 'No Dto classes found under the PSR-4 roots.' . PHP_EOL;
+
+    exit(1);
+}
+
+$generated = render($classes);
+$target = __ROOT__ . '/types/api.d.ts';
+$current = is_file($target) ? (string) file_get_contents($target) : null;
+
+if ($check) {
+    if ($current === $generated) {
+        echo 'types/api.d.ts is in step with ' . count($classes) . ' Dto classes.' . PHP_EOL;
+
+        exit(0);
+    }
+
+    echo 'types/api.d.ts is out of date - run "composer types:export" and commit the result.' . PHP_EOL;
+
+    exit(1);
+}
+
+if (!is_dir(dirname($target))) {
+    mkdir(dirname($target), 0777, true);
+}
+
+file_put_contents($target, $generated);
+
+echo 'Wrote /types/api.d.ts from ' . count($classes) . ' Dto classes.' . PHP_EOL;
+
+if ($publish) {
+    // The npm package is a separate repo so the front end can install it
+    // without this one; it carries a copy of exactly this file.
+    $package = realpath(__ROOT__ . '/../api-types');
+
+    if ($package === false) {
+        echo 'No ../api-types checkout to publish into.' . PHP_EOL;
+
+        exit(1);
+    }
+
+    file_put_contents($package . '/index.d.ts', $generated);
+
+    echo 'Wrote ' . $package . '/index.d.ts - commit and push it there.' . PHP_EOL;
+}
