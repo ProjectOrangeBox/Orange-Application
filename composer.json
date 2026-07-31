@@ -9,7 +9,8 @@
     "autoload": {
         "psr-4": {
             "application\\": "application",
-            "api\\": "api"
+            "api\\": "api",
+            "orders\\": "orders"
         },
         "files": [],
         "classmap": []
@@ -86,6 +87,5 @@
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "config": {
-    }
+    "config": {}
 }

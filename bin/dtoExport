@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use orange\dto\Dto;
 use orange\dto\attributes\IsPrimary;
+use orange\dto\attributes\validations\IsArray;
 
 /*
  * Generate TypeScript interfaces from the application's Dto classes.
@@ -124,6 +125,24 @@ function findDtos(): array
 }
 
 /**
+ * The child Dto class of an #[IsArray(Child::class)] property, if it has one.
+ *
+ * @return class-string<Dto>|null
+ */
+function childDtoOf(ReflectionProperty $property): ?string
+{
+    foreach ($property->getAttributes(IsArray::class) as $attribute) {
+        $child = $attribute->newInstance()->getDtoClass();
+
+        if ($child !== null && is_subclass_of($child, Dto::class)) {
+            return $child;
+        }
+    }
+
+    return null;
+}
+
+/**
  * The TypeScript type for one property, including its null union.
  */
 function typeFor(ReflectionProperty $property): string
@@ -138,6 +157,19 @@ function typeFor(ReflectionProperty $property): string
     }
 
     $name = $type->getName();
+
+    // A dto-array property is the one place the PHP type alone is not enough:
+    // it says "array", while #[IsArray(LineItemDto::class)] is what says the
+    // elements are line items. Without this the front end gets unknown[] and
+    // has to assert its way back to the shape the server already knows.
+    if ($name === 'array') {
+        $child = childDtoOf($property);
+
+        if ($child !== null) {
+            return namesFor($child)['interface'] . '[]';
+        }
+    }
+
     $typescript = TYPE_MAP[$name] ?? 'unknown';
 
     return $type->allowsNull() ? $typescript . ' | null' : $typescript;
@@ -177,6 +209,7 @@ function render(array $classes): string
         $names = namesFor($class);
         $reflection = new ReflectionClass($class);
         $primaries = [];
+        $nested = [];
         $lines = [];
 
         foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
@@ -188,6 +221,12 @@ function render(array $classes): string
 
             if ($property->getAttributes(IsPrimary::class) !== []) {
                 $primaries[] = "'" . $property->getName() . "'";
+            }
+
+            $child = childDtoOf($property);
+
+            if ($child !== null) {
+                $nested[$property->getName()] = namesFor($child)['input'];
             }
         }
 
@@ -204,8 +243,29 @@ function render(array $classes): string
         // The create/update payloads are the record without its primary key -
         // the server assigns that. Derived with Omit so the two shapes cannot
         // drift from each other.
+        //
+        // Nested arrays have to be swapped as well, not just carried over: the
+        // children of a new order have no ids either, so Omit<Order, 'id'>
+        // alone would still demand a LineItem.id per row. Those keys are
+        // dropped alongside the primary and re-added as the child's own input
+        // type. Intersecting instead of omitting would not work - LineItem[] &
+        // LineItemInput[] still requires the id.
         if ($primaries !== []) {
-            $out[] = 'export type ' . $names['input'] . ' = Omit<' . $names['interface'] . ', ' . implode(' | ', $primaries) . '>';
+            $omit = $primaries;
+            $additions = [];
+
+            foreach ($nested as $property => $childInput) {
+                $omit[] = "'" . $property . "'";
+                $additions[] = $property . ': ' . $childInput . '[]';
+            }
+
+            $type = 'Omit<' . $names['interface'] . ', ' . implode(' | ', $omit) . '>';
+
+            if ($additions !== []) {
+                $type .= ' & { ' . implode('; ', $additions) . ' }';
+            }
+
+            $out[] = 'export type ' . $names['input'] . ' = ' . $type;
             $out[] = '';
         }
     }

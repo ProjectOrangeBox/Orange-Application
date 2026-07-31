@@ -24,3 +24,36 @@ export interface RecordItem {
 }
 
 export type RecordInput = Omit<RecordItem, 'id'>
+
+/** Generated from orders\models\CustomerDto. */
+export interface Customer {
+  id: number
+  name: string
+  email: string
+  phone: string
+}
+
+export type CustomerInput = Omit<Customer, 'id'>
+
+/** Generated from orders\models\LineItemDto. */
+export interface LineItem {
+  id: number
+  sku: string
+  description: string
+  qty: number
+  unit_price: number
+  line_total: number
+}
+
+export type LineItemInput = Omit<LineItem, 'id'>
+
+/** Generated from orders\models\OrderDto. */
+export interface Order {
+  id: number
+  customer_id: number
+  ordered_on: string
+  notes: string
+  lines: LineItem[]
+}
+
+export type OrderInput = Omit<Order, 'id' | 'lines'> & { lines: LineItemInput[] }

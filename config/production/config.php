@@ -2037,6 +2037,51 @@ return [
                     ],
                     'name' => 'rest_home',
                 ],
+                [
+                    'method' => 'get',
+                    'url' => '/api/orders',
+                    'callback' => [
+                        'orders\\controllers\\OrderController',
+                        'index',
+                    ],
+                    'name' => 'orders_index',
+                ],
+                [
+                    'method' => 'get',
+                    'url' => '/api/orders/(\\d+)',
+                    'callback' => [
+                        'orders\\controllers\\OrderController',
+                        'read',
+                    ],
+                    'name' => 'orders_read',
+                ],
+                [
+                    'method' => 'post',
+                    'url' => '/api/orders',
+                    'callback' => [
+                        'orders\\controllers\\OrderController',
+                        'create',
+                    ],
+                    'name' => 'orders_create',
+                ],
+                [
+                    'method' => 'put',
+                    'url' => '/api/orders/(\\d+)',
+                    'callback' => [
+                        'orders\\controllers\\OrderController',
+                        'update',
+                    ],
+                    'name' => 'orders_update',
+                ],
+                [
+                    'method' => 'delete',
+                    'url' => '/api/orders/(\\d+)',
+                    'callback' => [
+                        'orders\\controllers\\OrderController',
+                        'delete',
+                    ],
+                    'name' => 'orders_delete',
+                ],
             ],
             'match all' => [
                 'GET',
@@ -2988,7 +3033,9 @@ return [
             'view' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\framework\interfaces\ViewInterface {
                 return \orange\framework\View::getInstance($container->config->view, $container->data);
             },
-            'dispatcher' => \orange\framework\Dispatcher::getInstance(...),
+            'dispatcher' => function (): \orange\framework\interfaces\DispatcherInterface {
+                return \orange\framework\Dispatcher::getInstance();
+            },
             'pdo' => function () {
                 // create only the 1st time called and not before
                 $env = \env('db');
@@ -3019,6 +3066,12 @@ return [
             },
             'CalendarEventModel' => function (\orange\framework\interfaces\ContainerInterface $container): \api\models\CalendarEventModel {
                 return \api\models\CalendarEventModel::getInstance($container->pdo);
+            },
+            'OrderModel' => function (\orange\framework\interfaces\ContainerInterface $container): \orders\models\OrderModel {
+                return \orders\models\OrderModel::getInstance($container->pdo);
+            },
+            'negotiate' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\negotiate\Negotiate {
+                return \orange\negotiate\Negotiate::getInstance($container->input);
             },
         ],
         'statusCodes' => [

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use api\models\RecordModel;
 use api\models\CalendarEventModel;
+use orange\negotiate\Negotiate;
+use orders\models\OrderModel;
 use orange\framework\interfaces\ContainerInterface;
 
 return [
@@ -39,4 +41,8 @@ return [
     },
     'RecordModel' => fn(ContainerInterface $container): RecordModel => RecordModel::getInstance($container->pdo),
     'CalendarEventModel' => fn(ContainerInterface $container): CalendarEventModel => CalendarEventModel::getInstance($container->pdo),
+    'OrderModel' => fn(ContainerInterface $container): OrderModel => OrderModel::getInstance($container->pdo),
+    // Reads the request's Accept header, so it needs the input service - the
+    // orders module uses it to serve one route as either JSON or CSV.
+    'negotiate' => fn(ContainerInterface $container): Negotiate => Negotiate::getInstance($container->input),
 ];

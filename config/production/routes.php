@@ -20,5 +20,10 @@ return [
         ['method' => 'put', 'url' => '/api/update/(\d+)', 'callback' => [\api\controllers\RestController::class, 'update'], 'name' => 'rest_update'],
         ['method' => 'delete', 'url' => '/api/delete/(\d+)', 'callback' => [\api\controllers\RestController::class, 'delete'], 'name' => 'rest_delete'],
         ['method' => '*', 'url' => '/api/welcome', 'callback' => [\api\controllers\WelcomeController::class, 'index'], 'name' => 'rest_home'],
+        ['method' => 'get', 'url' => '/api/orders', 'callback' => [\orders\controllers\OrderController::class, 'index'], 'name' => 'orders_index'],
+        ['method' => 'get', 'url' => '/api/orders/(\d+)', 'callback' => [\orders\controllers\OrderController::class, 'read'], 'name' => 'orders_read'],
+        ['method' => 'post', 'url' => '/api/orders', 'callback' => [\orders\controllers\OrderController::class, 'create'], 'name' => 'orders_create'],
+        ['method' => 'put', 'url' => '/api/orders/(\d+)', 'callback' => [\orders\controllers\OrderController::class, 'update'], 'name' => 'orders_update'],
+        ['method' => 'delete', 'url' => '/api/orders/(\d+)', 'callback' => [\orders\controllers\OrderController::class, 'delete'], 'name' => 'orders_delete'],
     ]
 ];
