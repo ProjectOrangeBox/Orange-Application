@@ -455,6 +455,24 @@ php -S 127.0.0.1:8000 -t htdocs
 
 Any web server works, subject to two rules: the document root must be `htdocs/`, and every request that is not a real file must route to `htdocs/index.php`. Apache configuration is in [`htdocs/.htaccess`](htdocs/.htaccess); the FrankenPHP/Caddy configuration is in [`Caddyfile`](Caddyfile).
 
+### Supporting containers
+
+The app itself needs none of these to boot — the welcome page, routing, views and the container all work with nothing but the webapp running. They exist so the code paths that *do* need a server can be exercised locally instead of mocked, and so the matching test suites run for real rather than skipping.
+
+Each is a separate repo holding one `docker-compose.yml`. Clone whichever you need and `docker compose up -d`:
+
+| Container | Repo | Port | Used by |
+| --- | --- | --- | --- |
+| MySQL 8.4 | [mysql-sandbox](https://github.com/ProjectOrangeBox/mysql-sandbox) | `3306` | the `[db]` section of `.env`; anything model-layer |
+| Redis 8 | [redis-sandbox](https://github.com/ProjectOrangeBox/redis-sandbox) | `6379` | [`orange/cache`](https://github.com/ProjectOrangeBox/cache)'s `RedisCache` |
+| Memcached 1.6 | [memcached-sandbox](https://github.com/ProjectOrangeBox/memcached-sandbox) | `11211` | [`orange/cache`](https://github.com/ProjectOrangeBox/cache)'s `MemcachedCache` |
+
+The two cache containers are deliberately configured as **sandboxes** — no password, no persistence, safe to wipe. That is not a shortcut: `orange/cache`'s suite flushes the entire server before and after every test, so it must never be pointed at a server holding anything real. MySQL is the exception and does persist, in a named volume, since a database that forgets its schema on restart is no use.
+
+**Host addressing differs by where PHP runs.** All three publish their port to the host, so they are reachable at `host.docker.internal` from inside the webapp container and `127.0.0.1` from a CLI script or a local `php -S`. The cache test suite probes both and uses whichever answers, so it needs no configuration either way.
+
+A suite whose server is absent **skips rather than fails**, naming the container to start — so a clean checkout with no Docker still gives a green run. It just proves less, which is why the skip count is worth reading and not only the exit code.
+
 ### Running the checks
 
 ```bash
