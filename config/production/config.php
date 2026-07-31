@@ -1939,6 +1939,33 @@ return [
                     'name' => 'home',
                 ],
                 [
+                    'method' => 'post',
+                    'url' => '/api/login',
+                    'callback' => [
+                        'api\\controllers\\AuthController',
+                        'login',
+                    ],
+                    'name' => 'auth_login',
+                ],
+                [
+                    'method' => 'post',
+                    'url' => '/api/logout',
+                    'callback' => [
+                        'api\\controllers\\AuthController',
+                        'logout',
+                    ],
+                    'name' => 'auth_logout',
+                ],
+                [
+                    'method' => 'get',
+                    'url' => '/api/me',
+                    'callback' => [
+                        'api\\controllers\\AuthController',
+                        'me',
+                    ],
+                    'name' => 'auth_me',
+                ],
+                [
                     'method' => 'get',
                     'url' => '/api/calendar/(\\d{4}-\\d{2})',
                     'callback' => [
@@ -3072,6 +3099,24 @@ return [
             },
             'negotiate' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\negotiate\Negotiate {
                 return \orange\negotiate\Negotiate::getInstance($container->input);
+            },
+            'session' => function (): \orange\session\Session {
+                $override = \env('SESSION_COOKIE_SECURE', \null);
+                $secure = $override === \null ? \ENVIRONMENT === 'production' : \filter_var($override, \FILTER_VALIDATE_BOOL);
+                $session = new \orange\session\Session(['cookie_secure' => $secure]);
+                if (!$session->isActive()) {
+                    $session->start();
+                }
+                return $session;
+            },
+            'acl' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\acl\Acl {
+                return \orange\acl\Acl::getInstance([], $container->pdo);
+            },
+            'auth' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\auth\Auth {
+                return \orange\auth\Auth::getInstance([], $container->pdo);
+            },
+            'user' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\acl\User {
+                return \orange\acl\User::getInstance([], $container->acl, $container->session);
             },
         ],
         'statusCodes' => [

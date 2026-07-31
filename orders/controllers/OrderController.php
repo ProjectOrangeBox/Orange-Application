@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace orders\controllers;
 
+use orange\acl\User;
 use orange\framework\attributes\AttachService;
 use orange\framework\attributes\Route;
 use orange\framework\controllers\JsonController;
@@ -36,6 +37,9 @@ class OrderController extends JsonController
 
     #[AttachService('negotiate')]
     protected Negotiate $negotiate;
+
+    #[AttachService('user')]
+    protected User $user;
 
     /**
      * Every order, as JSON or CSV depending on what the client asked for.
@@ -75,6 +79,10 @@ class OrderController extends JsonController
     #[Route('post', '/api/orders', 'orders_create')]
     public function create(): string
     {
+        if (($denied = $this->denyUnless('orders.create')) !== null) {
+            return $denied;
+        }
+
         $order = new OrderDto((array) $this->input->request());
 
         if (($errors = $this->validate($order)) !== []) {
@@ -111,11 +119,43 @@ class OrderController extends JsonController
     #[Route('delete', '/api/orders/(\d+)', 'orders_delete')]
     public function delete(string $id): string
     {
+        if (($denied = $this->denyUnless('orders.delete')) !== null) {
+            return $denied;
+        }
+
         if (!$this->orderModel->delete((int) $id)) {
             return $this->notFoundResponse('Order not found');
         }
 
         return $this->noContentResponse();
+    }
+
+    /**
+     * A refusal response when the current user lacks $permission, or null to
+     * carry on.
+     *
+     * Reading is deliberately open while writing is not - this is a demo of the
+     * guard, not a lockdown. The two answers are different on purpose: 403 says
+     * the server knows who you are and the answer is still no, so a client that
+     * retries after logging in is wasting its time.
+     *
+     * Asked of the server on every request. The permissions in /api/me exist so
+     * the front end can hide the buttons, which is courtesy rather than
+     * security - the browser is free to lie about them.
+     */
+    protected function denyUnless(string $permission): ?string
+    {
+        $entity = $this->user->load();
+
+        if ($entity->can($permission)) {
+            return null;
+        }
+
+        $isGuest = $entity->id === 2;
+
+        return $this->response($isGuest ? 401 : 403, json_encode([
+            'msg' => $isGuest ? 'You must log in to do that' : 'You do not have permission to do that',
+        ]) ?: '');
     }
 
     /**

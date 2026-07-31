@@ -54,6 +54,13 @@ parameters:
             identifier: notEqual.alwaysFalse
             path: config/development/ConfigDetector.php
         -
+            # and again, this time an equality: the session service derives the
+            # cookie's Secure flag from ENVIRONMENT, which the stub pins to the
+            # very literal being compared against. The branch is real - it is
+            # what lets the app be served over http in development at all.
+            identifier: identical.alwaysTrue
+            path: config/services.php
+        -
             identifier: deadCode.unreachable
             paths:
                 - config/development/RouterDetector.php
