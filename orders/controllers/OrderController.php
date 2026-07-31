@@ -196,26 +196,29 @@ class OrderController extends JsonController
             return $this->response(500);
         }
 
-        // The escape argument is explicit because PHP 8.4 deprecates relying on
-        // its default - and this app's error handler promotes deprecations, so
-        // leaving it out is a 500 rather than a notice. '' disables escaping
-        // entirely, which is what a spreadsheet expects: RFC 4180 quotes, no
-        // backslashes.
-        $csvOptions = [',', '"', ''];
-
-        fputcsv($handle, ['order_id', 'customer_id', 'ordered_on', 'notes', 'sku', 'description', 'qty', 'unit_price', 'line_total'], ...$csvOptions, escape: '\\');
+        // Separator, enclosure and escape are passed positionally on every call
+        // below. PHP 8.4 deprecates relying on the escape default and this app
+        // promotes deprecations, so omitting it is a 500; '' disables escaping,
+        // which is what a spreadsheet expects - RFC 4180 quotes, no backslashes.
+        //
+        // Passing the three by spread instead reads better and is a trap:
+        // Rector's AddEscapeArgumentRector cannot see through the spread,
+        // appends its own `escape:` named argument, and PHP fatals on the
+        // duplicate. Since sweep.sh runs rector in fix mode, that rewrite lands
+        // silently on commit.
+        fputcsv($handle, ['order_id', 'customer_id', 'ordered_on', 'notes', 'sku', 'description', 'qty', 'unit_price', 'line_total'], ',', '"', '');
 
         foreach ($orders as $order) {
             $head = [$order->id, $order->customer_id, $order->ordered_on, $order->notes];
 
             if ($order->lines === []) {
-                fputcsv($handle, [...$head, '', '', '', '', ''], ...$csvOptions, escape: '\\');
+                fputcsv($handle, [...$head, '', '', '', '', ''], ',', '"', '');
 
                 continue;
             }
 
             foreach ($order->lines as $line) {
-                fputcsv($handle, [...$head, $line->sku, $line->description, $line->qty, $line->unit_price, $line->line_total], ...$csvOptions, escape: '\\');
+                fputcsv($handle, [...$head, $line->sku, $line->description, $line->qty, $line->unit_price, $line->line_total], ',', '"', '');
             }
         }
 
