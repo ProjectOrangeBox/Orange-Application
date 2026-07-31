@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  gauntlet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          # The packages declare >=8.4, so the floor is what is worth proving.
+          php-version: '8.4'
+          extensions: apcu
+          # The Dockerfile sets this for the same reason: APCu is off on the CLI
+          # by default and orange/cache throws rather than degrading quietly.
+          ini-values: apc.enable_cli=1
+          coverage: none
+
+      - name: Install dependencies
+        # Resolves every orange/* package from the satis index at its current
+        # published commit - so this run also catches a package that was pushed
+        # without rebuilding that index.
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Recreate what the Docker entrypoint normally does
+        # The entrypoint seeds .env and creates the writable var/ tree on first
+        # start; a bare checkout has neither.
+        run: |
+          for d in logs cache uploads downloads temp working; do
+            mkdir -p "var/$d"
+          done
+          chmod -R 777 var
+          if [ ! -f .env ]; then
+            sed -e '/^[[:space:]]*[;#]/d' env.sample > .env
+          fi
+
+      - name: lint (phpcs, PSR-12)
+        run: composer lint
+
+      - name: type-check (PHPStan level 8)
+        run: composer type-check
+
+      - name: rector (dry run)
+        # `composer rector` is already the --dry-run variant; rector:fix is the
+        # one that writes. CI must fail on a needed refactor, not apply it.
+        run: composer rector
+
+      - name: application tests
+        run: composer test
+
+      - name: framework core tests
+        # The webapp installs every orange/* package, so a break anywhere
+        # surfaces here even before that package's own CI reports it.
+        run: composer test:orange
