@@ -142,6 +142,10 @@ class OrderController extends JsonController
      * Asked of the server on every request. The permissions in /api/me exist so
      * the front end can hide the buttons, which is courtesy rather than
      * security - the browser is free to lie about them.
+     *
+     * isGuest() comes from the entity rather than comparing ids here: the guest
+     * id is configuration, and copying it into a controller means two places to
+     * change and only one of them obvious.
      */
     protected function denyUnless(string $permission): ?string
     {
@@ -151,10 +155,10 @@ class OrderController extends JsonController
             return null;
         }
 
-        $isGuest = $entity->id === 2;
-
-        return $this->response($isGuest ? 401 : 403, json_encode([
-            'msg' => $isGuest ? 'You must log in to do that' : 'You do not have permission to do that',
+        return $this->response($entity->isGuest() ? 401 : 403, json_encode([
+            'msg' => $entity->isGuest()
+                ? 'You must log in to do that'
+                : 'You do not have permission to do that',
         ]) ?: '');
     }
 
