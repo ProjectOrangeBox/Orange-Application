@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use api\controllers\CalendarController;
-use api\models\CalendarEventModel;
+use application\api\controllers\CalendarController;
+use application\api\models\CalendarEventModel;
 use orange\framework\Container;
 use orange\framework\Data;
 use orange\framework\Input;

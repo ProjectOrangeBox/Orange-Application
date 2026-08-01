@@ -8,9 +8,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "application\\": "application",
-            "api\\": "api",
-            "orders\\": "orders"
+            "application\\": "application"
         },
         "files": [],
         "classmap": []

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use api\models\RecordModel;
-use api\models\CalendarEventModel;
+use application\api\models\RecordModel;
+use application\api\models\CalendarEventModel;
 use orange\acl\Acl;
 use orange\acl\User;
 use orange\auth\Auth;
 use orange\negotiate\Negotiate;
 use orange\session\Session;
-use orders\models\OrderModel;
+use application\orders\models\OrderModel;
 use orange\framework\interfaces\ContainerInterface;
 
 return [

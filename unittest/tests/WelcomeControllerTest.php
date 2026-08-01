@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use api\controllers\WelcomeController;
+use application\api\controllers\WelcomeController;
 use orange\framework\Container;
 use orange\framework\Data;
 use orange\framework\Input;

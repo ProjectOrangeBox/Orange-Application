@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use api\models\RecordDto;
-use api\models\RecordModel;
+use application\api\models\RecordDto;
+use application\api\models\RecordModel;
 
 /**
  * Direct CRUD tests for the records model against in-memory SQLite —

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use api\models\RecordDto;
+use application\api\models\RecordDto;
 
 /**
  * Per-field rule matrix for the records DTO — the validation and

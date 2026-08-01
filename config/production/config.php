@@ -1942,7 +1942,7 @@ return [
                     'method' => 'post',
                     'url' => '/api/login',
                     'callback' => [
-                        'api\\controllers\\AuthController',
+                        'application\\api\\controllers\\AuthController',
                         'login',
                     ],
                     'name' => 'auth_login',
@@ -1951,7 +1951,7 @@ return [
                     'method' => 'post',
                     'url' => '/api/logout',
                     'callback' => [
-                        'api\\controllers\\AuthController',
+                        'application\\api\\controllers\\AuthController',
                         'logout',
                     ],
                     'name' => 'auth_logout',
@@ -1960,7 +1960,7 @@ return [
                     'method' => 'get',
                     'url' => '/api/me',
                     'callback' => [
-                        'api\\controllers\\AuthController',
+                        'application\\api\\controllers\\AuthController',
                         'me',
                     ],
                     'name' => 'auth_me',
@@ -1969,7 +1969,7 @@ return [
                     'method' => 'get',
                     'url' => '/api/calendar/(\\d{4}-\\d{2})',
                     'callback' => [
-                        'api\\controllers\\CalendarController',
+                        'application\\api\\controllers\\CalendarController',
                         'month',
                     ],
                     'name' => 'calendar_month',
@@ -1978,7 +1978,7 @@ return [
                     'method' => 'get',
                     'url' => '/api/calendar/read/(\\d+)',
                     'callback' => [
-                        'api\\controllers\\CalendarController',
+                        'application\\api\\controllers\\CalendarController',
                         'read',
                     ],
                     'name' => 'calendar_read',
@@ -1987,7 +1987,7 @@ return [
                     'method' => 'post',
                     'url' => '/api/calendar/create',
                     'callback' => [
-                        'api\\controllers\\CalendarController',
+                        'application\\api\\controllers\\CalendarController',
                         'create',
                     ],
                     'name' => 'calendar_create',
@@ -1996,7 +1996,7 @@ return [
                     'method' => 'put',
                     'url' => '/api/calendar/update/(\\d+)',
                     'callback' => [
-                        'api\\controllers\\CalendarController',
+                        'application\\api\\controllers\\CalendarController',
                         'update',
                     ],
                     'name' => 'calendar_update',
@@ -2005,7 +2005,7 @@ return [
                     'method' => 'delete',
                     'url' => '/api/calendar/delete/(\\d+)',
                     'callback' => [
-                        'api\\controllers\\CalendarController',
+                        'application\\api\\controllers\\CalendarController',
                         'delete',
                     ],
                     'name' => 'calendar_delete',
@@ -2014,7 +2014,7 @@ return [
                     'method' => 'get',
                     'url' => '/api/index',
                     'callback' => [
-                        'api\\controllers\\RestController',
+                        'application\\api\\controllers\\RestController',
                         'index',
                     ],
                     'name' => 'rest_index',
@@ -2023,7 +2023,7 @@ return [
                     'method' => 'get',
                     'url' => '/api/read/(\\d+)',
                     'callback' => [
-                        'api\\controllers\\RestController',
+                        'application\\api\\controllers\\RestController',
                         'read',
                     ],
                     'name' => 'rest_read',
@@ -2032,7 +2032,7 @@ return [
                     'method' => 'post',
                     'url' => '/api/create',
                     'callback' => [
-                        'api\\controllers\\RestController',
+                        'application\\api\\controllers\\RestController',
                         'create',
                     ],
                     'name' => 'rest_create',
@@ -2041,7 +2041,7 @@ return [
                     'method' => 'put',
                     'url' => '/api/update/(\\d+)',
                     'callback' => [
-                        'api\\controllers\\RestController',
+                        'application\\api\\controllers\\RestController',
                         'update',
                     ],
                     'name' => 'rest_update',
@@ -2050,7 +2050,7 @@ return [
                     'method' => 'delete',
                     'url' => '/api/delete/(\\d+)',
                     'callback' => [
-                        'api\\controllers\\RestController',
+                        'application\\api\\controllers\\RestController',
                         'delete',
                     ],
                     'name' => 'rest_delete',
@@ -2059,7 +2059,7 @@ return [
                     'method' => '*',
                     'url' => '/api/welcome',
                     'callback' => [
-                        'api\\controllers\\WelcomeController',
+                        'application\\api\\controllers\\WelcomeController',
                         'index',
                     ],
                     'name' => 'rest_home',
@@ -2068,7 +2068,7 @@ return [
                     'method' => 'get',
                     'url' => '/api/orders',
                     'callback' => [
-                        'orders\\controllers\\OrderController',
+                        'application\\orders\\controllers\\OrderController',
                         'index',
                     ],
                     'name' => 'orders_index',
@@ -2077,7 +2077,7 @@ return [
                     'method' => 'get',
                     'url' => '/api/orders/(\\d+)',
                     'callback' => [
-                        'orders\\controllers\\OrderController',
+                        'application\\orders\\controllers\\OrderController',
                         'read',
                     ],
                     'name' => 'orders_read',
@@ -2086,7 +2086,7 @@ return [
                     'method' => 'post',
                     'url' => '/api/orders',
                     'callback' => [
-                        'orders\\controllers\\OrderController',
+                        'application\\orders\\controllers\\OrderController',
                         'create',
                     ],
                     'name' => 'orders_create',
@@ -2095,7 +2095,7 @@ return [
                     'method' => 'put',
                     'url' => '/api/orders/(\\d+)',
                     'callback' => [
-                        'orders\\controllers\\OrderController',
+                        'application\\orders\\controllers\\OrderController',
                         'update',
                     ],
                     'name' => 'orders_update',
@@ -2104,7 +2104,7 @@ return [
                     'method' => 'delete',
                     'url' => '/api/orders/(\\d+)',
                     'callback' => [
-                        'orders\\controllers\\OrderController',
+                        'application\\orders\\controllers\\OrderController',
                         'delete',
                     ],
                     'name' => 'orders_delete',
@@ -3088,23 +3088,35 @@ return [
                 }
                 return $pdo;
             },
-            'RecordModel' => function (\orange\framework\interfaces\ContainerInterface $container): \api\models\RecordModel {
-                return \api\models\RecordModel::getInstance($container->pdo);
+            'RecordModel' => function (\orange\framework\interfaces\ContainerInterface $container): \application\api\models\RecordModel {
+                return \application\api\models\RecordModel::getInstance($container->pdo);
             },
-            'CalendarEventModel' => function (\orange\framework\interfaces\ContainerInterface $container): \api\models\CalendarEventModel {
-                return \api\models\CalendarEventModel::getInstance($container->pdo);
+            'CalendarEventModel' => function (\orange\framework\interfaces\ContainerInterface $container): \application\api\models\CalendarEventModel {
+                return \application\api\models\CalendarEventModel::getInstance($container->pdo);
             },
-            'OrderModel' => function (\orange\framework\interfaces\ContainerInterface $container): \orders\models\OrderModel {
-                return \orders\models\OrderModel::getInstance($container->pdo);
+            'OrderModel' => function (\orange\framework\interfaces\ContainerInterface $container): \application\orders\models\OrderModel {
+                return \application\orders\models\OrderModel::getInstance($container->pdo);
             },
             'negotiate' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\negotiate\Negotiate {
                 return \orange\negotiate\Negotiate::getInstance($container->input);
             },
-            'session' => function (): \orange\session\Session {
+            'session' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\session\Session {
+                // orange/framework used to drop every cookie here - setGlobals()
+                // emitted 'cookie' and Input's constructor read 'cookies', so
+                // input->cookie() was always empty and a login never survived one
+                // request. Fixed in the framework (Input.php), not worked around here.
+                $cookies = (array) $container->input->cookie();
+                $sessionId = $cookies['session_id'] ?? \null;
                 $override = \env('SESSION_COOKIE_SECURE', \null);
                 $secure = $override === \null ? \ENVIRONMENT === 'production' : \filter_var($override, \FILTER_VALIDATE_BOOL);
                 $session = new \orange\session\Session(['cookie_secure' => $secure]);
                 if (!$session->isActive()) {
+                    // 'session_id' is aplus's cookie name. Set before start(), because
+                    // start() is what would otherwise read it from the cookie that is
+                    // no longer there.
+                    if (\is_string($sessionId) && $sessionId !== '') {
+                        \session_id($sessionId);
+                    }
                     $session->start();
                 }
                 return $session;

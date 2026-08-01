@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace orders\models;
+namespace application\orders\models;
 
 use orange\framework\base\Singleton;
 use orange\model\Sql;

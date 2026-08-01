@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace api\controllers;
+namespace application\api\controllers;
 
 use orange\acl\User;
 use orange\auth\Auth;

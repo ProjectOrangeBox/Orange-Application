@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace orders\controllers;
+namespace application\orders\controllers;
 
 use orange\acl\User;
 use orange\framework\attributes\AttachService;
 use orange\framework\attributes\Route;
 use orange\framework\controllers\JsonController;
 use orange\negotiate\Negotiate;
-use orders\models\OrderDto;
-use orders\models\OrderModel;
+use application\orders\models\OrderDto;
+use application\orders\models\OrderModel;
 
 /**
  * REST endpoints for orders and the lines they own.

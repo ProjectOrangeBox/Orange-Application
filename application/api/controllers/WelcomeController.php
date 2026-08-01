@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace api\controllers;
+namespace application\api\controllers;
 
 use orange\framework\attributes\Route;
 use orange\framework\controllers\JsonController;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace api\models;
+namespace application\api\models;
 
-use api\models\RecordDto;
+use application\api\models\RecordDto;
 use orange\framework\base\Singleton;
 use orange\model\Sql;
 use PDO;
@@ -20,9 +20,12 @@ use PDO;
  */
 class RecordModel extends Singleton
 {
+    /** @var array<string, mixed> */
     protected array $schema;
     protected Sql $sql;
+    /** @var string[] */
     protected array $indexColumns;
+    /** @var string[] */
     protected array $readColumns;
     protected string $tablename = 'records';
     protected string $primaryColumn = 'id';
@@ -52,10 +55,11 @@ class RecordModel extends Singleton
     {
         $records = [];
 
-        if ($statement = $this->sql->select($this->indexColumns)->orderBy($this->primaryColumn)->execute()->pdoStatement) {
-            while ($row = $statement->fetch()) {
-                $records[] = $this->hydrate($row);
-            }
+        // Sql::$pdoStatement is typed non-nullable - always an object here.
+        $statement = $this->sql->select($this->indexColumns)->orderBy($this->primaryColumn)->execute()->pdoStatement;
+
+        while ($row = $statement->fetch()) {
+            $records[] = $this->hydrate($row);
         }
 
         return $records;
@@ -121,6 +125,9 @@ class RecordModel extends Singleton
      * Rows run through the DTO's full validation pipeline; a row that fails
      * silently loses those fields in the JSON output, so data drift is
      * logged instead of disappearing.
+     */
+    /**
+     * @param array<string, mixed> $row
      */
     protected function hydrate(array $row): RecordDto
     {

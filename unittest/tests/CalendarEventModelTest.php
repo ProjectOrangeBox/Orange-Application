@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use api\models\CalendarEventDto;
-use api\models\CalendarEventModel;
+use application\api\models\CalendarEventDto;
+use application\api\models\CalendarEventModel;
 
 final class CalendarEventModelTest extends unitTestHelper
 {

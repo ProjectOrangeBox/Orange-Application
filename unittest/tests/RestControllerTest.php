@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use api\controllers\RestController;
-use api\models\RecordDto;
-use api\models\RecordModel;
+use application\api\controllers\RestController;
+use application\api\models\RecordDto;
+use application\api\models\RecordModel;
 use orange\framework\Container;
 use orange\framework\Data;
 use orange\framework\Input;

@@ -46,7 +46,7 @@ require_once __ROOT__ . '/vendor/autoload.php';
  * @var array<class-string, array{interface: string, input?: string}>
  */
 const NAME_OVERRIDES = [
-    'api\models\RecordDto' => ['interface' => 'RecordItem', 'input' => 'RecordInput'],
+    'application\api\models\RecordDto' => ['interface' => 'RecordItem', 'input' => 'RecordInput'],
 ];
 
 /** PHP scalar type => TypeScript type. */
@@ -99,7 +99,8 @@ function findDtos(): array
             }
 
             // PSR-4 guarantees the class name from the path, so no parsing:
-            // api/models/RecordDto.php under the "api\" root is api\models\RecordDto.
+            // application/api/models/RecordDto.php under the "application\" root
+            // is application\api\models\RecordDto.
             $relative = substr($file->getPathname(), strlen($base) + 1);
             $class = $prefix . str_replace('/', '\\', substr($relative, 0, -4));
 

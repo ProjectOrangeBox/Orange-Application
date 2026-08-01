@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace api\controllers;
+namespace application\api\controllers;
 
-use api\models\CalendarEventDto;
-use api\models\CalendarEventModel;
+use application\api\models\CalendarEventDto;
+use application\api\models\CalendarEventModel;
 use orange\framework\attributes\AttachService;
 use orange\framework\attributes\Route;
 use orange\framework\controllers\JsonController;
@@ -34,7 +34,7 @@ class CalendarController extends JsonController
             return $this->notFoundResponse('Event not found');
         }
 
-        return $this->response(200, json_encode($event, $this->jsonFlags));
+        return $this->response(200, json_encode($event, $this->jsonFlags) ?: '');
     }
 
     #[Route('post', '/api/calendar/create', 'calendar_create')]
@@ -48,7 +48,7 @@ class CalendarController extends JsonController
 
         return $this->response(201, json_encode([
             'id' => $this->calendarEventModel->create($event),
-        ], $this->jsonFlags));
+        ], $this->jsonFlags) ?: '');
     }
 
     #[Route('put', '/api/calendar/update/(\d+)', 'calendar_update')]
@@ -68,7 +68,7 @@ class CalendarController extends JsonController
 
         return $this->response(200, json_encode([
             'success' => $this->calendarEventModel->update($event),
-        ], $this->jsonFlags));
+        ], $this->jsonFlags) ?: '');
     }
 
     #[Route('delete', '/api/calendar/delete/(\d+)', 'calendar_delete')]

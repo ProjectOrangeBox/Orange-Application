@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace api\controllers;
+namespace application\api\controllers;
 
-use api\models\RecordDto;
-use api\models\RecordModel;
+use application\api\models\RecordDto;
+use application\api\models\RecordModel;
 use orange\framework\attributes\AttachService;
 use orange\framework\attributes\Route;
 use orange\framework\controllers\JsonController;
@@ -56,12 +56,12 @@ class RestController extends JsonController
         $record = $this->recordModel->read((int)$id);
 
         // The model returns null/false for missing rows, so only DTO instances are valid results.
-        if (!$record instanceof \api\models\RecordDto) {
+        if (!$record instanceof \application\api\models\RecordDto) {
             return $this->notFoundResponse('Record not found');
         }
 
         // Encode the DTO directly and return it with a successful HTTP status.
-        return $this->response(200, json_encode($record, $this->jsonFlags));
+        return $this->response(200, json_encode($record, $this->jsonFlags) ?: '');
     }
 
     /**
@@ -80,7 +80,7 @@ class RestController extends JsonController
 
         // database failures throw (see RecordModel), so a returned id is real
         // Store the new id on the response payload for the client.
-        $this->data->id = $this->recordModel->create($record);
+        $this->data['id'] = $this->recordModel->create($record);
 
         // Return 201 Created with the response payload prepared above.
         return $this->response(201);
@@ -109,7 +109,7 @@ class RestController extends JsonController
         }
 
         // Save the update result on the response payload for the client.
-        $this->data->success = $this->recordModel->update($record);
+        $this->data['success'] = $this->recordModel->update($record);
 
         // Return 200 OK with the success payload prepared above.
         return $this->response(200);

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace orders\models;
+namespace application\orders\models;
 
 use orange\dto\attributes\Column;
 use orange\dto\attributes\DbCast;

@@ -4,7 +4,7 @@
 // after changing a Dto. CI fails when this file and the Dto classes
 // disagree, so it cannot quietly fall behind.
 
-/** Generated from api\models\CalendarEventDto. */
+/** Generated from application\api\models\CalendarEventDto. */
 export interface CalendarEvent {
   id: number
   title: string
@@ -14,7 +14,7 @@ export interface CalendarEvent {
 
 export type CalendarEventInput = Omit<CalendarEvent, 'id'>
 
-/** Generated from api\models\RecordDto. */
+/** Generated from application\api\models\RecordDto. */
 export interface RecordItem {
   id: number
   name: string
@@ -25,7 +25,7 @@ export interface RecordItem {
 
 export type RecordInput = Omit<RecordItem, 'id'>
 
-/** Generated from orders\models\CustomerDto. */
+/** Generated from application\orders\models\CustomerDto. */
 export interface Customer {
   id: number
   name: string
@@ -35,7 +35,7 @@ export interface Customer {
 
 export type CustomerInput = Omit<Customer, 'id'>
 
-/** Generated from orders\models\LineItemDto. */
+/** Generated from application\orders\models\LineItemDto. */
 export interface LineItem {
   id: number
   sku: string
@@ -47,7 +47,7 @@ export interface LineItem {
 
 export type LineItemInput = Omit<LineItem, 'id'>
 
-/** Generated from orders\models\OrderDto. */
+/** Generated from application\orders\models\OrderDto. */
 export interface Order {
   id: number
   customer_id: number
