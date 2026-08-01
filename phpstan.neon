@@ -4,6 +4,8 @@ parameters:
         - application
         - config
         - bin
+        - database
+        - phinx.php
         - htdocs
     excludePaths:
         # plain-PHP view templates: ViewAbstract::generate() extract()s data into

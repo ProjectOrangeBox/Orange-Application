@@ -455,6 +455,21 @@ php -S 127.0.0.1:8000 -t htdocs
 
 Any web server works, subject to two rules: the document root must be `htdocs/`, and every request that is not a real file must route to `htdocs/index.php`. Apache configuration is in [`htdocs/.htaccess`](htdocs/.htaccess); the FrankenPHP/Caddy configuration is in [`Caddyfile`](Caddyfile).
 
+### Database schema
+
+The schema is defined as [Phinx](https://phinx.org) migrations in [`database/migrations/`](database/migrations/), with example data in [`database/seeds/`](database/seeds/):
+
+```bash
+composer db:migrate    # apply pending migrations
+composer db:seed       # load the example data
+composer db:export     # regenerate the sandbox's initdb SQL from both
+composer db:check      # fail if that SQL no longer matches the migrations
+```
+
+The mysql sandbox's `initdb/*.sql` is **generated** from these, not maintained alongside them — `db:export` builds a scratch database, migrates and seeds it, dumps the result, and drops it. So the migrations serve anyone developing against the schema, the SQL serves anyone loading it into their own MySQL, and neither can drift from the other.
+
+`db:export` needs an account that may `CREATE DATABASE`; it reads the sandbox's root password when that repo is checked out beside this one, or takes `DB_EXPORT_USER` / `DB_EXPORT_PASS`.
+
 ### Supporting containers
 
 The app itself needs none of these to boot — the welcome page, routing, views and the container all work with nothing but the webapp running. They exist so the code paths that *do* need a server can be exercised locally instead of mocked, and so the matching test suites run for real rather than skipping.

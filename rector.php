@@ -9,6 +9,8 @@ return RectorConfig::configure()
         __DIR__ . '/application',
         __DIR__ . '/config',
         __DIR__ . '/bin',
+        __DIR__ . '/database',
+        __DIR__ . '/phinx.php',
         __DIR__ . '/htdocs',
     ])
     // plain-PHP view templates are rendered by ViewAbstract::generate(), which

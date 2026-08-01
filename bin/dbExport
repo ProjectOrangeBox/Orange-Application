@@ -1,0 +1,264 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Regenerate the mysql sandbox's initdb SQL from the phinx migrations.
+ *
+ * The schema exists in two forms for two audiences: migrations, for anyone
+ * developing against it, and plain SQL, for anyone who just wants to load it
+ * into their own MySQL and get on with it. Keeping both by hand means keeping
+ * them in step by memory, so the SQL is generated from the migrations rather
+ * than maintained beside them - the same arrangement as the production config
+ * snapshots and the generated TypeScript.
+ *
+ *   php bin/dbExport            regenerate ../mysql/initdb/*.sql
+ *   php bin/dbExport --check    exit 1 if regenerating would change them
+ *
+ * It works by building a scratch database, migrating and seeding it, dumping
+ * the result, and dropping it. That requires a reachable MySQL - the sandbox
+ * container is the obvious one - and mysqldump on PATH or in Docker.
+ */
+
+define('__ROOT__', realpath(__DIR__ . '/../'));
+
+const SCRATCH_DB = 'orange_db_export_scratch';
+
+/** Where the generated files land, one per concern. */
+const TARGETS = [
+    '10-acl-tables.sql' => ['orange_users', 'orange_roles', 'orange_permissions', 'orange_user_meta', 'orange_user_role', 'orange_role_permission'],
+    '30-records.sql' => ['records'],
+    '40-calendar.sql' => ['calendar_events'],
+    '50-orders.sql' => ['customers', 'orders', 'order_lines'],
+];
+
+/** Seed data is dumped separately so schema and rows can be loaded apart. */
+const SEED_TARGETS = [
+    '20-acl-seed.sql' => ['orange_users', 'orange_roles', 'orange_permissions', 'orange_role_permission', 'orange_user_role'],
+    '35-records-seed.sql' => ['records'],
+    '55-orders-seed.sql' => ['customers', 'orders', 'order_lines'],
+];
+
+/**
+ * Run a command, returning its output, or null when it failed.
+ */
+function run(string $command): ?string
+{
+    $output = [];
+    $status = 0;
+
+    exec($command . ' 2>&1', $output, $status);
+
+    return $status === 0 ? implode(PHP_EOL, $output) : null;
+}
+
+/**
+ * The mysql/mysqldump command prefix - the container when one is running,
+ * otherwise whatever is on PATH.
+ *
+ * @return array{mysql: string, dump: string, credentials: string}
+ */
+function clientFor(string $host, int $port, string $user, string $pass): array
+{
+    // MYSQL_PWD rather than -p: the client writes "[Warning] Using a password on
+    // the command line interface can be insecure" to stderr otherwise, and that
+    // warning ends up inside the generated SQL.
+    $credentials = '-u' . escapeshellarg($user);
+
+    if (run('command -v mysqldump') !== null) {
+        $where = ' -h' . escapeshellarg($host) . ' -P' . $port . ' ';
+        $pwd = 'MYSQL_PWD=' . escapeshellarg($pass) . ' ';
+
+        return ['mysql' => $pwd . 'mysql' . $where, 'dump' => $pwd . 'mysqldump' . $where, 'credentials' => $credentials];
+    }
+
+    // No local client, so borrow the sandbox container's. -i keeps stdin open
+    // for the statements piped in below.
+    $container = run("docker ps --filter name=webapp-mysql --format '{{.Names}}'");
+
+    if ($container === null || trim($container) === '') {
+        echo 'Needs mysqldump on PATH, or the webapp-mysql container running.' . PHP_EOL;
+
+        exit(1);
+    }
+
+    $exec = 'docker exec -i -e MYSQL_PWD=' . escapeshellarg($pass) . ' ' . trim($container) . ' ';
+
+    return ['mysql' => $exec . 'mysql ', 'dump' => $exec . 'mysqldump ', 'credentials' => $credentials];
+}
+
+$env = parse_ini_file(__ROOT__ . '/.env', true, INI_SCANNER_TYPED);
+$db = is_array($env) && isset($env['db']) && is_array($env['db']) ? $env['db'] : [];
+
+$host = (string) ($db['host'] ?? '127.0.0.1');
+$host = gethostbyname($host) === $host ? '127.0.0.1' : $host;
+
+// Creating and dropping a scratch database needs more than the app user has -
+// it is granted only on its own schema, deliberately. Credentials are taken
+// from the sandbox's .env when it is beside this repo, and can be overridden
+// for any other server.
+$adminUser = (string) getenv('DB_EXPORT_USER') ?: 'root';
+$adminPass = (string) getenv('DB_EXPORT_PASS');
+
+if ($adminPass === '') {
+    $adminPass = (string) ($db['password'] ?? '');
+
+    // The sandbox's .env is a docker env file, not an ini one - its comments
+    // contain backticks and parentheses, and parse_ini_file() rejects the whole
+    // file rather than the line. Read it as plain KEY=VALUE.
+    foreach (@file(__ROOT__ . '/../mysql/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+        $line = trim($line);
+
+        if ($line === '' || $line[0] === '#' || $line[0] === ';' || !str_contains($line, '=')) {
+            continue;
+        }
+
+        [$key, $value] = explode('=', $line, 2);
+
+        if (trim($key) === 'MYSQL_ROOT_PASSWORD') {
+            $adminPass = trim($value);
+
+            break;
+        }
+    }
+}
+
+$client = clientFor($host, (int) ($db['port'] ?? 3306), $adminUser, $adminPass);
+$mysql = $client['mysql'] . $client['credentials'];
+$dump = $client['dump'] . $client['credentials'];
+
+$check = in_array('--check', is_array($_SERVER['argv'] ?? null) ? array_slice($_SERVER['argv'], 1) : [], true);
+
+// Build the scratch database from the migrations, exactly as a new install would.
+echo 'Building ' . SCRATCH_DB . ' from the migrations...' . PHP_EOL;
+
+$create = 'DROP DATABASE IF EXISTS ' . SCRATCH_DB . '; CREATE DATABASE ' . SCRATCH_DB
+    . ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;';
+
+if (run('echo ' . escapeshellarg($create) . ' | ' . $mysql) === null) {
+    echo 'Could not create the scratch database as "' . $adminUser . '".' . PHP_EOL
+        . 'It needs an account that may CREATE DATABASE - the app user is granted only its own.' . PHP_EOL
+        . 'Set DB_EXPORT_USER and DB_EXPORT_PASS, or run this beside the mysql-sandbox checkout.' . PHP_EOL;
+
+    exit(1);
+}
+
+// phinx connects with the app credentials from .env, so the scratch database
+// has to be reachable by that user - grant it rather than running phinx as root.
+run('echo ' . escapeshellarg('GRANT ALL ON ' . SCRATCH_DB . '.* TO ' . "'" . ($db['username'] ?? '') . "'@'%'; FLUSH PRIVILEGES;") . ' | ' . $mysql);
+
+$phinx = 'PHINX_DB_NAME=' . SCRATCH_DB . ' ' . escapeshellarg(__ROOT__ . '/vendor/bin/phinx');
+
+if (run($phinx . ' migrate -e scratch') === null || run($phinx . ' seed:run -e scratch') === null) {
+    echo 'Migrate or seed failed against the scratch database.' . PHP_EOL;
+
+    exit(1);
+}
+
+/**
+ * Dump one file's worth of tables.
+ *
+ * @param list<string> $tables
+ */
+function dumpTables(string $dump, array $tables, bool $dataOnly, string $heading): ?string
+{
+    // --skip-comments drops the version banner and the dump timestamp, which
+    // would otherwise make every regeneration a diff even when nothing changed.
+    $flags = '--skip-comments --single-transaction --set-gtid-purged=OFF '
+        . ($dataOnly ? '--no-create-info --complete-insert' : '--no-data');
+
+    $sql = run($dump . ' ' . $flags . ' ' . SCRATCH_DB . ' ' . implode(' ', $tables));
+
+    if ($sql === null) {
+        return null;
+    }
+
+    // phinx's own bookkeeping table is an artefact of how this was built, not
+    // part of the schema anyone loading it wants.
+    $sql = preg_replace('/^.*phinxlog.*$/m', '', $sql) ?? $sql;
+
+    return $heading . PHP_EOL . trim($sql) . PHP_EOL;
+}
+
+$header = static fn(string $what): string => implode(PHP_EOL, [
+    '-- ' . $what,
+    '--',
+    '-- GENERATED by bin/dbExport from the phinx migrations in the',
+    '-- Orange-Application repo - do not edit here. Change a migration and run',
+    '-- "composer db:export".',
+    '--',
+    '-- Loaded automatically on the first "docker compose up" of the mysql',
+    '-- sandbox; the numeric prefixes are the load order.',
+    '',
+]);
+
+$files = [];
+
+foreach (TARGETS as $file => $tables) {
+    $sql = dumpTables($dump, $tables, false, $header('Schema: ' . implode(', ', $tables)));
+
+    if ($sql === null) {
+        echo 'Failed dumping ' . $file . PHP_EOL;
+
+        exit(1);
+    }
+
+    $files[$file] = $sql;
+}
+
+foreach (SEED_TARGETS as $file => $tables) {
+    $sql = dumpTables($dump, $tables, true, $header('Seed data: ' . implode(', ', $tables)));
+
+    if ($sql === null) {
+        echo 'Failed dumping ' . $file . PHP_EOL;
+
+        exit(1);
+    }
+
+    $files[$file] = $sql;
+}
+
+run('echo ' . escapeshellarg('DROP DATABASE IF EXISTS ' . SCRATCH_DB . ';') . ' | ' . $mysql);
+
+$initdb = realpath(__ROOT__ . '/../mysql/initdb');
+
+if ($initdb === false) {
+    echo 'No ../mysql/initdb directory - clone ProjectOrangeBox/mysql-sandbox beside this repo.' . PHP_EOL;
+
+    exit(1);
+}
+
+$stale = [];
+
+foreach ($files as $file => $sql) {
+    $path = $initdb . '/' . $file;
+    $current = is_file($path) ? (string) file_get_contents($path) : null;
+
+    if ($current === $sql) {
+        continue;
+    }
+
+    $stale[] = $file;
+
+    if (!$check) {
+        file_put_contents($path, $sql);
+    }
+}
+
+if ($check) {
+    if ($stale === []) {
+        echo 'initdb SQL is in step with the migrations.' . PHP_EOL;
+
+        exit(0);
+    }
+
+    echo 'Out of date: ' . implode(', ', $stale) . PHP_EOL
+        . 'Run "composer db:export" and commit the result in the mysql-sandbox repo.' . PHP_EOL;
+
+    exit(1);
+}
+
+echo $stale === []
+    ? 'No change - initdb SQL already matches the migrations.' . PHP_EOL
+    : 'Wrote ' . count($stale) . ' file(s) to ' . $initdb . PHP_EOL . '  ' . implode(PHP_EOL . '  ', $stale) . PHP_EOL;
