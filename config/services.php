@@ -83,44 +83,12 @@ return [
      * both for anyone serving development over TLS.
      */
     'session' => function (ContainerInterface $container): Session {
-        // The session id has to be recovered from the raw Cookie header rather
-        // than from $_COOKIE, because by the time this service is built there
-        // is no usable $_COOKIE to read.
-        //
-        // Two things conspire. Input::setGlobals() captures the superglobals
-        // during bootstrap and then unsets them - and with auto_globals_jit=On
-        // (the default, and what this container runs) $_COOKIE is not
-        // materialised until something references it by name, so what Input
-        // captures is frequently an empty array. input->cookie() then reports
-        // no cookies at all even though the request plainly sent some;
-        // input->server('HTTP_COOKIE') still has the header verbatim.
-        //
-        // Reassigning $_COOKIE here would not help either: once a superglobal
-        // has been unset, the auto-global binding is broken and an assignment
-        // inside a function just makes an ordinary local.
-        //
-        // The visible symptom of all this is a login that appears to work and
-        // is forgotten by the very next request, with nothing logged anywhere.
-        $sessionId = null;
+        // orange/framework used to drop every cookie here - setGlobals()
+        // emitted 'cookie' and Input's constructor read 'cookies', so
+        // input->cookie() was always empty and a login never survived one
+        // request. Fixed in the framework (Input.php), not worked around here.
         $cookies = (array) $container->input->cookie();
-
-        if (isset($cookies['session_id']) && is_string($cookies['session_id'])) {
-            $sessionId = $cookies['session_id'];
-        } else {
-            $header = $container->input->server('HTTP_COOKIE');
-
-            if (is_string($header)) {
-                foreach (explode(';', $header) as $pair) {
-                    [$name, $value] = array_pad(explode('=', trim($pair), 2), 2, '');
-
-                    if ($name === 'session_id') {
-                        $sessionId = urldecode($value);
-
-                        break;
-                    }
-                }
-            }
-        }
+        $sessionId = $cookies['session_id'] ?? null;
 
         $override = env('SESSION_COOKIE_SECURE', null);
 
