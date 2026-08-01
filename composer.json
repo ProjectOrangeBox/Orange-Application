@@ -59,6 +59,7 @@
         "types:export": "@php bin/dtoExport",
         "types:check": "@php bin/dtoExport --check",
         "types:publish": "@php bin/dtoExport --publish",
+        "lock:check": "@php bin/lockCheck",
         "test": "cd unittest && sh runUnitTests.sh",
         "test:orange": "cd vendor/orange/framework/unittest && sh runUnitTests.sh",
         "test:orangeCoverage": "cd vendor/orange/framework/unittest && sh runCoverage.sh",

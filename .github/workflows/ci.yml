@@ -41,6 +41,16 @@ jobs:
             sed -e '/^[[:space:]]*[;#]/d' env.sample > .env
           fi
 
+      - name: composer.lock is level with the orange/* remotes
+        # This job installs from the lock, so a package fix that has been pushed
+        # but not re-locked is invisible here - CI keeps testing the older commit
+        # and keeps passing. Five packages sat like that for a day, including a
+        # framework fix whose own tests therefore never ran once.
+        #
+        # Runs before the gates rather than after: when it fails, everything
+        # below it was measuring the wrong code anyway.
+        run: composer lock:check
+
       - name: lint (phpcs, PSR-12)
         run: composer lint
 

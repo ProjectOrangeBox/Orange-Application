@@ -1,0 +1,132 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Fail when composer.lock pins an orange/* package behind its remote.
+ *
+ * The orange packages are developed in place as git clones, so a fix made in
+ * vendor/orange/<pkg> is visible to everything local the moment it is saved -
+ * including the whole gauntlet. The lock is what CI installs from, and it only
+ * moves when someone runs composer update. Nothing connects the two.
+ *
+ * The failure mode that motivated this: five packages sat pinned behind their
+ * pushed state for a full day of work. Locally everything passed, because
+ * locally the source clones *are* the code. CI installed the older commits and
+ * kept passing too, right up until one of the fixes was actually needed - at
+ * which point it failed with an error that could not be reproduced anywhere.
+ * A framework fix went a whole cycle without its own tests ever running.
+ *
+ *   php bin/lockCheck
+ *
+ * Only dev-<branch> packages are checked, since those are the ones tracking a
+ * moving branch; anything pinned to a tag is pinned on purpose.
+ *
+ * Deliberately not part of sweep.sh - that is the offline gauntlet, and this
+ * needs the network. CI runs it, and it is available as "composer lock:check".
+ */
+
+define('__ROOT__', realpath(__DIR__ . '/../'));
+
+/**
+ * The commit a branch currently points at on the remote, or null when the
+ * remote could not be asked.
+ */
+function remoteHead(string $url, string $branch): ?string
+{
+    $command = 'git ls-remote ' . escapeshellarg($url) . ' ' . escapeshellarg('refs/heads/' . $branch) . ' 2>/dev/null';
+    $output = [];
+    $status = 0;
+
+    exec($command, $output, $status);
+
+    if ($status !== 0 || $output === []) {
+        return null;
+    }
+
+    // "<sha>\trefs/heads/master"
+    $sha = strtok(trim($output[0]), "\t");
+
+    return is_string($sha) ? $sha : null;
+}
+
+$lock = json_decode((string) file_get_contents(__ROOT__ . '/composer.lock'), true);
+
+if (!is_array($lock)) {
+    echo 'Could not read composer.lock.' . PHP_EOL;
+
+    exit(1);
+}
+
+/** @var array<int, array<string, mixed>> $packages */
+$packages = array_merge($lock['packages'] ?? [], $lock['packages-dev'] ?? []);
+
+$behind = [];
+$unreachable = [];
+$checked = 0;
+
+foreach ($packages as $package) {
+    $name = is_string($package['name'] ?? null) ? $package['name'] : '';
+    $version = is_string($package['version'] ?? null) ? $package['version'] : '';
+
+    if (!str_starts_with($name, 'orange/') || !str_starts_with($version, 'dev-')) {
+        continue;
+    }
+
+    $source = is_array($package['source'] ?? null) ? $package['source'] : [];
+    $url = is_string($source['url'] ?? null) ? $source['url'] : '';
+    $locked = is_string($source['reference'] ?? null) ? $source['reference'] : '';
+
+    if ($url === '' || $locked === '') {
+        continue;
+    }
+
+    $checked++;
+    $branch = substr($version, 4);
+    $head = remoteHead($url, $branch);
+
+    if ($head === null) {
+        $unreachable[$name] = $url;
+
+        continue;
+    }
+
+    if ($head !== $locked) {
+        $behind[$name] = ['locked' => substr($locked, 0, 7), 'head' => substr($head, 0, 7), 'branch' => $branch];
+    }
+}
+
+foreach ($behind as $name => $info) {
+    printf("%-22s locked %s  remote %s (%s)%s", $name, $info['locked'], $info['head'], $info['branch'], PHP_EOL);
+}
+
+foreach ($unreachable as $name => $url) {
+    printf("%-22s could not reach %s%s", $name, $url, PHP_EOL);
+}
+
+if ($behind === [] && $unreachable === []) {
+    echo 'All ' . $checked . ' orange/* packages are locked at their remote HEAD.' . PHP_EOL;
+
+    exit(0);
+}
+
+echo PHP_EOL;
+
+if ($behind !== []) {
+    echo count($behind) . ' package(s) pinned behind the remote. CI installs from the lock, so it is'
+        . ' testing older code than is published.' . PHP_EOL
+        . 'Re-sync with:' . PHP_EOL . PHP_EOL
+        . '  composer update --prefer-source ' . implode(' ', array_keys($behind)) . PHP_EOL . PHP_EOL
+        . '--prefer-source keeps them as git clones; without it they are replaced by'
+        . ' dists and can no longer be developed in place.' . PHP_EOL;
+}
+
+// An unreachable remote is not a pass. The whole point here is that a silent
+// gap between the lock and what is published went unnoticed for a day, and
+// "could not check" is exactly that gap wearing a different hat.
+if ($unreachable !== []) {
+    echo count($unreachable) . ' package(s) could not be checked - the remote did not answer.' . PHP_EOL;
+}
+
+exit(1);
