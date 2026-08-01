@@ -2,7 +2,7 @@
 
 A small PHP 8.4 MVC framework and reference application, built to demonstrate how professional PHP frameworks are designed — not to compete with them.
 
-Orange is roughly 12,000 lines of framework core across 13 service interfaces, surrounded by 25 independently versioned packages and an example application. Every package passes PSR-12 linting, PHPStan level 5, and Rector's dead-code analysis with zero findings, backed by 517 framework unit tests.
+Orange is roughly 13,000 lines of framework core across 13 service interfaces, surrounded by 26 independently versioned packages and an example application. Every package passes PSR-12 linting, PHPStan level 8, and Rector's dead-code analysis with zero findings, backed by 581 framework unit tests.
 
 **This is a portfolio and reference codebase.** It has powered production sites, but its purpose today is to make architectural reasoning legible: why a service container resolves the way it does, why routing is declared next to the handler, why the request lifecycle exposes the hooks it does. Where a decision has a cost, this document says so.
 
@@ -36,10 +36,10 @@ The repository you are reading is the **application** side: a small HMVC-structu
 
 | | |
 | --- | --- |
-| **Framework core** | ~11,900 LOC, 13 service interfaces, 517 unit tests |
-| **Package ecosystem** | 25 satellite packages (~21,000 LOC) — validation, DTOs, ACL, auth, models, caching, view engines |
-| **Example application** | ~740 LOC across 2 modules, 41 unit tests |
-| **Static analysis** | PHPStan level 5, zero errors across all 26 packages |
+| **Framework core** | ~13,200 LOC, 13 service interfaces, 581 unit tests |
+| **Package ecosystem** | 26 satellite packages (~20,900 LOC) — validation, DTOs, ACL, auth, models, caching, view engines |
+| **Example application** | ~3,200 LOC across 3 modules, 67 unit tests |
+| **Static analysis** | PHPStan level 8, zero errors across all 27 packages |
 | **Coding standard** | PSR-12, enforced by PHP_CodeSniffer |
 | **PHP floor** | 8.4 |
 
@@ -369,17 +369,17 @@ Four gates run on every change, in a fixed order, stopping at the first failure 
 ```bash
 composer lint:fix      # phpcs/phpcbf — PSR-12
 composer rector:fix    # dead-code and modernization refactorings
-composer type-check    # PHPStan level 5
+composer type-check    # PHPStan level 8
 composer test          # PHPUnit
 ```
 
 | Gate | Result |
 | --- | --- |
-| PSR-12 (PHP_CodeSniffer) | 26/26 packages clean |
-| PHPStan level 5 | 26/26 packages, zero errors |
-| Rector (dead code, PHP 8.4 target) | 26/26 packages, no changes proposed |
-| Framework unit tests | 517 tests, 954 assertions |
-| Application unit tests | 41 tests, 128 assertions |
+| PSR-12 (PHP_CodeSniffer) | 27/27 packages clean |
+| PHPStan level 8 | 27/27 packages, zero errors |
+| Rector (dead code, PHP 8.4 target) | 27/27 packages, no changes proposed |
+| Framework unit tests | 581 tests, 1,097 assertions |
+| Application unit tests | 67 tests, 314 assertions |
 
 The three tools are deliberately non-overlapping: PHPCS owns formatting, PHPStan owns types, Rector owns dead code and modernization. Rector is configured with no style rules specifically so it cannot fight PHPCS.
 
@@ -415,7 +415,7 @@ For a reviewer evaluating this as work product, these are the claims the code su
 
 **Modern PHP** — PHP 8.0 through 8.4 features in production use, attributes as a first-class design tool, `strict_types` throughout, reflection API, `Closure` binding and first-class callables, PSR-4 autoloading, PSR-12 compliance, PSR-3 logging.
 
-**Engineering practice** — static analysis at level 5 with no baseline, coding-standard enforcement, automated refactoring, unit testing with isolated fixtures, mutation-testing and architecture-testing configuration, multi-repository maintenance, Composer package authoring and private registry publishing.
+**Engineering practice** — static analysis at level 8 with no baseline, coding-standard enforcement, automated refactoring, unit testing with isolated fixtures, mutation-testing and architecture-testing configuration, multi-repository maintenance, Composer package authoring and private registry publishing.
 
 **Operations** — Docker and Docker Compose, FrankenPHP/Caddy including resident worker mode with per-request state isolation, TLS termination, environment-based configuration, deployment build steps.
 
@@ -455,9 +455,9 @@ php -S 127.0.0.1:8000 -t htdocs
 
 Any web server works, subject to two rules: the document root must be `htdocs/`, and every request that is not a real file must route to `htdocs/index.php`. Apache configuration is in [`htdocs/.htaccess`](htdocs/.htaccess); the FrankenPHP/Caddy configuration is in [`Caddyfile`](Caddyfile).
 
-### Database schema
+### Database schema and migrations
 
-The schema is defined as [Phinx](https://phinx.org) migrations in [`database/migrations/`](database/migrations/), with example data in [`database/seeds/`](database/seeds/):
+The schema is defined as [Phinx](https://phinx.org) migrations in [`database/migrations/`](database/migrations/), with example data in [`database/seeds/`](database/seeds/). Phinx is a `require-dev` dependency — migrations are a development and deployment tool, and the production image installs with `--no-dev`.
 
 ```bash
 composer db:migrate    # apply pending migrations
@@ -466,9 +466,40 @@ composer db:export     # regenerate the sandbox's initdb SQL from both
 composer db:check      # fail if that SQL no longer matches the migrations
 ```
 
-The mysql sandbox's `initdb/*.sql` is **generated** from these, not maintained alongside them — `db:export` builds a scratch database, migrates and seeds it, dumps the result, and drops it. So the migrations serve anyone developing against the schema, the SQL serves anyone loading it into their own MySQL, and neither can drift from the other.
+Connection details come from `.env`'s `[db]` section via [`phinx.php`](phinx.php) — there is no second copy to keep in step. That file also falls back to `127.0.0.1` when the configured host does not resolve, because `.env` says `host.docker.internal` (how the app container reaches MySQL) and phinx is usually run from the host, where that name means nothing.
 
-`db:export` needs an account that may `CREATE DATABASE`; it reads the sandbox's root password when that repo is checked out beside this one, or takes `DB_EXPORT_USER` / `DB_EXPORT_PASS`.
+#### What the migrations create
+
+| Migration | Tables | Notes |
+| --- | --- | --- |
+| `…0001_create_acl_tables` | `orange_users`, `orange_roles`, `orange_permissions`, `orange_user_meta`, `orange_user_role`, `orange_role_permission` | The six tables [`orange/acl`](https://github.com/ProjectOrangeBox/acl) owns. Created in dependency order — the join tables carry foreign keys. Index and constraint names match that package's own DDL, since the tables belong to it. |
+| `…0002_create_records` | `records` | Behind the flat REST + Vue example. `in_office` is a real boolean to the domain and an int to the database. |
+| `…0003_create_calendar_events` | `calendar_events` | The column is `event_date` while the DTO property is `date` — see the `#[Column]` attribute on `CalendarEventDto`. |
+| `…0004_create_orders` | `customers`, `orders`, `order_lines` | The nested-DTO example. Money is `DECIMAL(10,2)`, never a float. Deleting an order takes its lines with it (`CASCADE`); deleting a customer with orders is refused (`RESTRICT`). |
+
+#### What the seeds provide
+
+| Seeder | Gives you |
+| --- | --- |
+| `AclSeeder` | An `admin` (`admin@example.com` / `orange123`) holding `orders.create` and `orders.delete`, and a `guest` |
+| `RecordsSeeder` | Three sample records, so the list renders with something in it |
+| `OrdersSeeder` | Two customers and two orders with three line items between them |
+
+**The guest row is not decoration.** `orange/acl` resolves every request without a login to the id in its `guest user` config (2 by default), so if that row is missing, every anonymous request *fails* rather than simply being unprivileged. It is seeded inactive with no usable password hash — an identity to fall back to, not an account anyone logs into.
+
+The admin password is a published example credential. It is not a secret, and nothing reachable should be running it.
+
+#### Two forms, one source
+
+The mysql sandbox's `initdb/*.sql` is **generated** from these migrations, not maintained alongside them. `composer db:export` builds a scratch database, migrates and seeds it, dumps the result into the sandbox repo, and drops it. Migrations serve anyone developing against the schema; the plain SQL serves anyone loading it into their own MySQL; and neither can drift, because one is made from the other. `composer db:check` fails when they disagree.
+
+Loading it into your own server needs no PHP at all — the files are plain SQL in numeric order, with schema and seed data split so you can take the structure without the example rows:
+
+```bash
+for f in ../mysql/initdb/*.sql; do mysql yourdb < "$f"; done
+```
+
+`db:export` needs an account that may `CREATE DATABASE` — the app user is deliberately granted only its own schema. It reads the sandbox's root password when that repo is checked out beside this one, or takes `DB_EXPORT_USER` / `DB_EXPORT_PASS`.
 
 ### Supporting containers
 
