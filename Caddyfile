@@ -1,12 +1,5 @@
 {
 	{$CADDY_GLOBAL_OPTIONS}
-
-	frankenphp {
-		# docker-entrypoint.sh sets FRANKENPHP_CONFIG to "worker ..." when
-		# ENVIRONMENT=production in .env, and leaves it empty otherwise.
-		# Empty means classic mode: PHP is re-read from disk every request.
-		{$FRANKENPHP_CONFIG}
-	}
 }
 
 {$CADDY_EXTRA_CONFIG}

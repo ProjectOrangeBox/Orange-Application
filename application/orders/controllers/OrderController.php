@@ -97,6 +97,12 @@ class OrderController extends JsonController
     #[Route('put', '/api/orders/(\d+)', 'orders_update')]
     public function update(string $id): string
     {
+        // Asked before exists(), so an unauthorized caller cannot use the 404
+        // to probe which order ids are real.
+        if (($denied = $this->denyUnless('orders.update')) !== null) {
+            return $denied;
+        }
+
         if (!$this->orderModel->exists((int) $id)) {
             return $this->notFoundResponse('Order not found');
         }

@@ -84,6 +84,36 @@
             <li class="success">Index sets individual values</li>
             <li class="success">Index merges static values</li>
         </ul>
+        <h2>Order Dto</h2>
+        <ul>
+            <li class="success">Valid payload validates</li>
+            <li class="success">Cleared unit price is rejected</li>
+            <li class="success">Cleared unit price is not stored as zero</li>
+            <li class="success">Cleared required line field is rejected with data set &quot;unit_price is &#039;&#039;&quot;</li>
+            <li class="success">Cleared required line field is rejected with data set &quot;unit_price is null&quot;</li>
+            <li class="success">Cleared required line field is rejected with data set &quot;qty is &#039;&#039;&quot;</li>
+            <li class="success">Cleared required line field is rejected with data set &quot;qty is null&quot;</li>
+            <li class="success">Cleared required line field is rejected with data set &quot;sku is &#039;&#039;&quot;</li>
+            <li class="success">Cleared required line field is rejected with data set &quot;sku is null&quot;</li>
+            <li class="success">Cleared required line field is rejected with data set &quot;line_total is &#039;&#039;&quot;</li>
+            <li class="success">Cleared required line field is rejected with data set &quot;line_total is null&quot;</li>
+            <li class="success">Cleared customer id is rejected</li>
+            <li class="success">Numeric strings still validate and cast</li>
+            <li class="success">Zero unit price is rejected as out of range</li>
+            <li class="success">Order with no lines is rejected</li>
+        </ul>
+        <h2>Order Model</h2>
+        <ul>
+            <li class="success">Read returns order with its lines</li>
+            <li class="success">Read returns null for missing id</li>
+            <li class="success">Read output carries the lines key</li>
+            <li class="success">Create inserts order and lines in one go</li>
+            <li class="success">Update replaces the line set</li>
+            <li class="success">Read throws on a stored row that cannot be validated</li>
+            <li class="success">The thrown message names the offending column</li>
+            <li class="success">Index throws rather than omitting a corrupt order</li>
+            <li class="success">Delete removes the order</li>
+        </ul>
         <h2>Record Dto</h2>
         <ul>
             <li class="success">Valid vue style payload</li>

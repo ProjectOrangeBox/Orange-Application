@@ -27,19 +27,28 @@ final class AclSeeder extends AbstractSeed
         ])->save();
 
         $this->table('orange_roles')->insert([
-            ['id' => 1, 'name' => 'orders manager', 'description' => 'May create and delete orders', 'is_active' => 1],
+            ['id' => 1, 'name' => 'orders manager', 'description' => 'May create, edit and delete orders', 'is_active' => 1],
         ])->save();
 
         // Owned by the orders example rather than by acl itself - a bare acl
         // install has no opinion about orders.
+        //
+        // orders.update is here because OrderController::update() had no guard
+        // at all: create and delete asked, and editing did not, so an
+        // unauthenticated PUT could rewrite any order it knew the id of. A
+        // permission the seed never defined is denied for everyone, which would
+        // have made editing quietly impossible rather than open - the failure
+        // has to move in the safe direction either way.
         $this->table('orange_permissions')->insert([
             ['id' => 1, 'key' => 'orders.create', 'description' => 'Create an order', 'group' => 'orders', 'is_active' => 1],
             ['id' => 2, 'key' => 'orders.delete', 'description' => 'Delete an order', 'group' => 'orders', 'is_active' => 1],
+            ['id' => 3, 'key' => 'orders.update', 'description' => 'Edit an order', 'group' => 'orders', 'is_active' => 1],
         ])->save();
 
         $this->table('orange_role_permission')->insert([
             ['role_id' => 1, 'permission_id' => 1],
             ['role_id' => 1, 'permission_id' => 2],
+            ['role_id' => 1, 'permission_id' => 3],
         ])->save();
 
         // Only the admin gets the role, so an anonymous request is refused by

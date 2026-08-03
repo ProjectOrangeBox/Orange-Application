@@ -12,7 +12,7 @@ There is exactly one public PHP entry point:
 [htdocs/index.php](../htdocs/index.php). The web server is configured so that any
 URL that is not a real static file is routed to it (see the server configs in the
 repo [readme.md](../readme.md)). Everything above `htdocs/` — `.env`, `config/`,
-`vendor/`, `worker.php` — stays unreachable over HTTP.
+`vendor/` — stays unreachable over HTTP.
 
 The front controller does almost nothing itself:
 
@@ -142,14 +142,5 @@ view, sends the correct HTTP status, and exits. The full resolution order is in
 [Error handling & error views](error-handling.md).
 
 ---
-
-## Worker mode (a note)
-
-In `production`, the Docker image runs [worker.php](../worker.php) under
-FrankenPHP: the app boots once and stays resident, building a **fresh container
-per request** so no state leaks between requests. The pipeline above is identical
-— only the "boot once, serve many" wrapper differs. For local development you use
-classic mode, where PHP is re-read from disk every request. See the repo
-[readme.md](../readme.md) for switching modes.
 
 Next: **[HMVC & modules →](hmvc-and-modules.md)**

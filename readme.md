@@ -59,14 +59,12 @@ The project optimizes for a specific set of outcomes, and it trades other things
 
 ## Why this framework exists
 
-Writing a framework is a well-worn way to learn what frameworks actually do, but the learning only sticks if you have to resolve the hard parts yourself: circular service dependencies, route resolution ordering, config cascading across environments, keeping request state from leaking between requests in a resident worker process.
+Writing a framework is a well-worn way to learn what frameworks actually do, but the learning only sticks if you have to resolve the hard parts yourself: circular service dependencies, route resolution ordering, and config cascading across environments.
 
-Orange exists to work through those problems in full rather than in outline. Three examples of that showing up in the code:
+Orange exists to work through those problems in full rather than in outline. Two examples of that showing up in the code:
 
 - **Service resolution ordering.** Registering services as closures means nothing is constructed until something asks for it. The application's `pdo` service ([`config/services.php`](config/services.php)) opens no database connection on a request that does not touch the database. This is a two-line design decision with real consequences for request latency, and it is the reason services are closures rather than instances.
 - **Development-vs-production routing.** Attribute-based routing requires scanning the filesystem and reflecting over classes. That is fine at development speed and unacceptable per-request in production. Orange resolves this by scanning live in development and pre-generating a plain array for production — see [Key design decisions](#key-design-decisions).
-- **Worker-mode state isolation.** Under FrankenPHP's worker mode the process stays resident between requests, which is fast and also the single easiest way to leak state between users. [`worker.php`](worker.php) builds a fresh container per request specifically to close that hole.
-
 Setting a PHP 8.4 floor rather than supporting older runtimes is a deliberate part of this. The point is to demonstrate current practice, not maximum compatibility.
 
 ---
@@ -295,7 +293,6 @@ Secrets stay out of source control in `.env` (INI format, gitignored) and are re
 | **Logging** | PSR-3 `LoggerInterface` implementation with a pluggable handler (Monolog in the example app) |
 | **Errors** | Centralized handler; 76 typed exceptions organized by domain (http, filesystem, container, router, …) |
 | **CLI** | `Application::cli()` returns the built container for console entry points |
-| **Worker mode** | FrankenPHP resident process with a fresh container per request |
 
 Beyond the core, the ecosystem provides validation, attribute-driven DTOs, ACL and authentication, PDO models with a query builder, caching, sessions, and two alternative view engines — each a separately versioned package the application opts into.
 
@@ -315,7 +312,7 @@ Beyond the core, the ecosystem provides validation, attribute-driven DTOs, ACL a
 
 **Fail fast, fail typed.** The framework defines 76 exceptions organized by domain rather than reaching for `\Exception` — `ServiceNotFound`, `RouteNotFound`, `ConfigFileDidNotReturnAnArray`, `FailedToAutoWire`. Callers can catch precisely what they intend to handle. The JSON controller sets `JSON_THROW_ON_ERROR` so an encoding failure raises at the source instead of returning `false` and failing a string return type somewhere unrelated.
 
-**Secure defaults.** PDO is configured with `ATTR_EMULATE_PREPARES => false` for genuine native prepared statements. The document root is `htdocs/`; config, `.env`, `vendor/`, and `worker.php` all sit above it and are unreachable over HTTP. JSON output uses hex-escaping flags for tags, quotes, and ampersands.
+**Secure defaults.** PDO is configured with `ATTR_EMULATE_PREPARES => false` for genuine native prepared statements. The document root is `htdocs/`; config, `.env`, and `vendor/` all sit above it and are unreachable over HTTP. JSON output uses hex-escaping flags for tags, quotes, and ampersands.
 
 **Comments explain why, not what.** The codebase's convention is that a comment earns its place by recording a decision or a non-obvious constraint. From `JsonController`:
 
@@ -417,7 +414,7 @@ For a reviewer evaluating this as work product, these are the claims the code su
 
 **Engineering practice** — static analysis at level 8 with no baseline, coding-standard enforcement, automated refactoring, unit testing with isolated fixtures, mutation-testing and architecture-testing configuration, multi-repository maintenance, Composer package authoring and private registry publishing.
 
-**Operations** — Docker and Docker Compose, FrankenPHP/Caddy including resident worker mode with per-request state isolation, TLS termination, environment-based configuration, deployment build steps.
+**Operations** — Docker and Docker Compose, FrankenPHP/Caddy, TLS termination, environment-based configuration, deployment build steps.
 
 **Communication** — ~3,000 lines of guides in [`getting started with orange/`](getting%20started%20with%20orange/).
 
@@ -435,14 +432,12 @@ docker compose up -d --build
 
 Serves at `http://localhost:8080` and `https://localhost:8443`. The entrypoint creates the writable `var/` directories, seeds `.env` from [`env.sample`](env.sample), and runs `composer install` on first start. The repository is mounted into the container, so code edits are live — only Dockerfile or dependency changes need a rebuild.
 
-The image runs [FrankenPHP](https://frankenphp.dev/) (PHP 8.4 with an embedded Caddy server). `ENVIRONMENT` in `.env` selects the serving mode, read once at startup:
+The image runs [FrankenPHP](https://frankenphp.dev/) (PHP 8.4 with an embedded Caddy server). Every request is served by a fresh PHP process. `ENVIRONMENT` in `.env` is read once at startup and decides how aggressively the container caches:
 
-| `ENVIRONMENT` | Mode | Behavior |
-| --- | --- | --- |
-| `development` (or anything but `production`) | Classic | PHP re-read from disk per request; edits appear on reload |
-| `production` | Worker | App boots once and stays resident; restart to pick up a deploy |
-
-Worker mode runs [`worker.php`](worker.php), which sits outside `htdocs/` and is unreachable over HTTP.
+| `ENVIRONMENT` | Behavior |
+| --- | --- |
+| `development` (or anything but `production`) | opcache revalidates per request, so edits appear on reload; dev dependencies installed |
+| `production` | opcache stops checking timestamps and dev dependencies are skipped; restart the container to pick up a deploy |
 
 ### Without Docker
 
@@ -481,7 +476,7 @@ Connection details come from `.env`'s `[db]` section via [`phinx.php`](phinx.php
 
 | Seeder | Gives you |
 | --- | --- |
-| `AclSeeder` | An `admin` (`admin@example.com` / `orange123`) holding `orders.create` and `orders.delete`, and a `guest` |
+| `AclSeeder` | An `admin` (`admin@example.com` / `orange123`) holding `orders.create`, `orders.update` and `orders.delete`, and a `guest` |
 | `RecordsSeeder` | Three sample records, so the list renders with something in it |
 | `OrdersSeeder` | Two customers and two orders with three line items between them |
 

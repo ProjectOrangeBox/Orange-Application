@@ -57,9 +57,14 @@ class OrderDto extends Dto
     // Existence of the customer is a database question, not a shape question -
     // the controller answers it, and a missing row comes back as a 422 keyed to
     // this field rather than a foreign key error from MySQL.
-    #[ToInteger()]
+    //
+    // Checks before ToInteger, not after: a filter declared above a validation
+    // rewrites the value that rule sees, and ToInteger('') is 0, which sails
+    // through IsRequired. See the note in LineItemDto.
+    #[Trim()]
     #[IsRequired()]
     #[Integer()]
+    #[ToInteger()]
     #[Table('orders')]
     #[Column('customer_id')]
     #[Label('Customer')]

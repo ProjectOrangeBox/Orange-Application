@@ -27,6 +27,34 @@ Main Controller
  [x] Index sets individual values
  [x] Index merges static values
 
+Order Dto
+ [x] Valid payload validates
+ [x] Cleared unit price is rejected
+ [x] Cleared unit price is not stored as zero
+ [x] Cleared required line field is rejected with data set "unit_price is ''"
+ [x] Cleared required line field is rejected with data set "unit_price is null"
+ [x] Cleared required line field is rejected with data set "qty is ''"
+ [x] Cleared required line field is rejected with data set "qty is null"
+ [x] Cleared required line field is rejected with data set "sku is ''"
+ [x] Cleared required line field is rejected with data set "sku is null"
+ [x] Cleared required line field is rejected with data set "line_total is ''"
+ [x] Cleared required line field is rejected with data set "line_total is null"
+ [x] Cleared customer id is rejected
+ [x] Numeric strings still validate and cast
+ [x] Zero unit price is rejected as out of range
+ [x] Order with no lines is rejected
+
+Order Model
+ [x] Read returns order with its lines
+ [x] Read returns null for missing id
+ [x] Read output carries the lines key
+ [x] Create inserts order and lines in one go
+ [x] Update replaces the line set
+ [x] Read throws on a stored row that cannot be validated
+ [x] The thrown message names the offending column
+ [x] Index throws rather than omitting a corrupt order
+ [x] Delete removes the order
+
 Record Dto
  [x] Valid vue style payload
  [x] Primary resolves to id column

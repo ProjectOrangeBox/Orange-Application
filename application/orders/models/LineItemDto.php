@@ -37,6 +37,27 @@ use orange\dto\Dto;
  * children and rebuilds a per-row map so the client can put each message under
  * the row that caused it, rather than showing one useless message for the whole
  * table.
+ *
+ * ---
+ *
+ * **Attribute order is load-bearing on the numeric fields: checks first, then
+ * the casting filters.** Dto::process() replays attributes in declaration order
+ * and validates and filters in the same pass, so a filter declared above a
+ * validation rewrites the value that rule then sees. These fields used to read
+ *
+ *     #[ToFloat()] #[Round(2)] #[IsRequired()] #[Numeric()] #[GreaterThan(0)]
+ *
+ * which silently accepted a cleared price: ToFloat turned '' into 0.0 before
+ * IsRequired looked at it, and isFilled(0.0) is true, so the field passed as
+ * required. Numeric and GreaterThan never ran at all - process() decides
+ * "provided" once, from the raw input, and '' is not provided. The order form
+ * cleared a price, got a 200, and wrote 0.00 into the row.
+ *
+ * Reversing it costs nothing: Integer, Numeric and GreaterThan all accept
+ * numeric strings, so they are happy to judge "4.50" before ToFloat runs. Trim
+ * leads because it is the one filter that cannot mask an empty value - trim('')
+ * is still '' - and it keeps whitespace-padded input working the way the casts
+ * used to handle it.
  */
 class LineItemDto extends Dto
 {
@@ -70,10 +91,11 @@ class LineItemDto extends Dto
 
     // GreaterThan(0) rather than IsNatural: a zero-quantity line is not a
     // rounding artifact, it is a line nobody meant to add.
-    #[ToInteger()]
+    #[Trim()]
     #[IsRequired()]
     #[Integer()]
     #[GreaterThan(0)]
+    #[ToInteger()]
     #[Table('order_lines')]
     #[Column('qty')]
     #[Label('Quantity')]
@@ -85,24 +107,29 @@ class LineItemDto extends Dto
     // would otherwise be rejected as "must contain a decimal number", which is
     // a 422 the client cannot fix. Round(2) then holds it to cents, matching
     // the DECIMAL(10,2) column.
-    #[ToFloat()]
-    #[Round(2)]
+    #[Trim()]
     #[IsRequired()]
     #[Numeric()]
     #[GreaterThan(0)]
+    #[ToFloat()]
+    #[Round(2)]
     #[DbCast('float')]
     #[Table('order_lines')]
     #[Column('unit_price')]
     #[Label('Unit price')]
     public protected(set) float $unit_price;
 
-    // Sent by the client and checked against qty x unit_price in the controller
-    // rather than simply recomputed, so a client that has drifted is told so
-    // instead of having its arithmetic silently replaced.
-    #[ToFloat()]
-    #[Round(2)]
+    // Sent by the client and stored as sent. Nothing checks it against
+    // qty x unit_price - the comment here used to claim OrderController did,
+    // and it never has, so a client is free to send a total that does not match
+    // its own line. Left as a known gap rather than quietly recomputed: telling
+    // a drifted client it is wrong is more useful than replacing its arithmetic
+    // behind its back, and that needs a rule this Dto cannot express alone.
+    #[Trim()]
     #[IsRequired()]
     #[Numeric()]
+    #[ToFloat()]
+    #[Round(2)]
     #[DbCast('float')]
     #[Table('order_lines')]
     #[Column('line_total')]

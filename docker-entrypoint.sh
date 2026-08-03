@@ -49,18 +49,15 @@ ENVIRONMENT=$(read_env ENVIRONMENT production | tr '[:upper:]' '[:lower:]')
 SERVER_NAME=$(read_env SERVER_NAME localhost)
 export SERVER_NAME
 
-# Restart a worker process after this many requests. 0 = unlimited.
-MAX_REQUESTS=$(read_env MAX_REQUESTS 0)
-export MAX_REQUESTS
-
 OPCACHE_INI=/usr/local/etc/php/conf.d/zz-orange-opcache.ini
 
+# Every request is served by a fresh PHP process (FrankenPHP classic mode), in
+# both environments. ENVIRONMENT only decides how aggressively that process is
+# allowed to cache, and whether dev dependencies are installed.
 if [ "$ENVIRONMENT" = "production" ]; then
-    # Worker mode: the app stays resident between requests. Code is fixed for
-    # the life of the container, so opcache never needs to stat files, and a
-    # restart is what picks up a deploy.
-    echo "[entrypoint] ENVIRONMENT=production -> FrankenPHP worker mode"
-    export FRANKENPHP_CONFIG="worker $APP_DIR/worker.php"
+    # Code is fixed for the life of the container, so opcache never needs to
+    # stat files and a container restart is what picks up a deploy.
+    echo "[entrypoint] ENVIRONMENT=production -> opcache locked, dev deps skipped"
 
     cat > "$OPCACHE_INI" <<'INI'
 opcache.enable=1
@@ -72,11 +69,9 @@ INI
 
     COMPOSER_FLAGS="--no-dev --optimize-autoloader"
 else
-    # Classic mode: every request re-reads PHP from disk, exactly like the old
-    # Apache setup. validate_timestamps=1 is what makes edits show up without
-    # a restart, so it must stay on here.
-    echo "[entrypoint] ENVIRONMENT=$ENVIRONMENT -> FrankenPHP classic mode"
-    export FRANKENPHP_CONFIG=""
+    # validate_timestamps=1 is what makes edits show up without a restart, so
+    # it must stay on here.
+    echo "[entrypoint] ENVIRONMENT=$ENVIRONMENT -> opcache revalidating, dev deps installed"
 
     cat > "$OPCACHE_INI" <<'INI'
 opcache.enable=1
@@ -87,8 +82,8 @@ INI
     COMPOSER_FLAGS=""
 fi
 
-# How Caddy binds and does TLS is decided by SERVER_NAME, NOT by worker/classic
-# mode - a production build tested locally still needs the local TLS behavior.
+# How Caddy binds and does TLS is decided by SERVER_NAME, NOT by ENVIRONMENT -
+# a production build tested locally still needs the local TLS behavior.
 #
 # The trap this avoids: Caddy's automatic HTTP->HTTPS redirect always points at
 # the standard port 443, but compose publishes the container's 443 on host 8443.

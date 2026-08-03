@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace application\orders\models;
 
 use orange\framework\base\Singleton;
+use orange\framework\exceptions\InvalidValue;
 use orange\model\Sql;
 use PDO;
 
@@ -218,8 +219,22 @@ class OrderModel extends Singleton
      * turns them into child DTOs, so handing it objects would defeat the
      * validation this exists to run.
      *
+     * A stored row that fails that validation throws rather than being handed
+     * back. It used to log a WARNING and return the invalid DTO, which is the
+     * quietest possible way to serve corrupt data: asArray() drops invalid
+     * properties, so an order whose lines failed came back as a 200 with the
+     * 'lines' key simply missing - no error, no status code, nothing the client
+     * could act on. The Vue app read order.lines of undefined and rendered
+     * nothing, and the only evidence was a line in the log.
+     *
+     * Throwing is the right end of that trade. This is the read path for a row
+     * the write path should never have allowed to exist, so it is a 500 - a bug
+     * in this application, not a bad request - and it names the order and the
+     * failure so the log says which row and which column to go and look at.
+     *
      * @param array<string, mixed> $row
      * @param array<int, array<string, mixed>> $lineRows
+     * @throws InvalidValue when the stored row does not satisfy OrderDto
      */
     protected function hydrate(array $row, array $lineRows): OrderDto
     {
@@ -228,10 +243,28 @@ class OrderModel extends Singleton
         $order = new OrderDto($row);
 
         if (!$order->isValid()) {
-            logMsg('WARNING', __METHOD__ . ' database row failed dto validation', [
+            $errors = $order->errors();
+
+            // The rolled-up 'lines' message names no column, so unpack the
+            // children - the whole point of the message is to be actionable.
+            if (isset($order->lines)) {
+                foreach ($order->lines as $index => $line) {
+                    if (!$line->isValid()) {
+                        $errors['lines'][$index] = $line->errors();
+                    }
+                }
+            }
+
+            logMsg('ERROR', __METHOD__ . ' database row failed dto validation', [
                 'id' => $row['id'] ?? null,
-                'errors' => $order->errors(),
+                'errors' => $errors,
             ]);
+
+            throw new InvalidValue(sprintf(
+                'Order %s is stored in a state it cannot be read back from: %s',
+                var_export($row['id'] ?? null, true),
+                json_encode($errors) ?: '(errors could not be encoded)',
+            ));
         }
 
         return $order;

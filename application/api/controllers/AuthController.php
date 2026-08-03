@@ -96,6 +96,7 @@ class AuthController extends JsonController
             // server again, because anything the browser knows it can lie about.
             'permissions' => [
                 'orders.create' => $entity->can('orders.create'),
+                'orders.update' => $entity->can('orders.update'),
                 'orders.delete' => $entity->can('orders.delete'),
             ],
         ];
