@@ -12,8 +12,16 @@
  * Logging out is a form, not a link: it changes state, so it answers to POST and
  * carries the CSRF token like every other state change. A plain <a href> could be
  * fired by any <img> tag on any site on the internet.
+ *
+ * Every account-related item is behind $accountsAvailable, which is false when
+ * there is no accounts database to ask - a checkout that has not been migrated
+ * and seeded yet. Log In and Sign Up both lead to pages that cannot work in that
+ * state, so the nav offers neither, and the page they are on still renders. It
+ * defaults to true: a page that never called chrome() says nothing either way,
+ * and the ordinary case is that accounts work.
  */
 
+$navAccountsAvailable = $accountsAvailable ?? true;
 $navIsLoggedIn = $isLoggedIn ?? false;
 $navUsername = $currentUser->username ?? '';
 $navLoginUrl = $loginUrl ?? '/login';
@@ -34,7 +42,8 @@ $navToken = $csrfToken ?? '';
                 <ul class="navbar-nav ms-auto align-items-lg-center">
                     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="/#portfolio">Examples</a></li>
                     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="/#about">About</a></li>
-<?php if ($navIsLoggedIn) : ?>
+<?php if ($navAccountsAvailable) : ?>
+    <?php if ($navIsLoggedIn) : ?>
                     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="<?= htmlspecialchars($navDashboardUrl, ENT_QUOTES, 'UTF-8') ?>">Dashboard</a></li>
                     <li class="nav-item mx-0 mx-lg-1">
                         <span class="nav-link py-3 px-0 px-lg-3 text-white-50">
@@ -48,9 +57,10 @@ $navToken = $csrfToken ?? '';
                             <button type="submit" class="nav-link py-3 px-0 px-lg-3 rounded btn btn-link text-decoration-none">Log Out</button>
                         </form>
                     </li>
-<?php else : ?>
+    <?php else : ?>
                     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="<?= htmlspecialchars($navLoginUrl, ENT_QUOTES, 'UTF-8') ?>">Log In</a></li>
                     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="<?= htmlspecialchars($navSignupUrl, ENT_QUOTES, 'UTF-8') ?>">Sign Up</a></li>
+    <?php endif; ?>
 <?php endif; ?>
                 </ul>
             </div>

@@ -8,6 +8,7 @@ use application\controllers\WebController;
 use application\login\models\SignupDto;
 use application\login\models\UserAccountModel;
 use application\login\models\UserTokenModel;
+use orange\acl\interfaces\UserEntityInterface;
 use orange\framework\attributes\AttachService;
 use orange\framework\attributes\Route;
 use orange\mail\exceptions\Mail;
@@ -59,8 +60,11 @@ class SignupController extends WebController
     #[Route('get', '/signup', 'signup')]
     public function form(): string
     {
-        // already signed in? there is nothing here for you
-        if (!$this->currentUser()->isGuest()) {
+        // already signed in? there is nothing here for you. No accounts to ask
+        // is not that - see SessionController::form(), same reasoning.
+        $entity = $this->currentUser();
+
+        if ($entity instanceof UserEntityInterface && !$entity->isGuest()) {
             return $this->redirect($this->router->getUrl('dashboard'));
         }
 

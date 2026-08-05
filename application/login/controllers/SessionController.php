@@ -6,6 +6,8 @@ namespace application\login\controllers;
 
 use application\models\LoginThrottleModel;
 use application\controllers\WebController;
+use orange\acl\User;
+use orange\acl\interfaces\UserEntityInterface;
 use orange\auth\Auth;
 use orange\auth\AuthError;
 use orange\framework\attributes\AttachService;
@@ -43,11 +45,25 @@ class SessionController extends WebController
     #[AttachService('LoginThrottleModel')]
     protected LoginThrottleModel $throttle;
 
+    /**
+     * Attached here rather than inherited from WebController, which resolves it
+     * lazily so a page that never mentions a user survives having no accounts
+     * database. This controller is not such a page: logging someone in and out
+     * IS the accounts database, and it already attaches two other things backed
+     * by the same connection. Declaring it says so.
+     */
+    #[AttachService('user')]
+    protected User $user;
+
     #[Route('get', '/login', 'login')]
     public function form(): string
     {
-        // Already logged in? The form has nothing to offer.
-        if (!$this->currentUser()->isGuest()) {
+        // Already logged in? The form has nothing to offer. No accounts at all
+        // is not that case - it falls through and the form renders, which is
+        // where the failure to reach them is the honest thing to report.
+        $entity = $this->currentUser();
+
+        if ($entity instanceof UserEntityInterface && !$entity->isGuest()) {
             return $this->redirect($this->router->getUrl('dashboard'));
         }
 

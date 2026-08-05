@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace application\welcome\controllers;
 
 use application\controllers\WebController;
+use orange\acl\interfaces\UserEntityInterface;
 use orange\framework\attributes\Route;
 
 /**
@@ -44,7 +45,15 @@ class DashboardController extends WebController
             return $denied;
         }
 
+        // Non-null by the line above: requireLogin() returns a redirect for a
+        // guest and for a request with no accounts behind it alike, so the only
+        // way past it is a real user. Checked rather than asserted because the
+        // type says it can be null and the type is right in general.
         $entity = $this->currentUser();
+
+        if (!$entity instanceof UserEntityInterface) {
+            return $this->redirect($this->router->getUrl('login'));
+        }
 
         $this->chrome('Dashboard');
 

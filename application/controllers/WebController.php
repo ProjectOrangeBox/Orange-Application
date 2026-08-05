@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace application\controllers;
 
+use PDOException;
 use orange\acl\User;
 use orange\acl\interfaces\UserEntityInterface;
 use orange\framework\attributes\AttachService;
 use orange\framework\controllers\BaseController;
+use orange\framework\exceptions\MissingRequired;
 use orange\framework\interfaces\DataInterface;
 use orange\framework\interfaces\ViewInterface;
 use orange\session\SessionInterface;
@@ -62,11 +64,24 @@ abstract class WebController extends BaseController
     #[AttachService('view')]
     protected ViewInterface $view;
 
-    #[AttachService('user')]
-    protected User $user;
-
     #[AttachService('session')]
     protected SessionInterface $session;
+
+    /**
+     * The user service, resolved on first use - false once it has failed.
+     *
+     * NOT #[AttachService('user')], which is what it used to be. Attaching it
+     * makes it a *construction* dependency: the container builds user -> acl ->
+     * pdo before the controller body ever runs, so an unreachable or unseeded
+     * accounts database took down every browser-facing page with a stack trace,
+     * the marketing page that mentions no user at all included. That is what a
+     * fresh clone saw before it had run the migrations.
+     *
+     * Kept per-request rather than re-asked, because a failure costs a TCP
+     * connect that has to time out, and chrome() plus a guard ask twice on a
+     * single page.
+     */
+    private User|false|null $userService = null;
 
     /**
      * The three partials every page wraps itself in, by view name.
@@ -82,7 +97,7 @@ abstract class WebController extends BaseController
      */
     protected function chrome(string $title): void
     {
-        $entity = $this->user->load();
+        $entity = $this->currentUser();
 
         $this->data->merge([
             // Partials arrive as resolved paths for the view to include, rather
@@ -102,7 +117,13 @@ abstract class WebController extends BaseController
             'name' => $title,
             // nav state
             'currentUser' => $entity,
-            'isLoggedIn' => !$entity->isGuest(),
+            'isLoggedIn' => $entity instanceof UserEntityInterface && !$entity->isGuest(),
+            // Whether there is an accounts database behind this page at all.
+            // The nav hides Log In, Sign Up, Dashboard and Log Out when there
+            // is not - every one of them leads somewhere that cannot work, and
+            // offering a link to a page that will only throw is worse than not
+            // offering it.
+            'accountsAvailable' => $entity instanceof UserEntityInterface,
             'loginUrl' => $this->router->getUrl('login'),
             'logoutUrl' => $this->router->getUrl('logout'),
             'dashboardUrl' => $this->router->getUrl('dashboard'),
@@ -137,21 +158,83 @@ abstract class WebController extends BaseController
     }
 
     /**
-     * The current user, guest included - never null, which is the point of
-     * orange/acl's guest row.
+     * The current user - the guest entity for an anonymous visitor, and null
+     * only when there are no accounts to ask.
+     *
+     * Guest and null are different answers and the callers treat them so. Guest
+     * means "nobody is logged in", which logging in would change. Null means the
+     * question could not be put: the accounts database is unreachable, or is
+     * reachable but has never been migrated and seeded, so even the guest row
+     * orange/acl falls back to is absent.
      */
-    protected function currentUser(): UserEntityInterface
+    protected function currentUser(): ?UserEntityInterface
     {
-        return $this->user->load();
+        $service = $this->userService();
+
+        if (!$service instanceof User) {
+            return null;
+        }
+
+        try {
+            return $service->load();
+        } catch (PDOException | MissingRequired $e) {
+            return $this->accountsUnavailable($e);
+        }
+    }
+
+    /**
+     * The user service, or null when it cannot be built.
+     *
+     * Both failures caught here are the same fact stated by different layers:
+     * PDOException is no database, and MissingRequired is orange/acl's report
+     * that the guest user its config names is not in one. Neither is recoverable
+     * inside a request, and neither should cost the visitor a page.
+     */
+    protected function userService(): ?User
+    {
+        if ($this->userService === null) {
+            try {
+                $service = container()->get('user');
+
+                $this->userService = $service instanceof User ? $service : false;
+            } catch (PDOException | MissingRequired $e) {
+                $this->accountsUnavailable($e);
+            }
+        }
+
+        return $this->userService === false ? null : $this->userService;
+    }
+
+    /**
+     * Record that there is nothing to authenticate against, and say so as null.
+     *
+     * Logged rather than swallowed: a page that renders logged-out because the
+     * database is down looks exactly like a page that renders logged-out because
+     * nobody is logged in, and the difference has to be visible somewhere.
+     */
+    private function accountsUnavailable(\Throwable $e): null
+    {
+        $this->userService = false;
+
+        logMsg('warning', 'accounts unavailable, serving this request as an anonymous visitor: ' . $e->getMessage());
+
+        return null;
     }
 
     /**
      * Send anyone not logged in to the login form, remembering where they were
      * going. Returns null when the request may carry on.
+     *
+     * No accounts means no login, so it is treated as not-logged-in rather than
+     * given a path of its own. The visitor lands on the login form, which is
+     * where being unable to reach the accounts database is a truthful thing to
+     * report - and it is a page, not a guarded one, so it says so itself.
      */
     protected function requireLogin(): ?string
     {
-        if (!$this->currentUser()->isGuest()) {
+        $entity = $this->currentUser();
+
+        if ($entity instanceof UserEntityInterface && !$entity->isGuest()) {
             return null;
         }
 
@@ -177,7 +260,12 @@ abstract class WebController extends BaseController
             return $denied;
         }
 
-        if ($this->currentUser()->can($permission)) {
+        // requireLogin() sends both a guest and a request with no accounts
+        // behind it to the login form, so getting here means a real user - the
+        // null arm satisfies the type checker rather than a reachable case.
+        $entity = $this->currentUser();
+
+        if ($entity instanceof UserEntityInterface && $entity->can($permission)) {
             return null;
         }
 
