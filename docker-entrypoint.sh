@@ -21,11 +21,18 @@ read_env() {
     fi
 }
 
+# Each writable directory is chmod'd on its own, deliberately NOT "chmod -R 777
+# var". var/ holds one tracked file - var/installed-modules.json, the installer's
+# receipt - and a recursive chmod flipped its mode to 100755 on every first boot,
+# so anyone who followed the quick start had a dirty working tree before touching
+# anything. The -R also reached into the runtime directories' contents, which
+# never needed it: the app creates those files itself and they are already
+# writable by the process that made them.
 echo "[entrypoint] preparing writable var/ directories"
 for d in logs cache uploads downloads temp working; do
     mkdir -p "var/$d"
+    chmod 777 "var/$d"
 done
-chmod -R 777 var
 
 # Preserve an existing .env; only seed from the sample when missing.
 #
