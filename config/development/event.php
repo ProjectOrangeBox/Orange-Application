@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use config\development\ConfigDetector;
 
-// ConfigDetector is not autoloaded (composer only maps application\ and api\),
+// ConfigDetector is not autoloaded (composer only maps application\),
 // so it has to be required explicitly.
 require_once __DIR__ . '/ConfigDetector.php';
 

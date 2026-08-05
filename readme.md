@@ -38,7 +38,7 @@ The repository you are reading is the **application** side: a small HMVC-structu
 | --- | --- |
 | **Framework core** | ~13,200 LOC, 13 service interfaces, 581 unit tests |
 | **Package ecosystem** | 26 satellite packages (~20,900 LOC) — validation, DTOs, ACL, auth, models, caching, view engines |
-| **Example application** | ~3,200 LOC across 3 modules, 67 unit tests |
+| **Example application** | ~6,700 LOC across 4 modules, 212 unit tests |
 | **Static analysis** | PHPStan level 8, zero errors across all 27 packages |
 | **Coding standard** | PSR-12, enforced by PHP_CodeSniffer |
 | **PHP floor** | 8.4 |
@@ -144,24 +144,30 @@ The one deliberate exception is documented in the ruleset itself: every framewor
 
 ### HMVC module layout
 
-Each PSR-4 root in [`composer.json`](composer.json) is a self-contained module with its own controllers and views:
+There is one PSR-4 root in [`composer.json`](composer.json) — `application\` — and each directory under it is a self-contained module with its own controllers and views:
 
 ```text
-api/                       # module: JSON REST API
-├── controllers/
-│   ├── RestController.php
-│   └── WelcomeController.php
-└── models/
-    ├── RecordDto.php      # attribute-driven DTO
-    └── RecordModel.php
-
 application/
-└── welcome/               # nested sub-module — HMVC nesting is arbitrary
+├── controllers/           # shared by every browser-facing module
+│   └── WebController.php
+├── views/partials/        # and the chrome they all render
+├── models/                # shared by more than one module
+├── welcome/               # module: the marketing page and dashboard
+│   ├── controllers/
+│   └── views/
+│       └── main/
+├── login/                 # module: sign-in, signup, password reset
+├── orders/                # module: the nested-DTO example, JSON
+└── api/                   # module: JSON REST API
     ├── controllers/
-    └── views/
-        ├── main/
-        └── partials/
+    │   ├── RestController.php
+    │   └── WelcomeController.php
+    └── models/
+        ├── RecordDto.php  # attribute-driven DTO
+        └── RecordModel.php
 ```
+
+Nesting is arbitrary — `application/welcome/` is itself a module inside the root, and a module may contain further modules. Adding one is just creating the directory: Composer already maps it, `RouterDetector` already scans `application/` recursively, and `ViewDetector` reads the PSR-4 roots straight from Composer. Only a genuinely **new PSR-4 root** costs any configuration.
 
 Modules depend on shared services (router, view, data) but never on each other's controllers or views. Adding one is three steps: create the folder, add a PSR-4 entry, register its path with the route detector.
 
