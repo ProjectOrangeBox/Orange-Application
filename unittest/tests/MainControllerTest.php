@@ -10,6 +10,7 @@ use orange\framework\Data;
 use orange\framework\Input;
 use orange\framework\Output;
 use orange\framework\interfaces\RouterInterface;
+use orange\model\exceptions\Model as ModelException;
 use orange\session\SessionInterface;
 
 final class MainControllerTest extends unitTestHelper
@@ -149,6 +150,31 @@ final class MainControllerTest extends unitTestHelper
         // "there are no accounts to ask", and the nav shows Log In for it
         $this->assertFalse($this->data['isLoggedIn']);
         $this->assertInstanceOf(UserEntityInterface::class, $this->data['currentUser']);
+    }
+
+    /**
+     * The other half of "no accounts": a database that is up but has never been
+     * migrated, so the connection succeeds and the query does not.
+     *
+     * Worth its own test because it fails at a different layer and threw a
+     * different exception - orange/model wraps the driver's error rather than
+     * letting PDOException out - which is how the first version of this fix
+     * still answered an unmigrated checkout with a stack trace.
+     */
+    public function testIndexRendersAgainstAnUnmigratedDatabase(): void
+    {
+        $user = $this->createStub(User::class);
+        $user->method('load')->willThrowException(
+            new ModelException("SQLSTATE[42S02]: Base table or view not found: 1146 Table 'webapp.orange_users' doesn't exist")
+        );
+
+        Container::getInstance()->set('user', $user);
+
+        $this->instance = new MainController();
+
+        $this->assertEquals('rendered:main/index', $this->instance->index());
+        $this->assertFalse($this->data['accountsAvailable']);
+        $this->assertNull($this->data['currentUser']);
     }
 
     /**

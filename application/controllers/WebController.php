@@ -12,6 +12,7 @@ use orange\framework\controllers\BaseController;
 use orange\framework\exceptions\MissingRequired;
 use orange\framework\interfaces\DataInterface;
 use orange\framework\interfaces\ViewInterface;
+use orange\model\exceptions\Model as ModelException;
 use orange\session\SessionInterface;
 
 /**
@@ -163,9 +164,8 @@ abstract class WebController extends BaseController
      *
      * Guest and null are different answers and the callers treat them so. Guest
      * means "nobody is logged in", which logging in would change. Null means the
-     * question could not be put: the accounts database is unreachable, or is
-     * reachable but has never been migrated and seeded, so even the guest row
-     * orange/acl falls back to is absent.
+     * question could not be put at all - see userService() for the three ways
+     * that happens, all of them some form of "there are no accounts to ask".
      */
     protected function currentUser(): ?UserEntityInterface
     {
@@ -177,7 +177,7 @@ abstract class WebController extends BaseController
 
         try {
             return $service->load();
-        } catch (PDOException | MissingRequired $e) {
+        } catch (PDOException | ModelException | MissingRequired $e) {
             return $this->accountsUnavailable($e);
         }
     }
@@ -185,10 +185,19 @@ abstract class WebController extends BaseController
     /**
      * The user service, or null when it cannot be built.
      *
-     * Both failures caught here are the same fact stated by different layers:
-     * PDOException is no database, and MissingRequired is orange/acl's report
-     * that the guest user its config names is not in one. Neither is recoverable
-     * inside a request, and neither should cost the visitor a page.
+     * The three exceptions caught here are one fact reported by three layers,
+     * which is why they are caught together rather than told apart:
+     *
+     *   PDOException      no database - the connection itself failed
+     *   ModelException    a database that cannot answer, orange/model having
+     *                     wrapped the driver's error. A checkout that has not
+     *                     been migrated arrives here: the server is up, the
+     *                     schema is not, and orange_users does not exist
+     *   MissingRequired   a schema with no data in it - orange/acl reporting
+     *                     that the guest row its config names is absent
+     *
+     * None is recoverable inside a request, and none should cost the visitor
+     * the page they asked for.
      */
     protected function userService(): ?User
     {
@@ -197,7 +206,7 @@ abstract class WebController extends BaseController
                 $service = container()->get('user');
 
                 $this->userService = $service instanceof User ? $service : false;
-            } catch (PDOException | MissingRequired $e) {
+            } catch (PDOException | ModelException | MissingRequired $e) {
                 $this->accountsUnavailable($e);
             }
         }

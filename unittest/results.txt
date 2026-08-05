@@ -65,6 +65,7 @@ Main Controller
  [x] Index renders with no accounts database
  [x] No accounts database is reported to the nav
  [x] Accounts are reported available when they are
+ [x] Index renders against an unmigrated database
  [x] Index merges static values
 
 Order Dto
