@@ -17,6 +17,7 @@
 $navIsLoggedIn = $isLoggedIn ?? false;
 $navUsername = $currentUser->username ?? '';
 $navLoginUrl = $loginUrl ?? '/login';
+$navSignupUrl = $signupUrl ?? '/signup';
 $navLogoutUrl = $logoutUrl ?? '/logout';
 $navDashboardUrl = $dashboardUrl ?? '/dashboard';
 $navToken = $csrfToken ?? '';
@@ -49,6 +50,7 @@ $navToken = $csrfToken ?? '';
                     </li>
 <?php else : ?>
                     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="<?= htmlspecialchars($navLoginUrl, ENT_QUOTES, 'UTF-8') ?>">Log In</a></li>
+                    <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="<?= htmlspecialchars($navSignupUrl, ENT_QUOTES, 'UTF-8') ?>">Sign Up</a></li>
 <?php endif; ?>
                 </ul>
             </div>

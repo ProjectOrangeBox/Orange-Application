@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace application\api\controllers;
 
-use application\api\models\LoginThrottleModel;
+use application\models\LoginThrottleModel;
 use orange\acl\User;
 use orange\auth\Auth;
 use orange\auth\AuthError;

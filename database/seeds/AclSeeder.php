@@ -7,11 +7,18 @@ use Phinx\Seed\AbstractSeed;
 /**
  * The accounts, role and permissions the example runs on.
  *
- * The guest row is not decoration. orange/acl resolves every request without a
- * login to the id in its 'guest user' config - 2 by default - so if that row is
- * missing, every anonymous request fails rather than simply being unprivileged.
- * It is seeded inactive and with no usable password hash, because it is an
- * identity to fall back to and not an account anyone logs into.
+ * This is the application's half of the acl data. The other half - the guest
+ * user row, which orange/acl cannot run without - now ships with the package
+ * as OrangeAclSeeder and arrives via `vendor/bin/installModule orange/acl`. The
+ * split is on ownership, not convenience: a row acl fails without belongs to
+ * acl, and an admin account with a published password is an example this
+ * repository is making, not something a package should create by being
+ * installed.
+ *
+ * getDependencies() names that seeder so `composer db:seed` runs it first
+ * whatever order phinx would otherwise pick. Nothing here has a foreign key
+ * into the guest row, so this is about the two halves arriving together rather
+ * than about referential integrity.
  *
  * The admin password is the bcrypt hash of 'orange123'. This is example data in
  * a public repository: it is not a secret, must never be treated as one, and
@@ -19,11 +26,19 @@ use Phinx\Seed\AbstractSeed;
  */
 final class AclSeeder extends AbstractSeed
 {
+    /**
+     * @return string[]
+     */
+    #[\Override]
+    public function getDependencies(): array
+    {
+        return ['OrangeAclSeeder'];
+    }
+
     public function run(): void
     {
         $this->table('orange_users')->insert([
             ['id' => 1, 'username' => 'admin', 'email' => 'admin@example.com', 'password' => '$2y$12$yvswuQcBPiKE636I66YLcuwEo5y3.DtWvoy0NrJXopJuAX0Jd/iwS', 'is_active' => 1, 'is_deleted' => 0],
-            ['id' => 2, 'username' => 'guest', 'email' => 'guest@example.com', 'password' => '', 'is_active' => 0, 'is_deleted' => 0],
         ])->save();
 
         $this->table('orange_roles')->insert([

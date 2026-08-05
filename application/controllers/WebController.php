@@ -28,9 +28,10 @@ use orange\session\SessionInterface;
  * a CSRF token that a JSON endpoint does not. Those are the only differences -
  * the question is still asked of orange/acl, on the server, on every request.
  *
- * CSRF lives here for the same reason the login throttle lives in the api
- * module: neither orange/session nor the framework ships one, and a token is
- * meaningless without a form to put it in. The session cookie is already
+ * CSRF lives here for the same reason LoginThrottleModel lives in
+ * application/models: neither orange/session nor the framework ships one, it is
+ * shared by more than one module, and a token is meaningless without a form to
+ * put it in. The session cookie is already
  * SameSite=Strict (see config/services.php), which stops a cross-site POST in
  * any current browser; the token is the second lock, for the browser that
  * doesn't, and for the day someone loosens that setting to make an inbound link
@@ -106,6 +107,9 @@ abstract class WebController extends BaseController
             'logoutUrl' => $this->router->getUrl('logout'),
             'dashboardUrl' => $this->router->getUrl('dashboard'),
             'homeUrl' => $this->router->getUrl('home'),
+            'signupUrl' => $this->router->getUrl('signup'),
+            'forgotUrl' => $this->router->getUrl('password_forgot'),
+            'resetUrl' => $this->router->getUrl('password_reset'),
             'csrfToken' => $this->csrfToken(),
         ]);
     }
@@ -247,6 +251,89 @@ abstract class WebController extends BaseController
         // hash_equals, not ===: a comparison that returns early on the first
         // wrong byte tells an attacker how much of a guess was right
         return hash_equals($stored, $submitted);
+    }
+
+    /**
+     * One request field as a string - '' when it is absent, or is an array
+     * because someone renamed a form field to `email[]` to see what happened.
+     */
+    protected function requestString(string $key): string
+    {
+        $value = $this->input->request($key, '');
+
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * One query-string parameter as a string.
+     *
+     * Separate from requestString() because Input keeps them apart: request()
+     * is the decoded body, query() is what came after the `?`. A token arriving
+     * by emailed link is in the URL and is invisible to request(), which is a
+     * silent failure - the link simply never works - rather than an error.
+     */
+    protected function queryString(string $key): string
+    {
+        $value = $this->input->query($key, '');
+
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * The client address, for anything counted per-address.
+     *
+     * REMOTE_ADDR only. X-Forwarded-For is written by the client, so trusting
+     * it would hand anyone an unlimited supply of fresh throttle counters. A
+     * deployment genuinely behind a proxy has to resolve that here, from a
+     * trusted-proxy list - not by believing a header.
+     */
+    protected function clientIp(): string
+    {
+        $ip = $this->input->server('remote_addr', '');
+
+        return is_string($ip) ? $ip : '';
+    }
+
+    /**
+     * Turn a path into a URL that survives being clicked out of a mail client.
+     *
+     * A mail is read outside the session that caused it, so a relative path in
+     * one resolves against nothing. Scheme and host come from the request
+     * rather than config, which is what makes the same link work unchanged on
+     * localhost:8080 and on a real hostname.
+     */
+    protected function absoluteUrl(string $path): string
+    {
+        $host = $this->input->server('http_host', '');
+
+        if (!is_string($host) || $host === '') {
+            return $path;
+        }
+
+        return $this->input->isHttpsRequest(true) . '://' . $host . $path;
+    }
+
+    /**
+     * Flatten a Dto's errors into the flat list a form renders above itself.
+     *
+     * errors() is keyed by field because a caller may want to put each message
+     * beside its input. These forms show them together at the top instead, so
+     * the keys are dropped here rather than in every view.
+     *
+     * @param array<string, list<string>> $errors
+     * @return list<string>
+     */
+    protected function flattenErrors(array $errors): array
+    {
+        $flat = [];
+
+        foreach ($errors as $messages) {
+            foreach ($messages as $message) {
+                $flat[] = $message;
+            }
+        }
+
+        return $flat;
     }
 
     /**

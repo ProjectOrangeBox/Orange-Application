@@ -50,7 +50,7 @@
         "orange/snippets": "dev-master",
         "orange/stash": "dev-master",
         "orange/markdown": "dev-master",
-        "symfony/mailer": "^8.1"
+        "orange/mail": "dev-master"
     },
     "scripts": {
         "build:production": [

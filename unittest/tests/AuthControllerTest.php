@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use application\api\controllers\AuthController;
-use application\api\models\LoginThrottleModel;
+use application\models\LoginThrottleModel;
 use orange\acl\User;
 use orange\auth\Auth;
 use orange\framework\Container;

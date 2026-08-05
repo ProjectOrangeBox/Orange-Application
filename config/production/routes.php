@@ -29,8 +29,15 @@ return [
         ['method' => 'post', 'url' => '/api/orders', 'callback' => [\application\orders\controllers\OrderController::class, 'create'], 'name' => 'orders_create'],
         ['method' => 'put', 'url' => '/api/orders/(\d+)', 'callback' => [\application\orders\controllers\OrderController::class, 'update'], 'name' => 'orders_update'],
         ['method' => 'delete', 'url' => '/api/orders/(\d+)', 'callback' => [\application\orders\controllers\OrderController::class, 'delete'], 'name' => 'orders_delete'],
+        ['method' => 'get', 'url' => '/password/forgot', 'callback' => [\application\login\controllers\PasswordController::class, 'forgotForm'], 'name' => 'password_forgot'],
+        ['method' => 'post', 'url' => '/password/forgot', 'callback' => [\application\login\controllers\PasswordController::class, 'forgot'], 'name' => 'password_forgot_submit'],
+        ['method' => 'get', 'url' => '/password/reset', 'callback' => [\application\login\controllers\PasswordController::class, 'resetForm'], 'name' => 'password_reset'],
+        ['method' => 'post', 'url' => '/password/reset', 'callback' => [\application\login\controllers\PasswordController::class, 'reset'], 'name' => 'password_reset_submit'],
         ['method' => 'get', 'url' => '/login', 'callback' => [\application\login\controllers\SessionController::class, 'form'], 'name' => 'login'],
         ['method' => 'post', 'url' => '/login', 'callback' => [\application\login\controllers\SessionController::class, 'login'], 'name' => 'login_submit'],
         ['method' => 'post', 'url' => '/logout', 'callback' => [\application\login\controllers\SessionController::class, 'logout'], 'name' => 'logout'],
+        ['method' => 'get', 'url' => '/signup', 'callback' => [\application\login\controllers\SignupController::class, 'form'], 'name' => 'signup'],
+        ['method' => 'post', 'url' => '/signup', 'callback' => [\application\login\controllers\SignupController::class, 'signup'], 'name' => 'signup_submit'],
+        ['method' => 'get', 'url' => '/signup/confirm', 'callback' => [\application\login\controllers\SignupController::class, 'confirm'], 'name' => 'signup_confirm'],
     ]
 ];

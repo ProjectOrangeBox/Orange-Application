@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 use application\api\models\RecordModel;
 use application\api\models\CalendarEventModel;
-use application\api\models\LoginThrottleModel;
+use application\models\LoginThrottleModel;
+use application\login\models\UserAccountModel;
+use application\login\models\UserTokenModel;
 use orange\acl\Acl;
 use orange\acl\User;
 use orange\auth\Auth;
+use orange\mail\Mailer;
 use orange\negotiate\Negotiate;
 use orange\session\Session;
 use application\orders\models\OrderModel;
@@ -116,7 +119,40 @@ return [
     // limiting a non-goal - it needs state shared across requests - so the
     // application supplies it, backed by the same PDO handle auth itself uses.
     'LoginThrottleModel' => fn(ContainerInterface $container): LoginThrottleModel => LoginThrottleModel::getInstance($container->pdo),
+    // Account writes and the emailed tokens behind signup and password reset.
+    // Neither orange/auth nor orange/acl creates an account or changes a
+    // password - an account's lifecycle belongs to the application that decides
+    // what an account is - so these two supply the handful of writes they omit.
+    'UserAccountModel' => fn(ContainerInterface $container): UserAccountModel => UserAccountModel::getInstance($container->pdo),
+    'UserTokenModel' => fn(ContainerInterface $container): UserTokenModel => UserTokenModel::getInstance($container->pdo),
     'acl' => fn(ContainerInterface $container): Acl => Acl::getInstance([], $container->pdo),
     'auth' => fn(ContainerInterface $container): Auth => Auth::getInstance([], $container->pdo),
     'user' => fn(ContainerInterface $container): User => User::getInstance([], $container->acl, $container->session),
+
+    /*
+     * Outgoing mail.
+     *
+     * Configured entirely from .env's [mail] section rather than a config file,
+     * because every value in it is deployment-specific: the relay, the return
+     * address, and above all where mail must NOT go. In development the dsn
+     * points at the Mailpit container, which accepts every message and delivers
+     * none of them - see vendor/orange/mail/README.md for reading them.
+     *
+     * The package renders nothing. A controller renders its email as an ordinary
+     * view and hands the string over, so an email template gets the same finder
+     * and the same per-module override as any other view.
+     */
+    'mail' => function (): Mailer {
+        $env = (array) env('mail', []);
+
+        return Mailer::getInstance([
+            // no fallback for the dsn: Mailer refuses to construct without one,
+            // which is the point - a mailer pointed nowhere discards silently
+            'dsn' => $env['dsn'] ?? '',
+            'from' => $env['from'] ?? '',
+            'from name' => $env['from_name'] ?? '',
+            'catch all' => $env['catch_all'] ?? '',
+            'subject prefix' => $env['subject_prefix'] ?? '',
+        ]);
+    },
 ];

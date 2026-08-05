@@ -7,16 +7,28 @@ use Phinx\Migration\AbstractMigration;
 /**
  * The six tables orange/acl reads and writes.
  *
- * Order matters within this migration exactly as it does in the package's own
- * SQL: the join tables carry foreign keys, so the tables they point at are
- * created first. Phinx runs the statements in the order written, so the
- * grouping here is the ordering.
+ * Shipped by the package and copied into an application by
+ * `vendor/bin/installModule orange/acl`, which renames it - the file lands as
+ * 20260801000001_orange_acl_create_acl_tables.php with a matching class, so
+ * that two packages that happened to pick the same version number can both be
+ * installed. Do not rename it here; the version is this migration's identity
+ * and changing it would make every application that has already run it run it
+ * again.
+ *
+ * Order matters within this migration exactly as it does in support/*.sql: the
+ * join tables carry foreign keys, so the tables they point at are created
+ * first. Phinx runs the statements in the order written, so the grouping here
+ * is the ordering.
+ *
+ * This and support/*.sql are two renderings of one schema - phinx for an
+ * application that migrates, raw DDL for one that does not. A change to either
+ * has to be made to both; see support/README.md.
  *
  * Table names are fixed rather than configurable - they are constants on
  * orange\acl\dtos\AclTables, because a Dto's #[Table] attribute cannot read
  * config.
  */
-final class CreateAclTables extends AbstractMigration
+final class OrangeAclCreateAclTables extends AbstractMigration
 {
     public function change(): void
     {

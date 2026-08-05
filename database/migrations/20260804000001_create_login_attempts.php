@@ -9,8 +9,8 @@ use Phinx\Migration\AbstractMigration;
  *
  * orange/auth deliberately does not do this - rate limiting needs state shared
  * across requests, which is the application's to own, not a credential
- * checker's. This is that state, and application/api/models/LoginThrottleModel
- * is what reads it.
+ * checker's. This is that state, and application/models/LoginThrottleModel is
+ * what reads it.
  *
  * Only failures are stored, and only until they age out of the counting window,
  * so the table stays small without a scheduled cleanup: LoginThrottleModel

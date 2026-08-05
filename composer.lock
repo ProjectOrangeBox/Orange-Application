@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "15371222d2adadc7090bc7bdb4f475b1",
+    "content-hash": "c6fcfeb8a4d7c961fe9a86576971a84a",
     "packages": [
         {
             "name": "aplus/cache",
@@ -2255,6 +2255,54 @@
                 "source": "https://github.com/ProjectOrangeBox/language"
             },
             "time": "2026-07-31T16:52:29+00:00"
+        },
+        {
+            "name": "orange/mail",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ProjectOrangeBox/mail.git",
+                "reference": "7ebdc80de0c2e767b33f97a6876259a7b96d438e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ProjectOrangeBox/mail/zipball/7ebdc80de0c2e767b33f97a6876259a7b96d438e",
+                "reference": "7ebdc80de0c2e767b33f97a6876259a7b96d438e",
+                "shasum": ""
+            },
+            "require": {
+                "orange/dto": "dev-master",
+                "orange/framework": "dev-master",
+                "php": ">=8.4",
+                "symfony/mailer": "^8.1"
+            },
+            "require-dev": {
+                "orange/testkit": "dev-master",
+                "phpunit/phpunit": "^13.2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "orange\\mail\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Don Myers",
+                    "email": "donmyers@me.com"
+                }
+            ],
+            "description": "Mailer - a validated message Dto and a thin symfony/mailer transport, with a collector for tests.",
+            "homepage": "https://github.com/ProjectOrangeBox/mail",
+            "support": {
+                "issues": "https://github.com/ProjectOrangeBox/mail/issues",
+                "source": "https://github.com/ProjectOrangeBox/mail"
+            },
+            "time": "2026-08-05T02:58:43+00:00"
         },
         {
             "name": "orange/markdown",
@@ -6528,6 +6576,7 @@
         "orange/framework": 20,
         "orange/handlebars": 20,
         "orange/language": 20,
+        "orange/mail": 20,
         "orange/markdown": 20,
         "orange/mergeview": 20,
         "orange/model": 20,

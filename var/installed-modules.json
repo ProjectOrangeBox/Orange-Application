@@ -1,0 +1,9 @@
+{
+    "orange/acl": {
+        "installed": "2026-08-05T14:14:52+00:00",
+        "files": {
+            "database/migrations/20260801000001_orange_acl_create_acl_tables.php": "sha256:b2ddbae016810168676267dd86b115d038cf3b9d120a8ad958cb91c1075100cd",
+            "database/seeds/OrangeAclSeeder.php": "sha256:5334615596d6cb9774c93a0dc915c3f2313e213cef1defc2f283ec7108c4ba01"
+        }
+    }
+}

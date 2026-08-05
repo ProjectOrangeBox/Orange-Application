@@ -58,6 +58,14 @@ $loginToken = $csrfToken ?? '';
                     </button>
                 </form>
 
+                <p class="text-center mt-3 mb-0">
+                    <a href="<?= htmlspecialchars((string) ($forgotUrl ?? '/password/forgot'), ENT_QUOTES, 'UTF-8') ?>">Forgot your password?</a>
+                </p>
+                <p class="text-center mt-1 mb-0">
+                    No account yet?
+                    <a href="<?= htmlspecialchars((string) ($signupUrl ?? '/signup'), ENT_QUOTES, 'UTF-8') ?>">Sign up</a>
+                </p>
+
 <?php if (!empty($demoEmail)) : ?>
                 <div class="alert alert-secondary mt-4 mb-0 small">
                     <strong>Example account.</strong>

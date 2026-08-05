@@ -92,6 +92,23 @@ Order Model
  [x] Index throws rather than omitting a corrupt order
  [x] Delete removes the order
 
+Password Controller
+ [x] Every address gets the same answer
+ [x] Only a real active account is actually mailed
+ [x] The mail carries a working link
+ [x] Both bodies are sent
+ [x] A forgot request without a token is refused and mails nothing
+ [x] An empty address is answered plainly
+ [x] The request is throttled like a login
+ [x] The reset form renders for a live token
+ [x] A forged token gets the expired page
+ [x] A rejected password does not spend the token
+ [x] A mismatched confirmation is refused
+ [x] A good reset changes the password and spends the token
+ [x] A good reset kills every other outstanding link
+ [x] A reset without a csrf token changes nothing
+ [x] A signup token cannot reset a password
+
 Record Dto
  [x] Valid vue style payload
  [x] Primary resolves to id column
@@ -151,6 +168,67 @@ Session Controller
  [x] A successful login redirects and clears its failures
  [x] Logging in throws the anonymous token away
  [x] A logged in visitor is sent away from the form
+
+Signup Controller
+ [x] A valid signup creates an account
+ [x] The new account cannot be used yet
+ [x] The confirmation mail carries a working link
+ [x] Both bodies are sent
+ [x] A taken address gets the same page as a free one
+ [x] A taken address creates no second account
+ [x] A taken address tells its owner somebody tried
+ [x] The owner notice carries no token
+ [x] A taken username is answered plainly
+ [x] A signup without a csrf token creates nothing
+ [x] A short password is refused
+ [x] A mismatched confirmation is refused
+ [x] The submitted password is never handed back
+ [x] An already signed in visitor is sent away
+ [x] Confirming activates the account
+ [x] Confirming does not start a session
+ [x] A confirmation link works only once
+ [x] A forged confirmation token activates nothing
+ [x] A password reset token cannot confirm an account
+
+User Account Model
+ [x] A new account is created switched off
+ [x] The password is never stored as typed
+ [x] The address is lowercased and trimmed
+ [x] The username is trimmed
+ [x] Find by email ignores how the address was typed
+ [x] Find by email is null for an unknown address
+ [x] An unconfirmed account is still found
+ [x] A deleted account is not found
+ [x] Email for is the reverse of find by email
+ [x] Email for is empty for an unknown id
+ [x] Email taken sees an existing account
+ [x] Username taken sees an existing account
+ [x] A duplicate address is refused by the database
+ [x] Activate turns an account on
+ [x] Activate is idempotent
+ [x] Update password replaces the hash
+ [x] The same password hashes differently for two accounts
+
+User Token Model
+ [x] Issue returns a token and stores a row
+ [x] The plaintext token is never stored
+ [x] Two tokens are never the same
+ [x] Consume returns the user it was issued to
+ [x] A token is good exactly once
+ [x] A forged token is refused
+ [x] An expired token is refused
+ [x] A token is still good just before it expires
+ [x] A token cannot be spent on the other flow
+ [x] The two purposes have different lifetimes
+ [x] An unknown purpose throws rather than writing a dead row
+ [x] Issuing a second token kills the first
+ [x] Issuing leaves another users token alone
+ [x] Issuing leaves the other purpose alone
+ [x] Invalidate for drops every outstanding token
+ [x] Is usable answers without consuming
+ [x] Is usable is false once spent
+ [x] Is usable is false for a forged token
+ [x] Issuing prunes tokens that expired long ago
 
 View Detector
  [x] Scan finds views

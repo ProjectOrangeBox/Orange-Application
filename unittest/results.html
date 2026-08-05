@@ -154,6 +154,24 @@
             <li class="success">Index throws rather than omitting a corrupt order</li>
             <li class="success">Delete removes the order</li>
         </ul>
+        <h2>Password Controller</h2>
+        <ul>
+            <li class="success">Every address gets the same answer</li>
+            <li class="success">Only a real active account is actually mailed</li>
+            <li class="success">The mail carries a working link</li>
+            <li class="success">Both bodies are sent</li>
+            <li class="success">A forgot request without a token is refused and mails nothing</li>
+            <li class="success">An empty address is answered plainly</li>
+            <li class="success">The request is throttled like a login</li>
+            <li class="success">The reset form renders for a live token</li>
+            <li class="success">A forged token gets the expired page</li>
+            <li class="success">A rejected password does not spend the token</li>
+            <li class="success">A mismatched confirmation is refused</li>
+            <li class="success">A good reset changes the password and spends the token</li>
+            <li class="success">A good reset kills every other outstanding link</li>
+            <li class="success">A reset without a csrf token changes nothing</li>
+            <li class="success">A signup token cannot reset a password</li>
+        </ul>
         <h2>Record Dto</h2>
         <ul>
             <li class="success">Valid vue style payload</li>
@@ -217,6 +235,70 @@
             <li class="success">A successful login redirects and clears its failures</li>
             <li class="success">Logging in throws the anonymous token away</li>
             <li class="success">A logged in visitor is sent away from the form</li>
+        </ul>
+        <h2>Signup Controller</h2>
+        <ul>
+            <li class="success">A valid signup creates an account</li>
+            <li class="success">The new account cannot be used yet</li>
+            <li class="success">The confirmation mail carries a working link</li>
+            <li class="success">Both bodies are sent</li>
+            <li class="success">A taken address gets the same page as a free one</li>
+            <li class="success">A taken address creates no second account</li>
+            <li class="success">A taken address tells its owner somebody tried</li>
+            <li class="success">The owner notice carries no token</li>
+            <li class="success">A taken username is answered plainly</li>
+            <li class="success">A signup without a csrf token creates nothing</li>
+            <li class="success">A short password is refused</li>
+            <li class="success">A mismatched confirmation is refused</li>
+            <li class="success">The submitted password is never handed back</li>
+            <li class="success">An already signed in visitor is sent away</li>
+            <li class="success">Confirming activates the account</li>
+            <li class="success">Confirming does not start a session</li>
+            <li class="success">A confirmation link works only once</li>
+            <li class="success">A forged confirmation token activates nothing</li>
+            <li class="success">A password reset token cannot confirm an account</li>
+        </ul>
+        <h2>User Account Model</h2>
+        <ul>
+            <li class="success">A new account is created switched off</li>
+            <li class="success">The password is never stored as typed</li>
+            <li class="success">The address is lowercased and trimmed</li>
+            <li class="success">The username is trimmed</li>
+            <li class="success">Find by email ignores how the address was typed</li>
+            <li class="success">Find by email is null for an unknown address</li>
+            <li class="success">An unconfirmed account is still found</li>
+            <li class="success">A deleted account is not found</li>
+            <li class="success">Email for is the reverse of find by email</li>
+            <li class="success">Email for is empty for an unknown id</li>
+            <li class="success">Email taken sees an existing account</li>
+            <li class="success">Username taken sees an existing account</li>
+            <li class="success">A duplicate address is refused by the database</li>
+            <li class="success">Activate turns an account on</li>
+            <li class="success">Activate is idempotent</li>
+            <li class="success">Update password replaces the hash</li>
+            <li class="success">The same password hashes differently for two accounts</li>
+        </ul>
+        <h2>User Token Model</h2>
+        <ul>
+            <li class="success">Issue returns a token and stores a row</li>
+            <li class="success">The plaintext token is never stored</li>
+            <li class="success">Two tokens are never the same</li>
+            <li class="success">Consume returns the user it was issued to</li>
+            <li class="success">A token is good exactly once</li>
+            <li class="success">A forged token is refused</li>
+            <li class="success">An expired token is refused</li>
+            <li class="success">A token is still good just before it expires</li>
+            <li class="success">A token cannot be spent on the other flow</li>
+            <li class="success">The two purposes have different lifetimes</li>
+            <li class="success">An unknown purpose throws rather than writing a dead row</li>
+            <li class="success">Issuing a second token kills the first</li>
+            <li class="success">Issuing leaves another users token alone</li>
+            <li class="success">Issuing leaves the other purpose alone</li>
+            <li class="success">Invalidate for drops every outstanding token</li>
+            <li class="success">Is usable answers without consuming</li>
+            <li class="success">Is usable is false once spent</li>
+            <li class="success">Is usable is false for a forged token</li>
+            <li class="success">Issuing prunes tokens that expired long ago</li>
         </ul>
         <h2>View Detector</h2>
         <ul>

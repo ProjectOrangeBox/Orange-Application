@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace application\api\models;
+namespace application\models;
 
 use orange\framework\base\Singleton;
 use PDO;
@@ -12,8 +12,14 @@ use PDO;
  *
  * orange/auth states this as a deliberate non-goal: rate limiting needs state
  * shared across requests, and a class whose whole job is "does this password
- * match" has no business owning a table. So it lives here, in the application,
- * beside the controller that is the only thing able to say what a request is.
+ * match" has no business owning a table. So it lives in the application, next
+ * to the controllers that are the only things able to say what a request is.
+ *
+ * It sits at the application root rather than in a module for the same reason
+ * WebController does: three controllers in two modules ask it the question -
+ * api's AuthController, login's SessionController and PasswordController - and
+ * a model owned by one of those modules would make the others depend on a
+ * sibling, which is the one thing the HMVC layout rules out.
  *
  * Two counters, because they answer different attacks:
  *

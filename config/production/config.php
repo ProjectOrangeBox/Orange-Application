@@ -2120,6 +2120,42 @@ return [
                 ],
                 [
                     'method' => 'get',
+                    'url' => '/password/forgot',
+                    'callback' => [
+                        'application\\login\\controllers\\PasswordController',
+                        'forgotForm',
+                    ],
+                    'name' => 'password_forgot',
+                ],
+                [
+                    'method' => 'post',
+                    'url' => '/password/forgot',
+                    'callback' => [
+                        'application\\login\\controllers\\PasswordController',
+                        'forgot',
+                    ],
+                    'name' => 'password_forgot_submit',
+                ],
+                [
+                    'method' => 'get',
+                    'url' => '/password/reset',
+                    'callback' => [
+                        'application\\login\\controllers\\PasswordController',
+                        'resetForm',
+                    ],
+                    'name' => 'password_reset',
+                ],
+                [
+                    'method' => 'post',
+                    'url' => '/password/reset',
+                    'callback' => [
+                        'application\\login\\controllers\\PasswordController',
+                        'reset',
+                    ],
+                    'name' => 'password_reset_submit',
+                ],
+                [
+                    'method' => 'get',
                     'url' => '/login',
                     'callback' => [
                         'application\\login\\controllers\\SessionController',
@@ -2144,6 +2180,33 @@ return [
                         'logout',
                     ],
                     'name' => 'logout',
+                ],
+                [
+                    'method' => 'get',
+                    'url' => '/signup',
+                    'callback' => [
+                        'application\\login\\controllers\\SignupController',
+                        'form',
+                    ],
+                    'name' => 'signup',
+                ],
+                [
+                    'method' => 'post',
+                    'url' => '/signup',
+                    'callback' => [
+                        'application\\login\\controllers\\SignupController',
+                        'signup',
+                    ],
+                    'name' => 'signup_submit',
+                ],
+                [
+                    'method' => 'get',
+                    'url' => '/signup/confirm',
+                    'callback' => [
+                        'application\\login\\controllers\\SignupController',
+                        'confirm',
+                    ],
+                    'name' => 'signup_confirm',
                 ],
             ],
             'match all' => [
@@ -3157,8 +3220,14 @@ return [
                 }
                 return $session;
             },
-            'LoginThrottleModel' => function (\orange\framework\interfaces\ContainerInterface $container): \application\api\models\LoginThrottleModel {
-                return \application\api\models\LoginThrottleModel::getInstance($container->pdo);
+            'LoginThrottleModel' => function (\orange\framework\interfaces\ContainerInterface $container): \application\models\LoginThrottleModel {
+                return \application\models\LoginThrottleModel::getInstance($container->pdo);
+            },
+            'UserAccountModel' => function (\orange\framework\interfaces\ContainerInterface $container): \application\login\models\UserAccountModel {
+                return \application\login\models\UserAccountModel::getInstance($container->pdo);
+            },
+            'UserTokenModel' => function (\orange\framework\interfaces\ContainerInterface $container): \application\login\models\UserTokenModel {
+                return \application\login\models\UserTokenModel::getInstance($container->pdo);
             },
             'acl' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\acl\Acl {
                 return \orange\acl\Acl::getInstance([], $container->pdo);
@@ -3168,6 +3237,18 @@ return [
             },
             'user' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\acl\User {
                 return \orange\acl\User::getInstance([], $container->acl, $container->session);
+            },
+            'mail' => function (): \orange\mail\Mailer {
+                $env = (array) \env('mail', []);
+                return \orange\mail\Mailer::getInstance([
+                    // no fallback for the dsn: Mailer refuses to construct without one,
+                    // which is the point - a mailer pointed nowhere discards silently
+                    'dsn' => $env['dsn'] ?? '',
+                    'from' => $env['from'] ?? '',
+                    'from name' => $env['from_name'] ?? '',
+                    'catch all' => $env['catch_all'] ?? '',
+                    'subject prefix' => $env['subject_prefix'] ?? '',
+                ]);
             },
         ],
         'statusCodes' => [
@@ -3248,8 +3329,23 @@ return [
         ],
         'views' => [
             'views' => [
+                'application/login/mail/password-reset' => __ROOT__ . '/application/login/views/mail/password-reset.php',
+                'application/login/mail/password-reset-text' => __ROOT__ . '/application/login/views/mail/password-reset-text.php',
+                'application/login/mail/signup-confirm' => __ROOT__ . '/application/login/views/mail/signup-confirm.php',
+                'application/login/mail/signup-confirm-text' => __ROOT__ . '/application/login/views/mail/signup-confirm-text.php',
+                'application/login/mail/signup-in-use' => __ROOT__ . '/application/login/views/mail/signup-in-use.php',
+                'application/login/mail/signup-in-use-text' => __ROOT__ . '/application/login/views/mail/signup-in-use-text.php',
+                'application/login/password/done' => __ROOT__ . '/application/login/views/password/done.php',
+                'application/login/password/expired' => __ROOT__ . '/application/login/views/password/expired.php',
+                'application/login/password/forgot' => __ROOT__ . '/application/login/views/password/forgot.php',
+                'application/login/password/reset' => __ROOT__ . '/application/login/views/password/reset.php',
+                'application/login/password/sent' => __ROOT__ . '/application/login/views/password/sent.php',
                 'application/login/session/forbidden' => __ROOT__ . '/application/login/views/session/forbidden.php',
                 'application/login/session/login' => __ROOT__ . '/application/login/views/session/login.php',
+                'application/login/signup/check-email' => __ROOT__ . '/application/login/views/signup/check-email.php',
+                'application/login/signup/confirmed' => __ROOT__ . '/application/login/views/signup/confirmed.php',
+                'application/login/signup/expired' => __ROOT__ . '/application/login/views/signup/expired.php',
+                'application/login/signup/index' => __ROOT__ . '/application/login/views/signup/index.php',
                 'application/partials/footer' => __ROOT__ . '/application/views/partials/footer.php',
                 'application/partials/header' => __ROOT__ . '/application/views/partials/header.php',
                 'application/partials/nav' => __ROOT__ . '/application/views/partials/nav.php',
@@ -3270,12 +3366,27 @@ return [
                 'errors/html/500' => __ROOT__ . '/vendor/orange/framework/src/views/errors/html/500.php',
                 'exceptions/development' => __ROOT__ . '/vendor/aplus/debug/src/Views/exceptions/development.php',
                 'exceptions/production' => __ROOT__ . '/vendor/aplus/debug/src/Views/exceptions/production.php',
+                'mail/password-reset' => __ROOT__ . '/application/login/views/mail/password-reset.php',
+                'mail/password-reset-text' => __ROOT__ . '/application/login/views/mail/password-reset-text.php',
+                'mail/signup-confirm' => __ROOT__ . '/application/login/views/mail/signup-confirm.php',
+                'mail/signup-confirm-text' => __ROOT__ . '/application/login/views/mail/signup-confirm-text.php',
+                'mail/signup-in-use' => __ROOT__ . '/application/login/views/mail/signup-in-use.php',
+                'mail/signup-in-use-text' => __ROOT__ . '/application/login/views/mail/signup-in-use-text.php',
                 'main/index' => __ROOT__ . '/application/welcome/views/main/index.php',
                 'partials/footer' => __ROOT__ . '/application/views/partials/footer.php',
                 'partials/header' => __ROOT__ . '/application/views/partials/header.php',
                 'partials/nav' => __ROOT__ . '/application/views/partials/nav.php',
+                'password/done' => __ROOT__ . '/application/login/views/password/done.php',
+                'password/expired' => __ROOT__ . '/application/login/views/password/expired.php',
+                'password/forgot' => __ROOT__ . '/application/login/views/password/forgot.php',
+                'password/reset' => __ROOT__ . '/application/login/views/password/reset.php',
+                'password/sent' => __ROOT__ . '/application/login/views/password/sent.php',
                 'session/forbidden' => __ROOT__ . '/application/login/views/session/forbidden.php',
                 'session/login' => __ROOT__ . '/application/login/views/session/login.php',
+                'signup/check-email' => __ROOT__ . '/application/login/views/signup/check-email.php',
+                'signup/confirmed' => __ROOT__ . '/application/login/views/signup/confirmed.php',
+                'signup/expired' => __ROOT__ . '/application/login/views/signup/expired.php',
+                'signup/index' => __ROOT__ . '/application/login/views/signup/index.php',
             ],
             'view aliases' => [],
         ],

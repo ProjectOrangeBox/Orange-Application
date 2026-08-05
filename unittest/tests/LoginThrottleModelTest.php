@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use application\api\models\LoginThrottleModel;
+use application\models\LoginThrottleModel;
 
 /**
  * The throttle's time-dependent behavior, which AuthControllerTest cannot

@@ -1,6 +1,10 @@
 .env
 vendor/*
 var/*
+# ...except the installer's record of which package put which file here. It is
+# the app's composition, not runtime state, and without it a fresh clone cannot
+# tell a file a package installed from one someone wrote by hand.
+!var/installed-modules.json
 application/testing/*
 CLAUDE.md
 STATUS.md

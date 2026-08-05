@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace application\login\controllers;
 
-use application\api\models\LoginThrottleModel;
+use application\models\LoginThrottleModel;
 use application\controllers\WebController;
 use orange\auth\Auth;
 use orange\auth\AuthError;
@@ -186,16 +186,5 @@ class SessionController extends WebController
         }
 
         return $this->router->getUrl('dashboard');
-    }
-
-    /**
-     * REMOTE_ADDR only - X-Forwarded-For is written by the client and would
-     * hand an attacker an unlimited supply of fresh throttle counters.
-     */
-    protected function clientIp(): string
-    {
-        $ip = $this->input->server('remote_addr', '');
-
-        return is_string($ip) ? $ip : '';
     }
 }

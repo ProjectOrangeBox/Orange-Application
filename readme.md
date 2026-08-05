@@ -496,6 +496,36 @@ for f in ../mysql/initdb/*.sql; do mysql yourdb < "$f"; done
 
 `db:export` needs an account that may `CREATE DATABASE` — the app user is deliberately granted only its own schema. It reads the sandbox's root password when that repo is checked out beside this one, or takes `DB_EXPORT_USER` / `DB_EXPORT_PASS`.
 
+### Authentication, and the mail it sends
+
+Sign in at **<http://localhost:8080/login>** with the seeded `admin@example.com`
+/ `orange123`, which lands on `/dashboard` — a page whose only content is a live
+`$user->can(...)` against [`orange/acl`](https://github.com/ProjectOrangeBox/acl)
+for each of the three permissions the orders API guards its writes with. The page
+and the endpoint cannot disagree, because neither of them decides it.
+
+The browser flow (`application/login/`) and the JSON one (`POST /api/login`)
+deliberately share one implementation of everything that matters: the same
+`orange/auth`, the same acl user, and the same login throttle — an endpoint that
+counted failures less would simply be the one an attacker scripts. What differs
+is only what a browser needs, a CSRF token and a redirect instead of a status
+code.
+
+**Mail goes to a container, not to anyone.** The mail sandbox below runs
+[Mailpit](https://mailpit.axllent.org/): an SMTP server that accepts every
+message and delivers none of them, which is what makes it safe to develop
+against a database full of real-looking addresses. Everything the app sends is
+readable at **<http://localhost:8025>**, links included. The app needs it only
+when it actually sends something — nothing else in the application touches it.
+
+Sending is [`orange/mail`](https://github.com/ProjectOrangeBox/mail) — a message
+that validates itself over a thin `symfony/mailer` transport, plus a collector
+that keeps mail instead of sending it so the unit suite never opens a socket.
+**[Its README](vendor/orange/mail/README.md) is the reference**: configuration,
+the DSN, the collector, and a step-by-step walkthrough of reading a message in
+Mailpit and clicking the link inside it. Configuration for this app lives in
+`.env`'s `[mail]` section, documented in [`env.sample`](env.sample).
+
 ### Supporting containers
 
 The app itself needs none of these to boot — the welcome page, routing, views and the container all work with nothing but the webapp running. They exist so the code paths that *do* need a server can be exercised locally instead of mocked, and so the matching test suites run for real rather than skipping.
@@ -507,8 +537,9 @@ Each is a separate repo holding one `docker-compose.yml`. Clone whichever you ne
 | MySQL 8.4 | [mysql-sandbox](https://github.com/ProjectOrangeBox/mysql-sandbox) | `3306` | the `[db]` section of `.env`; anything model-layer |
 | Redis 8 | [redis-sandbox](https://github.com/ProjectOrangeBox/redis-sandbox) | `6379` | [`orange/cache`](https://github.com/ProjectOrangeBox/cache)'s `RedisCache` |
 | Memcached 1.6 | [memcached-sandbox](https://github.com/ProjectOrangeBox/memcached-sandbox) | `11211` | [`orange/cache`](https://github.com/ProjectOrangeBox/cache)'s `MemcachedCache` |
+| Mailpit | [mail-sandbox](https://github.com/ProjectOrangeBox/mail-sandbox) | `1025` SMTP, `8025` UI | the `[mail]` section of `.env`; [`orange/mail`](https://github.com/ProjectOrangeBox/mail) |
 
-The two cache containers are deliberately configured as **sandboxes** — no password, no persistence, safe to wipe. That is not a shortcut: `orange/cache`'s suite flushes the entire server before and after every test, so it must never be pointed at a server holding anything real. MySQL is the exception and does persist, in a named volume, since a database that forgets its schema on restart is no use.
+The two cache containers and the mail one are deliberately configured as **sandboxes** — no password, no persistence, safe to wipe. That is not a shortcut: `orange/cache`'s suite flushes the entire server before and after every test, so it must never be pointed at a server holding anything real, and a mailbox that survives a restart is how you end up debugging a bug you already fixed from last week's message. MySQL is the exception and does persist, in a named volume, since a database that forgets its schema on restart is no use.
 
 **Host addressing differs by where PHP runs.** All three publish their port to the host, so they are reachable at `host.docker.internal` from inside the webapp container and `127.0.0.1` from a CLI script or a local `php -S`. The cache test suite probes both and uses whichever answers, so it needs no configuration either way.
 

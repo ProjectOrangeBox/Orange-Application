@@ -25,6 +25,20 @@ export interface RecordItem {
 
 export type RecordInput = Omit<RecordItem, 'id'>
 
+/** Generated from application\login\models\ResetPasswordDto. */
+export interface ResetPassword {
+  password: string
+  passwordConfirm: string
+}
+
+/** Generated from application\login\models\SignupDto. */
+export interface Signup {
+  username: string
+  email: string
+  password: string
+  passwordConfirm: string
+}
+
 /** Generated from application\orders\models\CustomerDto. */
 export interface Customer {
   id: number

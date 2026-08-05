@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use application\api\models\LoginThrottleModel;
+use application\models\LoginThrottleModel;
 use application\login\controllers\SessionController;
 use orange\acl\User;
 use orange\acl\interfaces\UserEntityInterface;
