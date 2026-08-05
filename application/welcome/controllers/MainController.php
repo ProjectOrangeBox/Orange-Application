@@ -4,23 +4,28 @@ declare(strict_types=1);
 
 namespace application\welcome\controllers;
 
-use orange\framework\attributes\AttachService;
+use application\controllers\WebController;
 use orange\framework\attributes\Route;
-use orange\framework\controllers\BaseController;
-use orange\framework\interfaces\DataInterface;
-use orange\framework\interfaces\ViewInterface;
 
-class MainController extends BaseController
+/**
+ * The home page.
+ *
+ * Extends WebController rather than BaseController only so the shared navbar can
+ * show who is signed in - the page itself is public and guards nothing. The one
+ * consequence worth knowing: reading the current user reads the session, so this
+ * page now starts one for anonymous visitors too. That is the price of a nav
+ * that tells the truth on every page; a site that wants a cookie-free landing
+ * page should drop the auth block from the nav partial instead of guessing here.
+ */
+class MainController extends WebController
 {
-    #[AttachService('data')]
-    protected DataInterface $data;
-
-    #[AttachService('view')]
-    protected ViewInterface $view;
-
     #[Route('*', '/', 'home')]
     public function index(): string
     {
+        // the navbar's variables (and the empty css/script/js the partials
+        // echo). Called first so everything below can overwrite it.
+        $this->chrome('Home');
+
         // many at once
         $this->data->merge([
             'css' => '',

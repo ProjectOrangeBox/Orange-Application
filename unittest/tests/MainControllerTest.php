@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 use application\welcome\controllers\MainController;
+use orange\acl\User;
+use orange\acl\interfaces\UserEntityInterface;
 use orange\framework\Container;
 use orange\framework\Data;
 use orange\framework\Input;
 use orange\framework\Output;
 use orange\framework\interfaces\RouterInterface;
+use orange\session\SessionInterface;
 
 final class MainControllerTest extends unitTestHelper
 {
@@ -46,8 +49,31 @@ final class MainControllerTest extends unitTestHelper
         // renderView() resolves the name through the view finder before the
         // view engine ever sees it, so controllers need one of these too
         $container->set('viewFinder', new MockViewFinderService());
+        // The home page is still public, but it extends WebController so the
+        // shared navbar can say who is signed in - which means it now reads the
+        // current user, and therefore the session.
+        $container->set('user', $this->makeUser(isGuest: true));
+        $container->set('session', $this->createStub(SessionInterface::class));
 
         $this->instance = new MainController();
+    }
+
+    /**
+     * An acl User whose load() hands back an entity answering isGuest() as told.
+     *
+     * The entity is a stub of the interface rather than a real UserEntity: a
+     * real one needs a UserModel, a database and a role/permission cascade to
+     * answer a question this test does not ask.
+     */
+    protected function makeUser(bool $isGuest): User
+    {
+        $entity = $this->createStub(UserEntityInterface::class);
+        $entity->method('isGuest')->willReturn($isGuest);
+
+        $user = $this->createStub(User::class);
+        $user->method('load')->willReturn($entity);
+
+        return $user;
     }
 
     public function testIndexRendersTheMainIndexView(): void

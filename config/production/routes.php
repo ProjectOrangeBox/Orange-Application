@@ -8,6 +8,7 @@ return [
         ['url' => '/assets/js', 'name' => 'javascript'],
         ['url' => '/assets/css', 'name' => 'css'],
         ['url' => '/images', 'name' => 'images'],
+        ['method' => 'get', 'url' => '/dashboard', 'callback' => [\application\welcome\controllers\DashboardController::class, 'index'], 'name' => 'dashboard'],
         ['method' => '*', 'url' => '/', 'callback' => [\application\welcome\controllers\MainController::class, 'index'], 'name' => 'home'],
         ['method' => 'post', 'url' => '/api/login', 'callback' => [\application\api\controllers\AuthController::class, 'login'], 'name' => 'auth_login'],
         ['method' => 'post', 'url' => '/api/logout', 'callback' => [\application\api\controllers\AuthController::class, 'logout'], 'name' => 'auth_logout'],
@@ -28,5 +29,8 @@ return [
         ['method' => 'post', 'url' => '/api/orders', 'callback' => [\application\orders\controllers\OrderController::class, 'create'], 'name' => 'orders_create'],
         ['method' => 'put', 'url' => '/api/orders/(\d+)', 'callback' => [\application\orders\controllers\OrderController::class, 'update'], 'name' => 'orders_update'],
         ['method' => 'delete', 'url' => '/api/orders/(\d+)', 'callback' => [\application\orders\controllers\OrderController::class, 'delete'], 'name' => 'orders_delete'],
+        ['method' => 'get', 'url' => '/login', 'callback' => [\application\login\controllers\SessionController::class, 'form'], 'name' => 'login'],
+        ['method' => 'post', 'url' => '/login', 'callback' => [\application\login\controllers\SessionController::class, 'login'], 'name' => 'login_submit'],
+        ['method' => 'post', 'url' => '/logout', 'callback' => [\application\login\controllers\SessionController::class, 'logout'], 'name' => 'logout'],
     ]
 ];

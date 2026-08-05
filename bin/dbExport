@@ -28,10 +28,38 @@ const SCRATCH_DB = 'orange_db_export_scratch';
 /** Where the generated files land, one per concern. */
 const TARGETS = [
     '10-acl-tables.sql' => ['orange_users', 'orange_roles', 'orange_permissions', 'orange_user_meta', 'orange_user_role', 'orange_role_permission'],
+    // Its own file rather than part of the acl set: it is the application's
+    // login throttle, not one of orange/acl's tables. Deliberately absent from
+    // SEED_TARGETS - it records failed logins and starts empty.
+    '15-login-attempts.sql' => ['login_attempts'],
     '30-records.sql' => ['records'],
     '40-calendar.sql' => ['calendar_events'],
     '50-orders.sql' => ['customers', 'orders', 'order_lines'],
 ];
+
+/**
+ * Phinx's bookkeeping, written last so it names a schema that is fully loaded
+ * by the time it lands.
+ *
+ * This used to be stripped from the output as "an artefact of how this was
+ * built", which had a consequence nobody wanted: a sandbox loaded from these
+ * files came up with every table present and no record of a single migration,
+ * so the first "composer db:migrate" against it tried to replay migration one
+ * and died on "table orange_users already exists". The database was a dead end
+ * - it could never take an incremental migration. These files *are* the
+ * migrations' output, so recording which ones produced them is part of the
+ * schema, not noise beside it.
+ */
+const PHINXLOG_TARGET = '90-phinxlog.sql';
+
+/**
+ * The timestamp written into every phinxlog row.
+ *
+ * Phinx reads `version` (and `breakpoint`); the times are cosmetic. Dumping the
+ * real ones would stamp each export with the moment it ran and make every
+ * regeneration a diff - the same reason --skip-comments is used below.
+ */
+const PHINXLOG_TIME = '2026-01-01 00:00:00';
 
 /** Seed data is dumped separately so schema and rows can be loaded apart. */
 const SEED_TARGETS = [
@@ -174,11 +202,61 @@ function dumpTables(string $dump, array $tables, bool $dataOnly, string $heading
         return null;
     }
 
-    // phinx's own bookkeeping table is an artefact of how this was built, not
-    // part of the schema anyone loading it wants.
-    $sql = preg_replace('/^.*phinxlog.*$/m', '', $sql) ?? $sql;
-
     return $heading . PHP_EOL . trim($sql) . PHP_EOL;
+}
+
+/**
+ * The phinxlog table, schema and rows, so a database loaded from these files
+ * knows exactly which migrations it already has.
+ *
+ * The rows are generated from the scratch database's applied versions rather
+ * than dumped, so their timestamps are fixed rather than being the moment this
+ * ran - see PHINXLOG_TIME.
+ */
+function dumpPhinxlog(string $dump, string $mysql, string $heading): ?string
+{
+    $schema = run($dump . ' --skip-comments --single-transaction --set-gtid-purged=OFF --no-data ' . SCRATCH_DB . ' phinxlog');
+
+    if ($schema === null) {
+        return null;
+    }
+
+    $applied = run(
+        'echo ' . escapeshellarg('SELECT version, migration_name FROM phinxlog ORDER BY version;')
+        . ' | ' . $mysql . ' --batch --skip-column-names ' . SCRATCH_DB
+    );
+
+    if ($applied === null) {
+        return null;
+    }
+
+    $rows = [];
+
+    foreach (explode(PHP_EOL, trim($applied)) as $line) {
+        if (trim($line) === '') {
+            continue;
+        }
+
+        [$version, $name] = array_pad(explode("\t", $line, 2), 2, '');
+
+        $rows[] = sprintf(
+            "(%d, '%s', '%s', '%s', 0)",
+            (int) $version,
+            addslashes(trim($name)),
+            PHINXLOG_TIME,
+            PHINXLOG_TIME
+        );
+    }
+
+    $sql = trim($schema);
+
+    if ($rows !== []) {
+        $sql .= PHP_EOL . PHP_EOL
+            . 'INSERT INTO `phinxlog` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`) VALUES' . PHP_EOL
+            . implode(',' . PHP_EOL, $rows) . ';';
+    }
+
+    return $heading . PHP_EOL . $sql . PHP_EOL;
 }
 
 $header = static fn(string $what): string => implode(PHP_EOL, [
@@ -218,6 +296,16 @@ foreach (SEED_TARGETS as $file => $tables) {
 
     $files[$file] = $sql;
 }
+
+$phinxlog = dumpPhinxlog($dump, $mysql, $header('Applied migrations (phinx bookkeeping)'));
+
+if ($phinxlog === null) {
+    echo 'Failed dumping ' . PHINXLOG_TARGET . PHP_EOL;
+
+    exit(1);
+}
+
+$files[PHINXLOG_TARGET] = $phinxlog;
 
 run('echo ' . escapeshellarg('DROP DATABASE IF EXISTS ' . SCRATCH_DB . ';') . ' | ' . $mysql);
 

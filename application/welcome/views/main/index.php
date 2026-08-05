@@ -1,5 +1,5 @@
-<?php include __DIR__ . '/../partials/header.php' ?>
-<?php include __DIR__ . '/../partials/nav.php' ?>
+<?php include $headerPartial ?>
+<?php include $navPartial ?>
 <!-- Masthead-->
 <header class="masthead bg-primary text-white text-center">
     <div class="container d-flex align-items-center flex-column" id="page-top">
@@ -336,4 +336,4 @@
 <script src="/assets/js/bootstrap.bundle.min.js"></script>
 <?= $script ?>
 <?= $js ?>
-<?php include __DIR__ . '/../partials/footer.php' ?>
+<?php include $footerPartial ?>

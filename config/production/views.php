@@ -10,14 +10,18 @@ declare(strict_types=1);
 return [
     // namespaced and unique - what BaseController::renderView() asks for first
     'views' => [
+        'application/login/session/forbidden' => __ROOT__ . '/application/login/views/session/forbidden.php',
+        'application/login/session/login' => __ROOT__ . '/application/login/views/session/login.php',
+        'application/partials/footer' => __ROOT__ . '/application/views/partials/footer.php',
+        'application/partials/header' => __ROOT__ . '/application/views/partials/header.php',
+        'application/partials/nav' => __ROOT__ . '/application/views/partials/nav.php',
+        'application/welcome/dashboard/index' => __ROOT__ . '/application/welcome/views/dashboard/index.php',
         'application/welcome/main/index' => __ROOT__ . '/application/welcome/views/main/index.php',
-        'application/welcome/partials/footer' => __ROOT__ . '/application/welcome/views/partials/footer.php',
-        'application/welcome/partials/header' => __ROOT__ . '/application/welcome/views/partials/header.php',
-        'application/welcome/partials/nav' => __ROOT__ . '/application/welcome/views/partials/nav.php',
     ],
     // un-namespaced - a package ships its views here and an application
     // module overrides one just by holding the same key
     'view fallbacks' => [
+        'dashboard/index' => __ROOT__ . '/application/welcome/views/dashboard/index.php',
         'debugbar/debugbar' => __ROOT__ . '/vendor/aplus/debug/src/Views/debugbar/debugbar.php',
         'errors/ajax/401' => __ROOT__ . '/vendor/orange/framework/src/views/errors/ajax/401.php',
         'errors/ajax/403' => __ROOT__ . '/vendor/orange/framework/src/views/errors/ajax/403.php',
@@ -31,9 +35,11 @@ return [
         'exceptions/development' => __ROOT__ . '/vendor/aplus/debug/src/Views/exceptions/development.php',
         'exceptions/production' => __ROOT__ . '/vendor/aplus/debug/src/Views/exceptions/production.php',
         'main/index' => __ROOT__ . '/application/welcome/views/main/index.php',
-        'partials/footer' => __ROOT__ . '/application/welcome/views/partials/footer.php',
-        'partials/header' => __ROOT__ . '/application/welcome/views/partials/header.php',
-        'partials/nav' => __ROOT__ . '/application/welcome/views/partials/nav.php',
+        'partials/footer' => __ROOT__ . '/application/views/partials/footer.php',
+        'partials/header' => __ROOT__ . '/application/views/partials/header.php',
+        'partials/nav' => __ROOT__ . '/application/views/partials/nav.php',
+        'session/forbidden' => __ROOT__ . '/application/login/views/session/forbidden.php',
+        'session/login' => __ROOT__ . '/application/login/views/session/login.php',
     ],
     // name -> name, applied before either map is consulted
     'view aliases' => [

@@ -1,0 +1,264 @@
+<?php
+
+declare(strict_types=1);
+
+namespace application\controllers;
+
+use orange\acl\User;
+use orange\acl\interfaces\UserEntityInterface;
+use orange\framework\attributes\AttachService;
+use orange\framework\controllers\BaseController;
+use orange\framework\interfaces\DataInterface;
+use orange\framework\interfaces\ViewInterface;
+use orange\session\SessionInterface;
+
+/**
+ * What every browser-facing page needs: the chrome the partials render, the
+ * current user, and the two guards below.
+ *
+ * It sits at the PSR-4 root rather than inside a module because more than one
+ * module extends it - welcome renders the marketing page and the dashboard,
+ * login renders the form - and a module reaching into a sibling's controllers
+ * is the one dependency the HMVC layout is meant to rule out. Its partials live
+ * alongside it in application/views/partials for the same reason.
+ *
+ * The API module answers "may this request do this" with a status code, because
+ * its caller is a program. A browser is not a program: the same refusal has to
+ * become a redirect to a login form or a rendered page, and a form has to carry
+ * a CSRF token that a JSON endpoint does not. Those are the only differences -
+ * the question is still asked of orange/acl, on the server, on every request.
+ *
+ * CSRF lives here for the same reason the login throttle lives in the api
+ * module: neither orange/session nor the framework ships one, and a token is
+ * meaningless without a form to put it in. The session cookie is already
+ * SameSite=Strict (see config/services.php), which stops a cross-site POST in
+ * any current browser; the token is the second lock, for the browser that
+ * doesn't, and for the day someone loosens that setting to make an inbound link
+ * work.
+ */
+abstract class WebController extends BaseController
+{
+    /** Where the token lives between the form being rendered and submitted. */
+    protected const string CSRF_SESSION_KEY = 'csrf_token';
+
+    /** The form field carrying it back. */
+    protected const string CSRF_FIELD = '_token';
+
+    /**
+     * Where a guard stashes the page the visitor was actually after.
+     *
+     * In the session rather than a ?return= parameter: a URL the browser can
+     * edit is a URL an attacker can set, and "log in and you will be sent
+     * wherever this link says" is an open redirect with a login form in front
+     * of it. Nothing the client sends is involved, so there is nothing to
+     * validate.
+     */
+    protected const string RETURN_SESSION_KEY = 'return_to';
+
+    #[AttachService('data')]
+    protected DataInterface $data;
+
+    #[AttachService('view')]
+    protected ViewInterface $view;
+
+    #[AttachService('user')]
+    protected User $user;
+
+    #[AttachService('session')]
+    protected SessionInterface $session;
+
+    /**
+     * The three partials every page wraps itself in, by view name.
+     *
+     * @var list<string>
+     */
+    protected const array CHROME_PARTIALS = ['header', 'nav', 'footer'];
+
+    /**
+     * The variables every browser-facing view expects, whoever is asking.
+     *
+     * Called first so a page can overwrite any of it afterwards.
+     */
+    protected function chrome(string $title): void
+    {
+        $entity = $this->user->load();
+
+        $this->data->merge([
+            // Partials arrive as resolved paths for the view to include, rather
+            // than the views reaching for __DIR__ . '/../partials/header.php'.
+            // A relative path only ever finds the copy in its own module, which
+            // is exactly what breaks the moment a second module needs the same
+            // chrome. Asked for by name, each one goes through the view map:
+            // the module's own copy first, the shared one otherwise - so a
+            // module takes over its own nav by dropping views/partials/nav.php
+            // in, and changes nothing anywhere else.
+            ...$this->chromePartials(),
+            // the partials echo these unconditionally
+            'css' => '',
+            'script' => '',
+            'js' => '',
+            'h1' => $title,
+            'name' => $title,
+            // nav state
+            'currentUser' => $entity,
+            'isLoggedIn' => !$entity->isGuest(),
+            'loginUrl' => $this->router->getUrl('login'),
+            'logoutUrl' => $this->router->getUrl('logout'),
+            'dashboardUrl' => $this->router->getUrl('dashboard'),
+            'homeUrl' => $this->router->getUrl('home'),
+            'csrfToken' => $this->csrfToken(),
+        ]);
+    }
+
+    /**
+     * Resolve each chrome partial to the file a view can include.
+     *
+     * Keyed 'headerPartial', 'navPartial', 'footerPartial' - named for what the
+     * view does with them, since what lands in scope there is a path and not
+     * markup.
+     *
+     * @return array<string, string>
+     */
+    protected function chromePartials(): array
+    {
+        $partials = [];
+
+        foreach (self::CHROME_PARTIALS as $partial) {
+            // the controller's own namespace, so a module's copy wins over the
+            // shared one - the same lookup renderView() makes for a page view
+            $partials[$partial . 'Partial'] = $this->viewFinder->find('partials/' . $partial, $this->viewNamespace());
+        }
+
+        return $partials;
+    }
+
+    /**
+     * The current user, guest included - never null, which is the point of
+     * orange/acl's guest row.
+     */
+    protected function currentUser(): UserEntityInterface
+    {
+        return $this->user->load();
+    }
+
+    /**
+     * Send anyone not logged in to the login form, remembering where they were
+     * going. Returns null when the request may carry on.
+     */
+    protected function requireLogin(): ?string
+    {
+        if (!$this->currentUser()->isGuest()) {
+            return null;
+        }
+
+        $this->session->set(self::RETURN_SESSION_KEY, $this->input->requestUri());
+
+        return $this->redirect($this->router->getUrl('login'));
+    }
+
+    /**
+     * Authentication first, then authorization - the two refusals are different
+     * answers and must not be collapsed.
+     *
+     * A guest is redirected, because logging in would genuinely change the
+     * answer. Someone already logged in gets 403 and a page saying so, because
+     * it would not: sending them to a login form they have already been through
+     * is a loop, and the honest answer is that this account may not do this.
+     * Same reasoning as OrderController::denyUnless(), which returns 401 for the
+     * first and 403 for the second.
+     */
+    protected function requirePermission(string $permission): ?string
+    {
+        if (($denied = $this->requireLogin()) !== null) {
+            return $denied;
+        }
+
+        if ($this->currentUser()->can($permission)) {
+            return null;
+        }
+
+        return $this->forbidden($permission);
+    }
+
+    /**
+     * 403 with a page rather than a redirect - see requirePermission().
+     */
+    protected function forbidden(string $permission): string
+    {
+        $this->chrome('Not Allowed');
+
+        $this->data['permission'] = $permission;
+
+        $this->output->responseCode(403);
+
+        return $this->renderView('session/forbidden');
+    }
+
+    /**
+     * A redirect, as 303 See Other.
+     *
+     * Explicit because the framework's configured default is 301: a permanent
+     * redirect is *cached*, so a browser told once that /login is permanently
+     * /dashboard would stop asking for the login form at all - including after
+     * logging out. 303 also states the thing PRG depends on, that the follow-up
+     * is a GET regardless of what this request was.
+     */
+    protected function redirect(string $url): string
+    {
+        $this->output->redirect($url, 303);
+
+        // redirect() exits, so this is only reached by tests (which stub the
+        // exit) - but the method still has to satisfy its return type.
+        return '';
+    }
+
+    /**
+     * The CSRF token for this session, minted on first use.
+     *
+     * One per session rather than one per form: a per-form token breaks the
+     * back button and two tabs, and buys nothing here, since anything able to
+     * read one token can read them all.
+     */
+    protected function csrfToken(): string
+    {
+        $token = $this->session->get(self::CSRF_SESSION_KEY);
+
+        if (!is_string($token) || $token === '') {
+            $token = bin2hex(random_bytes(32));
+
+            $this->session->set(self::CSRF_SESSION_KEY, $token);
+        }
+
+        return $token;
+    }
+
+    /**
+     * Whether this request carried the session's token back.
+     */
+    protected function csrfValid(): bool
+    {
+        $submitted = $this->input->request(self::CSRF_FIELD, '');
+        $stored = $this->session->get(self::CSRF_SESSION_KEY);
+
+        if (!is_string($submitted) || !is_string($stored) || $stored === '') {
+            return false;
+        }
+
+        // hash_equals, not ===: a comparison that returns early on the first
+        // wrong byte tells an attacker how much of a guess was right
+        return hash_equals($stored, $submitted);
+    }
+
+    /**
+     * Throw the token away so the next render mints a new one.
+     *
+     * Done on every privilege change. The session id is regenerated at those
+     * moments too (orange/acl's User::change()), but that keeps the session's
+     * *contents* - so without this the token issued to the anonymous visitor
+     * would carry on into their logged-in session.
+     */
+    protected function rotateCsrfToken(): void
+    {
+        $this->session->remove(self::CSRF_SESSION_KEY);
+    }
+}

@@ -25,8 +25,8 @@ use InvalidArgumentException;
  *
  *     application/welcome/views/main/index.php
  *         -> 'application/welcome/main/index'
- *     application/welcome/views/partials/header.php
- *         -> 'application/welcome/partials/header'
+ *     application/views/partials/header.php
+ *         -> 'application/partials/header'
  *
  * 'view fallbacks' - the same views keyed by everything after their views/
  * directory, with no namespace at all. This is the map a *vendor* package's

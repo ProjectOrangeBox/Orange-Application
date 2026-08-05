@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use application\api\models\RecordModel;
 use application\api\models\CalendarEventModel;
+use application\api\models\LoginThrottleModel;
 use orange\acl\Acl;
 use orange\acl\User;
 use orange\auth\Auth;
@@ -111,6 +112,10 @@ return [
 
         return $session;
     },
+    // Brute-force throttling for POST /api/login. orange/auth names rate
+    // limiting a non-goal - it needs state shared across requests - so the
+    // application supplies it, backed by the same PDO handle auth itself uses.
+    'LoginThrottleModel' => fn(ContainerInterface $container): LoginThrottleModel => LoginThrottleModel::getInstance($container->pdo),
     'acl' => fn(ContainerInterface $container): Acl => Acl::getInstance([], $container->pdo),
     'auth' => fn(ContainerInterface $container): Auth => Auth::getInstance([], $container->pdo),
     'user' => fn(ContainerInterface $container): User => User::getInstance([], $container->acl, $container->session),

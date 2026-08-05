@@ -13,6 +13,9 @@ parameters:
         # legitimately defined at render time but invisible to static analysis -
         # analysing them produces nothing but noise
         - application/*/views/*
+        # the shared partials, which sit at the PSR-4 root rather than in a
+        # module and so are not caught by the pattern above
+        - application/views/*
         # generated snapshots - rewritten wholesale by the detectors, and the
         # config one is a 2000-line literal that says nothing about the code
         - config/production/*

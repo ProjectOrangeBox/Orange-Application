@@ -1930,6 +1930,15 @@ return [
                     'name' => 'images',
                 ],
                 [
+                    'method' => 'get',
+                    'url' => '/dashboard',
+                    'callback' => [
+                        'application\\welcome\\controllers\\DashboardController',
+                        'index',
+                    ],
+                    'name' => 'dashboard',
+                ],
+                [
                     'method' => '*',
                     'url' => '/',
                     'callback' => [
@@ -2108,6 +2117,33 @@ return [
                         'delete',
                     ],
                     'name' => 'orders_delete',
+                ],
+                [
+                    'method' => 'get',
+                    'url' => '/login',
+                    'callback' => [
+                        'application\\login\\controllers\\SessionController',
+                        'form',
+                    ],
+                    'name' => 'login',
+                ],
+                [
+                    'method' => 'post',
+                    'url' => '/login',
+                    'callback' => [
+                        'application\\login\\controllers\\SessionController',
+                        'login',
+                    ],
+                    'name' => 'login_submit',
+                ],
+                [
+                    'method' => 'post',
+                    'url' => '/logout',
+                    'callback' => [
+                        'application\\login\\controllers\\SessionController',
+                        'logout',
+                    ],
+                    'name' => 'logout',
                 ],
             ],
             'match all' => [
@@ -3121,6 +3157,9 @@ return [
                 }
                 return $session;
             },
+            'LoginThrottleModel' => function (\orange\framework\interfaces\ContainerInterface $container): \application\api\models\LoginThrottleModel {
+                return \application\api\models\LoginThrottleModel::getInstance($container->pdo);
+            },
             'acl' => function (\orange\framework\interfaces\ContainerInterface $container): \orange\acl\Acl {
                 return \orange\acl\Acl::getInstance([], $container->pdo);
             },
@@ -3209,12 +3248,16 @@ return [
         ],
         'views' => [
             'views' => [
+                'application/login/session/forbidden' => __ROOT__ . '/application/login/views/session/forbidden.php',
+                'application/login/session/login' => __ROOT__ . '/application/login/views/session/login.php',
+                'application/partials/footer' => __ROOT__ . '/application/views/partials/footer.php',
+                'application/partials/header' => __ROOT__ . '/application/views/partials/header.php',
+                'application/partials/nav' => __ROOT__ . '/application/views/partials/nav.php',
+                'application/welcome/dashboard/index' => __ROOT__ . '/application/welcome/views/dashboard/index.php',
                 'application/welcome/main/index' => __ROOT__ . '/application/welcome/views/main/index.php',
-                'application/welcome/partials/footer' => __ROOT__ . '/application/welcome/views/partials/footer.php',
-                'application/welcome/partials/header' => __ROOT__ . '/application/welcome/views/partials/header.php',
-                'application/welcome/partials/nav' => __ROOT__ . '/application/welcome/views/partials/nav.php',
             ],
             'view fallbacks' => [
+                'dashboard/index' => __ROOT__ . '/application/welcome/views/dashboard/index.php',
                 'debugbar/debugbar' => __ROOT__ . '/vendor/aplus/debug/src/Views/debugbar/debugbar.php',
                 'errors/ajax/401' => __ROOT__ . '/vendor/orange/framework/src/views/errors/ajax/401.php',
                 'errors/ajax/403' => __ROOT__ . '/vendor/orange/framework/src/views/errors/ajax/403.php',
@@ -3228,9 +3271,11 @@ return [
                 'exceptions/development' => __ROOT__ . '/vendor/aplus/debug/src/Views/exceptions/development.php',
                 'exceptions/production' => __ROOT__ . '/vendor/aplus/debug/src/Views/exceptions/production.php',
                 'main/index' => __ROOT__ . '/application/welcome/views/main/index.php',
-                'partials/footer' => __ROOT__ . '/application/welcome/views/partials/footer.php',
-                'partials/header' => __ROOT__ . '/application/welcome/views/partials/header.php',
-                'partials/nav' => __ROOT__ . '/application/welcome/views/partials/nav.php',
+                'partials/footer' => __ROOT__ . '/application/views/partials/footer.php',
+                'partials/header' => __ROOT__ . '/application/views/partials/header.php',
+                'partials/nav' => __ROOT__ . '/application/views/partials/nav.php',
+                'session/forbidden' => __ROOT__ . '/application/login/views/session/forbidden.php',
+                'session/login' => __ROOT__ . '/application/login/views/session/login.php',
             ],
             'view aliases' => [],
         ],

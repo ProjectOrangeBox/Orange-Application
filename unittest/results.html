@@ -51,6 +51,22 @@
         </style>
     </head>
     <body>
+        <h2>Auth Controller</h2>
+        <ul>
+            <li class="success">Form encoded login is refused</li>
+            <li class="success">Json content type with charset is accepted</li>
+            <li class="success">A refused content type is not counted as an attempt</li>
+            <li class="success">Unknown account wrong password and inactive account are indistinguishable</li>
+            <li class="success">Failure response never echoes the submitted password</li>
+            <li class="success">Repeated failures against one login are throttled</li>
+            <li class="success">The right password is refused once the login is throttled</li>
+            <li class="success">Throttle counts the normalized login</li>
+            <li class="success">Empty fields are answered but not counted</li>
+            <li class="success">Another address is not throttled by this ones failures</li>
+            <li class="success">One address working through many accounts is throttled</li>
+            <li class="success">Success clears that logins failures</li>
+            <li class="success">Identity responses are not cacheable</li>
+        </ul>
         <h2>Calendar Controller</h2>
         <ul>
             <li class="success">Month returns events for requested month</li>
@@ -75,6 +91,30 @@
             <li class="success">Is stale when a config file is newer</li>
             <li class="success">Production boots from the snapshot</li>
             <li class="success">Production fails loudly without a snapshot</li>
+        </ul>
+        <h2>Dashboard Controller</h2>
+        <ul>
+            <li class="success">A guest never sees the page</li>
+            <li class="success">A guest is sent to the login form with this page remembered</li>
+            <li class="success">A logged in visitor gets the page</li>
+            <li class="success">Permissions are reported from acl not assumed</li>
+            <li class="success">Every guarded orders permission is reported</li>
+            <li class="success">The danger panel is withheld without the delete permission</li>
+            <li class="success">The danger panel is shown with it</li>
+            <li class="success">An account with no permissions still gets the page</li>
+        </ul>
+        <h2>Login Throttle Model</h2>
+        <ul>
+            <li class="success">An unknown login is not throttled</li>
+            <li class="success">The last attempt under the limit is still allowed</li>
+            <li class="success">The wait is what is left of the window</li>
+            <li class="success">The throttle heals on its own</li>
+            <li class="success">A throttled caller is never told to wait zero seconds</li>
+            <li class="success">Writing prunes failures too old to count</li>
+            <li class="success">Clear forgets only that login</li>
+            <li class="success">Clear reclaims only the failures spent on that login</li>
+            <li class="success">An absurdly long login is counted rather than fatal</li>
+            <li class="success">A request with no address is simply not counted by address</li>
         </ul>
         <h2>Main Controller</h2>
         <ul>
@@ -158,6 +198,25 @@
             <li class="success">Update accepts a valid vue style payload</li>
             <li class="success">Update rejects an invalid payload with 422</li>
             <li class="success">Update input defaults missing in office</li>
+        </ul>
+        <h2>Session Controller</h2>
+        <ul>
+            <li class="success">Form renders the login view</li>
+            <li class="success">The chrome partials are resolved under this modules namespace</li>
+            <li class="success">Form issues a csrf token and remembers it</li>
+            <li class="success">The same session keeps the same token</li>
+            <li class="success">Login without a token is refused</li>
+            <li class="success">Login with the wrong token is refused</li>
+            <li class="success">A csrf failure never checks the credentials</li>
+            <li class="success">Logout without a token changes nothing</li>
+            <li class="success">Every credential failure looks the same</li>
+            <li class="success">The submitted password is never handed back</li>
+            <li class="success">Empty fields are answered but not counted</li>
+            <li class="success">The form login shares the api logins throttle</li>
+            <li class="success">The right password is refused once throttled</li>
+            <li class="success">A successful login redirects and clears its failures</li>
+            <li class="success">Logging in throws the anonymous token away</li>
+            <li class="success">A logged in visitor is sent away from the form</li>
         </ul>
         <h2>View Detector</h2>
         <ul>

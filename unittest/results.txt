@@ -1,3 +1,18 @@
+Auth Controller
+ [x] Form encoded login is refused
+ [x] Json content type with charset is accepted
+ [x] A refused content type is not counted as an attempt
+ [x] Unknown account wrong password and inactive account are indistinguishable
+ [x] Failure response never echoes the submitted password
+ [x] Repeated failures against one login are throttled
+ [x] The right password is refused once the login is throttled
+ [x] Throttle counts the normalized login
+ [x] Empty fields are answered but not counted
+ [x] Another address is not throttled by this ones failures
+ [x] One address working through many accounts is throttled
+ [x] Success clears that logins failures
+ [x] Identity responses are not cacheable
+
 Calendar Controller
  [x] Month returns events for requested month
  [x] Create rejects invalid payload
@@ -19,6 +34,28 @@ Config Detector
  [x] Is stale when a config file is newer
  [x] Production boots from the snapshot
  [x] Production fails loudly without a snapshot
+
+Dashboard Controller
+ [x] A guest never sees the page
+ [x] A guest is sent to the login form with this page remembered
+ [x] A logged in visitor gets the page
+ [x] Permissions are reported from acl not assumed
+ [x] Every guarded orders permission is reported
+ [x] The danger panel is withheld without the delete permission
+ [x] The danger panel is shown with it
+ [x] An account with no permissions still gets the page
+
+Login Throttle Model
+ [x] An unknown login is not throttled
+ [x] The last attempt under the limit is still allowed
+ [x] The wait is what is left of the window
+ [x] The throttle heals on its own
+ [x] A throttled caller is never told to wait zero seconds
+ [x] Writing prunes failures too old to count
+ [x] Clear forgets only that login
+ [x] Clear reclaims only the failures spent on that login
+ [x] An absurdly long login is counted rather than fatal
+ [x] A request with no address is simply not counted by address
 
 Main Controller
  [x] Index renders the main index view
@@ -96,6 +133,24 @@ Rest Controller
  [x] Update accepts a valid vue style payload
  [x] Update rejects an invalid payload with 422
  [x] Update input defaults missing in office
+
+Session Controller
+ [x] Form renders the login view
+ [x] The chrome partials are resolved under this modules namespace
+ [x] Form issues a csrf token and remembers it
+ [x] The same session keeps the same token
+ [x] Login without a token is refused
+ [x] Login with the wrong token is refused
+ [x] A csrf failure never checks the credentials
+ [x] Logout without a token changes nothing
+ [x] Every credential failure looks the same
+ [x] The submitted password is never handed back
+ [x] Empty fields are answered but not counted
+ [x] The form login shares the api logins throttle
+ [x] The right password is refused once throttled
+ [x] A successful login redirects and clears its failures
+ [x] Logging in throws the anonymous token away
+ [x] A logged in visitor is sent away from the form
 
 View Detector
  [x] Scan finds views
