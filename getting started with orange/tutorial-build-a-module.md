@@ -48,7 +48,6 @@ Add the `quotes\` root to [composer.json](../composer.json)'s `autoload.psr-4`:
 "autoload": {
     "psr-4": {
         "application\\": "application",
-        "api\\":         "api",
         "quotes\\":      "quotes"
     }
 }
@@ -107,9 +106,7 @@ use orange\framework\interfaces\ViewInterface;
 
 class QuotesController extends BaseController
 {
-    // pulled from the container by BaseController before index() runs.
-    // Declaring $view also makes BaseController auto-register this module's
-    // views/ directory at the top of the view search path.
+    // pulled from the container by BaseController before index() runs
     #[AttachService('data')]
     protected DataInterface $data;
 
@@ -126,7 +123,7 @@ class QuotesController extends BaseController
         ]);
 
         // resolves to quotes/views/quotes/index.php; returns a string
-        return $this->view->render('quotes/index');
+        return $this->renderView('quotes/index');
     }
 }
 ```
@@ -137,9 +134,9 @@ What's happening, mapped to the guide:
   ([Controllers](controllers.md)).
 - `#[AttachService('data')]` / `#[AttachService('view')]` → those services are
   injected into the properties ([the container](the-container.md)).
-- The `$view` property → `BaseController` adds `quotes/views/` to the front of the
-  search path, so `render('quotes/index')` finds this module's template
-  ([Views](views.md)).
+- `renderView()` → passes this controller's namespace to `ViewFinder`, and the
+  view map keys `quotes/views/quotes/index.php` under it, so the module gets its
+  own template ([Views](views.md)).
 - `#[Route('get', '/quotes', 'quotes_index')]` → the URL, discovered by
   `RouterDetector` ([Routing](routing.md)).
 - The method **returns a string** → the dispatcher sends it.
@@ -219,7 +216,7 @@ encoded array as the body ([Input & Output](input-and-output.md)).
 
 ```php
 'routes' => RouterDetector::detect(
-    [__ROOT__ . '/application', __ROOT__ . '/api', __ROOT__ . '/quotes'],
+    [__ROOT__ . '/application', __ROOT__ . '/quotes'],
     [
         ['url' => '/assets',     'name' => 'assets'],
         ['url' => '/assets/js',  'name' => 'javascript'],
@@ -273,7 +270,7 @@ appear as literal entries alongside the existing ones.
 | [The container + attributes](the-container.md) | `#[AttachService]` on `data`/`view` |
 | [Routing](routing.md) | `#[Route]`, `RouterDetector` path, `getUrl()`, prod export |
 | [Controllers](controllers.md) | `BaseController` + `JsonController`, string returns |
-| [Views](views.md) | module `views/` auto-registered, data → template variables |
+| [Views](views.md) | views located by name through the map, data → template variables |
 | [Input & Output](input-and-output.md) | `listResponse()` status + JSON content type |
 | [Global helpers](global-helpers.md) | `getUrl('quotes_api')` in the view |
 

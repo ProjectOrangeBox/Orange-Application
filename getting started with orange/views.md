@@ -2,69 +2,95 @@
 
 A view is a **plain PHP template** that produces a string. There is no templating
 language, no compile step, no `{{ }}` syntax — just PHP files with data variables
-in scope. The View service's job is to turn a short view *name* into a *file path*,
-run that file with your data available, and capture its output as a string.
+in scope. Turning a short view *name* into a *file path* and running that file
+with your data available used to be one job; it is now two, split between
+`ViewFinder` (which locates) and the View service (which renders).
 
 Source: [ViewAbstract.php](../vendor/orange/framework/src/abstract/ViewAbstract.php)
-(the concrete `View` class is a thin subclass).
+(the concrete `View` class is a thin subclass) and
+[ViewFinder.php](../vendor/orange/framework/src/ViewFinder.php).
 
 ---
 
 ## Rendering a view
 
-You call `render()` and return its result:
+Render through **`renderView()`**, not `$this->view->render()` directly:
 
 ```php
-return $this->view->render('main/index');
+return $this->renderView('main/index');
 ```
 
 - `'main/index'` is a **view name**, not a path — no `.php`, no directory prefix.
-- The View service searches its registered directories for a file matching
-  `main/index.php` and renders the first one it finds.
+- `renderView()` resolves any `$c`/`$m` placeholders in the name, asks
+  `ViewFinder` to turn the name into a file (see below), and hands that file to
+  the engine. Called with no argument at all it means `'$c/$m'`, so
+  `return $this->renderView();` renders the view named for the current controller
+  and method.
 - The return value is the rendered **string** (the controller returns it to the
   dispatcher).
 
-To pass data specific to this render, give `render()` a second argument; it's
-merged over the shared `data` service for this call only:
+To pass data specific to this render, give it a second argument; it's merged over
+the shared `data` service for this call only:
 
 ```php
-return $this->view->render('main/index', ['title' => 'Home']);
+return $this->renderView('main/index', ['title' => 'Home']);
 ```
+
+`$this->view->render()` still exists and still renders, but it takes a *file*, not
+a name — it does no searching, and it has no router, so it cannot resolve `$c`/`$m`
+either. Going through `renderView()` is what gets a name located.
 
 ---
 
-## How a view name becomes a file: the search path
+## How a view name becomes a file: the map
 
-The View service holds an ordered list of directories (a `DirectorySearch`) and
-finds the **first** directory containing the named file. The path is built from
-two sources, in priority order:
+> **This section was rewritten.** It used to describe an ordered list of
+> directories searched at runtime, with the controller's module `views/` folder
+> pushed to the front by `BaseController`. That mechanism is gone. Views are
+> located through a **generated map** now, and which module's copy wins is
+> decided by *name*, not by search order.
 
-1. **The controller's module `views/` directory (highest priority).** If a
-   controller has a `$view` property, `BaseController` adds its sibling `views/`
-   folder to the **front** of the search path (see [Controllers](controllers.md)).
-   So inside the `welcome` module, `render('main/index')` resolves to:
+Locating a view is `ViewFinder`'s job, not the view engine's — the engine only
+renders. `BaseController::renderView()` resolves any `$c`/`$m` placeholders in the
+name, asks `ViewFinder` to turn the name into a file, and hands the file over:
 
+```php
+$this->viewFinder->find('main/index', $this->viewNamespace());
+```
+
+The map is built by `config/development/ViewDetector.php`, which scans the PSR-4
+roots it reads from Composer, exactly as `RouterDetector` does for routes. It
+produces **two** maps, and `find()` tries them in this order:
+
+1. **`views`** — keyed by the owning PSR-4 namespace, so two modules can never
+   collide:
+
+   ```text
+   application/welcome/views/main/index.php   ->  application/welcome/main/index
    ```
-   application/welcome/views/main/index.php
+
+   The namespace passed to `find()` is the calling controller's own, which is what
+   makes a module render its own copy of a view.
+
+2. **`view fallbacks`** — the same files keyed by everything after their `views/`
+   directory, with no namespace attached:
+
+   ```text
+   vendor/acme/blog/src/views/blog/post/show.php  ->  blog/post/show
    ```
 
-2. **The configured view paths**, then the kernel's default views directory
-   (lowest priority), from
-   [config/view.php](../vendor/orange/framework/src/config/view.php):
+Application roots are scanned before vendor ones and the first writer of a key
+keeps it. So dropping `application/welcome/views/blog/post/show.php` into your own
+module overrides a package's view — **the file existing is the override**, with no
+config to edit. A vendor package should therefore namespace its own views as
+`views/<package>/...`, since two packages both shipping `views/main/index.php`
+would compete for the same fallback key.
 
-   ```php
-   'view paths'         => [],                    // add your own shared paths here
-   'default view paths' => [__DIR__ . '/../views'],
-   'extension'          => '.php',
-   ```
+If neither key matches, `find()` throws `ViewNotFound` naming both keys it tried —
+"view not found" without them sends you looking in the wrong directory.
 
-Because the module directory is searched first, each module renders its own
-templates, and shared/fallback templates live in the configured paths. If no
-directory contains the file, `render()` throws `ViewNotFound`.
-
-> **You can register more directories at runtime** via
-> `$this->view->search()->addDirectory($path, DirectorySearch::FIRST|LAST)` — this
-> is exactly what `BaseController` does for the module views folder.
+In production the map is a flat array in `config/production/`, regenerated by
+`composer build:production`, so nothing scans the filesystem per request.
 
 ### Aliases
 
@@ -118,21 +144,43 @@ view.**
 ## Partials
 
 A partial is just a plain `include` of another template file — no special API.
-The index view composes the page from partials:
+What needs care is *how the view gets the path it includes*.
+
+**Never reach for a partial by relative path.** `__DIR__ . '/../partials/nav.php'`
+resolves against the file doing the including, so it only ever finds that module's
+own copy — which is exactly what breaks the moment a second module wants the same
+chrome, and it silently bypasses the map that decides whose copy wins.
+
+The controller resolves each partial by name and passes the resulting path down.
+`WebController::chrome()` does this for the three every page shares:
+
+```php
+// application/controllers/WebController.php
+$partials[$partial . 'Partial'] = $this->viewFinder->find(
+    'partials/' . $partial,
+    $this->viewNamespace(),      // the controller's own namespace
+);
+```
+
+so the view includes a variable, not a path it built itself:
 
 ```php
 <!-- application/welcome/views/main/index.php -->
-<?php include __DIR__ . '/../partials/header.php' ?>
-<?php include __DIR__ . '/../partials/nav.php' ?>
+<?php include $headerPartial ?>
+<?php include $navPartial ?>
 <!-- … page body … -->
-<?php include __DIR__ . '/../partials/footer.php' ?>
+<?php include $footerPartial ?>
 ```
+
+Because the lookup goes through the map under the controller's namespace, a module
+takes over its own navbar by dropping `<module>/views/partials/nav.php` into place
+and changing nothing else.
 
 Included partials share the same variable scope, so `header.php` can use `$h1`,
 `$css`, etc. directly:
 
 ```php
-<!-- application/welcome/views/partials/header.php -->
+<!-- application/views/partials/header.php -->
 <title><?= $h1 ?></title>
 <?= $css ?>
 ```
@@ -141,11 +189,11 @@ Included partials share the same variable scope, so `header.php` can use `$h1`,
 
 ## `render()` vs `renderString()`
 
-| | `render($name, $data)` | `renderString($template, $data)` |
+| | `render($viewFile, $data)` | `renderString($template, $data)` |
 | --- | --- | --- |
-| Input | a view **name** resolved on the search path | a raw template **string** |
+| Input | a view **file**, already located — `renderView()` is what turns a name into one | a raw template **string** |
 | Use when | rendering a file you wrote | the template comes from a DB row, config, etc. |
-| Under the hood | finds and `require`s the file | writes the string to a hashed temp file, then `require`s it |
+| Under the hood | `require`s the file | writes the string to a hashed temp file, then `require`s it |
 
 `renderString()` compiles the string to a file under the configured `temp
 directory` (default the system temp dir) so it can be `require`d like any other
@@ -153,13 +201,25 @@ template. It's the same rendering engine; only the source differs.
 
 ---
 
-## Dynamic views (advanced, off by default)
+## Dynamic view names
 
-When `allow dynamic views` is enabled in `config/view.php` **and** the View
-service has the router, view names may contain placeholders resolved from the
-matched route: `$c` (controller), `$m` (method), `$1`/`$2` (namespace segments).
-For example an empty name resolves to `"$c/$m"` — the current controller/method.
-This is off by default (`'allow dynamic views' => false`); most apps name their
-views explicitly as shown above.
+A view name may contain placeholders resolved from the matched route: `$c`
+(controller), `$m` (method), `$1`/`$2` (namespace segments), and `*`. An empty
+name resolves to `"$c/$m"`, the current controller and method:
+
+```php
+return $this->renderView();               // '' -> '$c/$m' -> 'main/index'
+return $this->renderView('admin/$m');     //          -> 'admin/edit'
+```
+
+This is `BaseController::resolveDynamicView()`'s job and it always runs — a name
+with no placeholders in it is passed straight through, which is why
+`renderView()` is safe to use for every render rather than only the dynamic ones.
+
+> **This used to work differently.** It was a View service feature gated behind an
+> `allow dynamic views` config flag, and it needed the View service to hold the
+> router. Both are gone: the flag no longer exists, and the router moved to the
+> controller, which is where the routing context already was. Most views are still
+> better named explicitly.
 
 Next: **[Input & Output →](input-and-output.md)**

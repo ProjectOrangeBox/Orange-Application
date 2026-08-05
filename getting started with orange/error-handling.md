@@ -118,16 +118,16 @@ without any template:
 
 ## Overriding error views in your app
 
-To customize an error page, add your own file **earlier in the view search path**
-than the kernel's. Because the module `views/` directory and any configured view
-paths are searched before the kernel default, you can create, for example:
+To customize an error page, **write a file with the same name** as the kernel's.
+Application roots are scanned into the view map before vendor ones and the first
+writer of a key keeps it, so your copy simply owns the key — the file existing is
+the override, with nothing to register:
 
 ```text
 application/<module>/views/errors/html/404.php
 ```
 
-or a shared `errors/` directory registered on the view path, and it will win over
-the kernel's `404.php`. To differ by environment (say, a verbose 500 in
+and it will win over the kernel's `404.php`. To differ by environment (say, a verbose 500 in
 development but a terse one in production), use the environment-specific slots:
 
 ```text

@@ -1,17 +1,17 @@
 # Getting Started with Orange
 
 A practical guide to building applications on the **Orange Framework**
-(`vendor/orange/framework`) — the lightweight PHP 8.2+/8.4 MVC kernel that powers
+(`vendor/orange/framework`) — the lightweight PHP 8.4 MVC kernel that powers
 this repository.
 
 This guide is **usage-first**: it explains how you, as an application developer,
 add routes, controllers, views, config, and services — and it opens the hood on
 the kernel only where doing so makes you more effective. Every example is real
-code from this repository (`application/`, `api/`, `config/`), not invented
+code from this repository (`application/` and `config/`), not invented
 snippets.
 
 > **Framework vs. application.** `vendor/orange/framework` is the kernel and is
-> installed as a Composer dependency. `application/`, `api/`, and `config/` are
+> installed as a Composer dependency. `application/` and `config/` are
 > *your* code — that's where almost everything in this guide happens. You rarely
 > touch the kernel; you build on top of it.
 
@@ -58,12 +58,12 @@ Read these roughly in order the first time; after that, treat each as a referenc
 | # | Page | What it covers |
 | --- | ------ | ---------------- |
 | 1 | [The request lifecycle](request-lifecycle.md) | The front controller, the pipeline, and the four events you can hook |
-| 2 | [HMVC & modules](hmvc-and-modules.md) | How `application/` and `api/` are self-contained modules, and how to add one |
+| 2 | [HMVC & modules](hmvc-and-modules.md) | How each directory under `application/` is a self-contained module, and how to add one |
 | 3 | [Configuration & cascading config](configuration.md) | How `config/*.php` files merge across directories and environments; `.env`; `ConfigurationTrait` |
 | 4 | [The DI container & the 3 attributes](the-container.md) | Registering/resolving services, and how `#[AttachService]`, `#[AutoWire]`, and `#[Route]` work |
 | 5 | [Routing](routing.md) | The two routing mechanisms, `#[Route]`, `RouterDetector`, named URLs, production route export |
-| 6 | [Controllers](controllers.md) | `BaseController`, `JsonController`, attaching services, local libraries, view auto-registration |
-| 7 | [Views](views.md) | How a view name becomes a file, the search path, `render()` vs `renderString()`, passing data, partials |
+| 6 | [Controllers](controllers.md) | `BaseController`, `JsonController`, attaching services (and why attachment is eager), local libraries |
+| 7 | [Views](views.md) | How a view name becomes a file, the generated view map, `render()` vs `renderString()`, passing data, partials |
 | 8 | [Input & Output](input-and-output.md) | Reading the request; building and sending the response |
 | 9 | [Error handling & error views](error-handling.md) | How `Error` selects an error view from `errors/{env}/{type}/{code}.php` |
 | 10 | [Global helper functions](global-helpers.md) | The wrappers in `wrappers.php`: `container()`, `config()`, `getUrl()`, `input()`, `output()`, `env()`, `logMsg()` |

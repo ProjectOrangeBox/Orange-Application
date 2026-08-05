@@ -265,7 +265,7 @@ Secrets stay out of source control in `.env` (INI format, gitignored) and are re
 
 ### 7. Views are plain PHP with no template language
 
-**Decision.** `render('main/index')` locates `main/index.php` on the view search path, `extract()`s the data service into scope, and `require`s it. No compile step, no cache directory, no custom syntax.
+**Decision.** `renderView('main/index')` locates `main/index.php` through the generated view map, `extract()`s the data service into scope, and `require`s it. No compile step, no cache directory, no custom syntax.
 
 **Why.** PHP is already a template language. Adding a second one buys escaping-by-default and a smaller surface for designers, at the cost of a compiler, a cache, and a debugging experience one step removed from the source.
 
@@ -463,6 +463,12 @@ composer db:check      # fail if that SQL no longer matches the migrations
 
 Connection details come from `.env`'s `[db]` section via [`phinx.php`](phinx.php) — there is no second copy to keep in step. That file also falls back to `127.0.0.1` when the configured host does not resolve, because `.env` says `host.docker.internal` (how the app container reaches MySQL) and phinx is usually run from the host, where that name means nothing.
 
+Run them from the host, which is what that fallback is for. To run them inside the container instead, name the working directory — the FrankenPHP image's `WORKDIR` is `/app`, while this repo is mounted at `/var/www/html`, so `docker compose exec web composer db:migrate` looks in the wrong place and fails with *"There are no commands defined in the db namespace"*:
+
+```bash
+docker compose exec -w /var/www/html web composer db:migrate
+```
+
 #### What the migrations create
 
 | Migration | Tables | Notes |
@@ -529,6 +535,10 @@ Mailpit and clicking the link inside it. Configuration for this app lives in
 ### Supporting containers
 
 The app itself needs none of these to boot — the welcome page, routing, views and the container all work with nothing but the webapp running. They exist so the code paths that *do* need a server can be exercised locally instead of mocked, and so the matching test suites run for real rather than skipping.
+
+That is a property the code has to hold up deliberately, not one it gets for free. Every browser page renders a navbar that says who is signed in, and asking that question means asking `orange/acl`, which means a database. So `WebController` resolves the user service **lazily** and treats three failures — no server, no schema, no seeded guest row — as one answer: there are no accounts to ask. The visitor is served as anonymous, and the navbar leaves out Log In, Sign Up, Dashboard and Log Out, since every one of them leads somewhere that cannot work. `/login` and `/signup` still fail in that state, honestly and loudly, because they *are* the accounts database; nothing links to them while it is missing.
+
+The failure that behavior exists to prevent is worth stating, because it is the one a first clone hits: attaching the user service instead of resolving it lazily makes it a **construction** dependency, and the container then builds `user → acl → pdo` before the controller body ever runs. A page that mentions no user at all — the marketing page — died on a database it did not need. See [controllers.md](getting%20started%20with%20orange/controllers.md#attachment-is-eager) for the general rule.
 
 Each is a separate repo holding one `docker-compose.yml`. Clone whichever you need and `docker compose up -d`:
 

@@ -1,7 +1,7 @@
 # Quickstart: Controllers, Routing, MVC & HMVC in this app
 
 This is a practical tour of how this codebase is wired together, based on the actual
-sample code in [`application/`](application/), [`api/`](api/), and the
+sample code in [`application/`](application/) and the
 [`orange/framework`](vendor/orange/framework/) package it depends on. It assumes you're
 comfortable with PHP and MVC in general — the focus here is what's specific to Orange.
 
@@ -9,10 +9,10 @@ comfortable with PHP and MVC in general — the focus here is what's specific to
 
 - **`vendor/orange/framework`** is the kernel: routing, dependency injection container,
   request/response, view rendering, config loading, logging. You don't edit it.
-- **`application/`** and **`api/`** are your code — each is a self-contained module
-  (more on this in [§7](#7-hmvc-multiple-mvc-modules-in-one-app)).
+- **`application/`** is your code — one PSR-4 root, with each directory under it a
+  self-contained module (more on this in [§7](#7-hmvc-multiple-mvc-modules-in-one-app)).
 - **`config/`** wires the two together: it lists services (`config/services.php`) and
-  routes (`config/routes.php`).
+  routes (`config/development/routes.php`).
 - **`htdocs/index.php`** is the single entry point for every HTTP request.
 
 ### Request lifecycle
@@ -43,12 +43,12 @@ Everything below is about steps 2 and 4: getting a URL to call your controller m
 A route is just an array: `method`, `url`, `callback` (`[ControllerClass::class, 'method']`),
 and an optional `name`. There are two ways to register them, and this app uses both at once.
 
-### Option A — explicit array (`config/routes.php`)
+### Option A — explicit array (`config/development/routes.php`)
 
 ```php
 return [
     ['method' => '*', 'url' => '/', 'callback' => [\application\welcome\controllers\MainController::class, 'index'], 'name' => 'home'],
-    ['method' => '*', 'url' => '/api/welcome', 'callback' => [\api\controllers\RestController::class, 'index'], 'name' => 'rest_home'],
+    ['method' => '*', 'url' => '/api/welcome', 'callback' => [\application\api\controllers\RestController::class, 'index'], 'name' => 'rest_home'],
 ];
 ```
 
@@ -60,7 +60,7 @@ return [
   [`Dispatcher::call()`](vendor/orange/framework/src/Dispatcher.php)) so you don't hit a
   "positional argument after named argument" error.
 - Entries with just `url` + `name` and no `callback` (see the `assets`/`javascript`/`css`/
-  `images` entries in `config/routes.php`) aren't routable — they only exist so
+  `images` entries in `config/development/routes.php`) aren't routable — they only exist so
   `router->getUrl('assets')` can resolve a path. Handy for centralizing asset URLs.
 
 ### Option B — `#[Route]` attribute on the controller method
@@ -72,26 +72,29 @@ Both sample controllers actually use this style instead of hand-writing array en
 #[Route('*', '/', 'home')]
 public function index(): string { ... }
 
-// api/controllers/RestController.php
+// application/api/controllers/RestController.php
 #[Route('*', '/api/welcome', 'rest_home')]
 public function index(): string { ... }
 ```
 
-In development, `config/routes.php` uses
-[`config/RouterDetector.php`](config/RouterDetector.php) to scan `application/` and
-`api/` recursively, reflect on every public method, and build the routes array from any
-`#[Route]` attributes it finds — so you never have to touch `config/routes.php` by hand
-while developing. `RouterDetector::detect()` deliberately refuses to run unless
-`ENVIRONMENT === 'development'` (it `die()`s otherwise) because a recursive
+In development, [`config/development/routes.php`](config/development/routes.php) calls
+[`config/development/RouterDetector.php`](config/development/RouterDetector.php) to scan
+`application/` recursively — one path, because every module lives under it now — reflect on
+every public method, and build the routes array from any `#[Route]` attributes it finds. So
+you never hand-write a route while developing. `RouterDetector::detect()` refuses to run
+unless `ENVIRONMENT === 'development'` (it prints why and `exit(1)`s) because a recursive
 filesystem+reflection scan on every request is too expensive for production.
 
-For production, pre-compute the array once with `RouterDetector::export($paths, $extraRoutes)`
-(run it from a CLI script or a throwaway dev route) — it echoes a ready-to-save PHP file.
-Save that output as `config/production/routes.php` — since `ENVIRONMENT=production` adds
-`config/production` to the config search path (see `Application::setConfigDirectories()`),
-it's picked up automatically. **Make sure the exported array ends up assigned to a `'routes'`
-key** (`return ['routes' => [...]];`), matching the shape `config/routes.php` returns — that's
-the key `Router` actually reads.
+For production the array is pre-generated into
+[`config/production/routes.php`](config/production/routes.php). You do not normally generate
+it by hand: `detect()` takes a **production write path as its third argument**, so every
+development request rewrites that snapshot as a side effect and it stays in step while you
+work — commit it. `ENVIRONMENT=production` adds `config/production` to the config search
+path (see `Application::setConfigDirectories()`), so it is picked up with no scanning.
+
+To regenerate deliberately, run `composer build:production` rather than calling the
+detectors by hand — order matters there, since the config snapshot bakes routes and views in
+as ordinary sections and would otherwise freeze stale copies of both.
 
 ### Named routes → URLs
 
@@ -131,7 +134,7 @@ class MainController extends BaseController
     {
         $this->data['h1'] = 'Hello World!';
 
-        return $this->view->render('main/index');
+        return $this->renderView('main/index');
     }
 }
 ```
@@ -139,12 +142,14 @@ class MainController extends BaseController
 1. **`#[AttachService('name')]`** on a property pulls that service straight out of the DI
    container — no constructor boilerplate. `BaseController` itself already attaches
    `config`, `input`, and `output` this way; add your own (`data`, `view`, or anything
-   registered in `config/services.php`) the same way.
-2. **A sibling `views/` directory is auto-registered.** If your controller has a `$view`
-   property, `BaseController`'s constructor finds the directory two levels up from the
-   controller's own file (`.../controllers/Foo.php` → `.../views`) and adds it to the
-   view search path with top priority — so `$this->view->render('main/index')` finds
-   `.../welcome/views/main/index.php` without any manual path configuration.
+   registered in `config/services.php`) the same way. Note that attachment happens in the
+   **constructor**, so an attached service is built on every request the controller serves,
+   whether the method uses it or not — see
+   [controllers.md](getting%20started%20with%20orange/controllers.md#attachment-is-eager).
+2. **Views are found by name, through a generated map.** `renderView()` passes your
+   controller's own namespace to `ViewFinder`, which keys `.../welcome/views/main/index.php`
+   under it — so `$this->renderView('main/index')` gets *this* module's copy with no path
+   configuration. Whose copy wins is decided by the name, not by a search order.
 3. **`$libraries` autoloading.** List filenames (no `.php`) in `protected array $libraries`
    and `BaseController` will `include_once` `<module>/libraries/<name>.php` for you before
    your controller runs.
@@ -155,12 +160,12 @@ and calls the matched method with the route's captured arguments.
 
 ### `JsonController` — for APIs
 
-`api/controllers/RestController.php` extends `JsonController` instead, which adds a
+`application/api/controllers/RestController.php` extends `JsonController` instead, which adds a
 `data` property and a `response()` helper that sets the status code + `Content-Type: json`
 and JSON-encodes `$this->data`:
 
 ```php
-namespace api\controllers;
+namespace application\api\controllers;
 
 use orange\framework\attributes\Route;
 use orange\framework\controllers\JsonController;
@@ -187,25 +192,30 @@ The `view` service (`orange\framework\View`, backed by `ViewAbstract`) is a plai
 template renderer:
 
 ```php
-$this->view->render('main/index');           // finds main/index.php on the search path
+$this->renderView('main/index');             // locates main/index.php, then renders it
 $this->view->renderString($someTemplateStr); // renders an ad-hoc string instead
 ```
 
 - **Data** comes from the `data` service (`orange\framework\Data`) — an `ArrayObject`
   you can use as an array (`$this->data['name'] = 'x'`) or merge into in bulk
-  (`$this->data->merge([...])`). Whatever's in it when you call `render()` becomes
+  (`$this->data->merge([...])`). Whatever's in it when you render becomes
   in-scope variables inside the view file (`<?= $name ?>`), via `extract()`.
-- **Search path** is a stack: your controller's own `views/` directory (highest priority,
-  see §3) plus anything in `config/view.php`'s `view paths` / `default view paths`. First
-  match wins, so a module-local view always shadows a global one of the same name.
-- **Partials** are just plain `include`, e.g.
+- **Locating** is `ViewFinder`'s job, not the engine's. Views are keyed in a generated
+  map: once under the owning PSR-4 namespace, and once under everything after their
+  `views/` directory as a fallback. `renderView()` tries the namespaced key first, so a
+  module always gets its own copy — decided by name, not by search order. Application
+  roots are mapped before vendor ones, so dropping in a file of the same name overrides
+  a package's view with no config change.
+- **Partials** are plain `include`, but of a **path the controller resolved**, never a
+  relative one — `__DIR__ . '/../partials/nav.php'` only ever finds the including
+  module's own copy and bypasses the map. See
   [`application/welcome/views/main/index.php`](application/welcome/views/main/index.php):
 
   ```php
-  <?php include __DIR__ . '/../partials/header.php' ?>
-  <?php include __DIR__ . '/../partials/nav.php' ?>
+  <?php include $headerPartial ?>
+  <?php include $navPartial ?>
   ...
-  <?php include __DIR__ . '/../partials/footer.php' ?>
+  <?php include $footerPartial ?>
   ```
 
 There's no separate templating language and no compile step for `render()` — it's just
@@ -253,7 +263,7 @@ Say you want a `/contact` page in the existing `welcome` sub-app.
        {
            $this->data['h1'] = 'Contact Us';
 
-           return $this->view->render('contact/index');
+           return $this->renderView('contact/index');
        }
    }
    ```
@@ -273,67 +283,63 @@ Say you want a `/contact` page in the existing `welcome` sub-app.
 "HMVC" (Hierarchical MVC) just means: instead of one giant Controllers/ + Views/ pair for
 the whole app, you have several **independent, self-contained MVC units** — each with its
 own controllers and views (and optionally its own libraries/models) — plugged into one
-shared kernel (the router, DI container, view engine, data store). This repo already has
-two:
+shared kernel (the router, DI container, view engine, data store).
 
-| Module | PSR-4 root | Purpose |
-|---|---|---|
-| `application/` | `application\` → `application/` | HTML pages (contains a `welcome` sub-app) |
-| `api/` | `api\` → `api/` | JSON endpoints |
+There is **one PSR-4 root**, and each directory under it is an independent module:
 
-That mapping lives in [`composer.json`](composer.json):
+| Module | Purpose |
+| --- | --- |
+| `application/welcome/` | the marketing page and the dashboard |
+| `application/login/` | the browser sign-in, signup and password flows |
+| `application/api/` | JSON endpoints |
+| `application/orders/` | the nested-DTO example, JSON |
+
+The mapping lives in [`composer.json`](composer.json) and is a single line:
 
 ```json
 "autoload": {
     "psr-4": {
-        "application\\": "application",
-        "api\\": "api"
+        "application\\": "application"
     }
 }
 ```
 
-...and `config/routes.php` scans both roots for routable controllers:
+...and [`config/development/routes.php`](config/development/routes.php) scans that one
+root recursively:
 
 ```php
-RouterDetector::detect([__ROOT__ . '/application', __ROOT__ . '/api'], [ /* name-only routes */ ])
+RouterDetector::detect([__ROOT__ . '/application'], [ /* name-only routes */ ])
 ```
 
-Notice `application/welcome/` is itself a nested sub-module — the hierarchy can go as
-deep as you want (`application/welcome/controllers` + `application/welcome/views`,
-totally independent of `api/controllers`). Each module only depends on the shared
-services (`router`, `data`, `view`, ...) — never on another module's controllers or
-views directly. That decoupling is the whole point of HMVC: you can add, remove, or
-hand off a module without touching the others.
+The hierarchy can go as deep as you want, and nesting is what makes it hierarchical rather
+than merely modular. Each module only depends on the shared services (`router`, `data`,
+`view`, ...) — never on another module's controllers or views directly. That decoupling is
+the whole point of HMVC: you can add, remove, or hand off a module without touching the
+others.
+
+**What sits at the root rather than in a module.** `application/controllers/WebController.php`
+and `application/views/partials/` are shared by every browser-facing module — putting them in
+either `welcome` or `login` would make the other depend on a sibling, which is the one thing
+this layout rules out.
 
 ### Walkthrough: adding a brand-new `admin` module
 
-1. **Create the folders:**
+1. **Create the folders** — under `application/`, which is the whole registration step:
 
-   ```
-   admin/
+   ```text
+   application/admin/
      controllers/
      views/
    ```
 
-2. **Register the PSR-4 namespace** in `composer.json`:
+   There is nothing to add to `composer.json`: `application\` is already mapped, so
+   `application\admin\controllers\…` autoloads on its own. `RouterDetector` already scans
+   `application/` recursively, and `ViewDetector` reads the PSR-4 roots straight from
+   Composer. **Only a brand-new PSR-4 root** — a directory *outside* `application/` — needs
+   a `composer.json` entry, a `composer dump-autoload`, and a path added to the `detect(...)`
+   array in `config/development/routes.php`.
 
-   ```json
-   "autoload": {
-       "psr-4": {
-           "application\\": "application",
-           "api\\": "api",
-           "admin\\": "admin"
-       }
-   }
-   ```
-
-   then regenerate the autoloader:
-
-   ```sh
-   composer dump-autoload
-   ```
-
-3. **Write a controller** — `admin/controllers/DashboardController.php`:
+2. **Write a controller** — `application/admin/controllers/DashboardController.php`:
 
    ```php
    <?php
@@ -359,35 +365,29 @@ hand off a module without touching the others.
        #[Route('*', '/admin', 'admin.dashboard')]
        public function index(): string
        {
-           return $this->view->render('dashboard/index');
+           return $this->renderView('dashboard/index');
        }
    }
    ```
 
-   Because `admin/controllers/DashboardController.php` sits two levels below `admin/`,
-   `BaseController` auto-registers `admin/views` as this controller's view path — same
-   mechanism as every other module, no extra config.
+   `renderView()` passes this controller's namespace to `ViewFinder`, so the module's own
+   `views/` is where `'dashboard/index'` resolves — same mechanism as every other module,
+   no extra config.
 
-4. **Add the view** — `admin/views/dashboard/index.php`.
+3. **Add the view** — `application/admin/views/dashboard/index.php`.
 
-5. **Tell `RouterDetector` about the new module** — edit `config/routes.php` and add
-   `__ROOT__ . '/admin'` to **both** path arrays it currently hardcodes (the `export(...)`
-   call and the `detect(...)` call):
+   In development that is all that's needed: `RouterDetector` picks the new `#[Route]` up
+   on the next request. Visit `/admin` and it works.
 
-   ```php
-   RouterDetector::detect([__ROOT__ . '/application', __ROOT__ . '/api', __ROOT__ . '/admin'], [...])
-   ```
+4. **Before shipping**, run `composer build:production` so the new `#[Route]` is baked into
+   the static production route list — production doesn't run the live filesystem scan. (In
+   practice the routes snapshot is already current, since every development request rewrites
+   it; the command also refreshes the view and config snapshots, in the order they depend on
+   each other.)
 
-   In development this is all that's needed — visit `/admin` and it works.
-
-6. **Before shipping**, regenerate `config/production/routes.php` (§2) so the new
-   `#[Route]` is baked into the static production route list — production doesn't run
-   the live filesystem scan.
-
-That's the whole recipe: a folder, a PSR-4 entry, a controller, and (if you want it
-discovered in production) one line added to the route-detection path list. Nothing about
-`application/` or `api/` needs to change — that's the "independent modules" part of HMVC
-paying off.
+That's the whole recipe: a folder, a controller, a view. No `composer.json` entry, no route
+registration, and nothing about the existing modules changes — that's the "independent
+modules" part of HMVC paying off.
 
 ## 8. Where to look next
 

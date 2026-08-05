@@ -17,7 +17,7 @@ Whichever mechanism you use, every route boils down to the same array shape:
 [
     'method'   => 'get',                                   // verb(s), or '*'
     'url'      => '/api/read/(\d+)',                       // path (matched as regex)
-    'callback' => [\api\controllers\RestController::class, 'read'],
+    'callback' => [\application\api\controllers\RestController::class, 'read'],
     'name'     => 'rest_read',                             // for getUrl()
 ]
 ```
@@ -46,7 +46,7 @@ public function index(): string { /* … */ }
 ```
 
 ```php
-// api/controllers/RestController.php
+// application/api/controllers/RestController.php
 #[Route('get',    '/api/index',       'rest_index')]
 public function index(): string { /* … */ }
 
@@ -74,7 +74,7 @@ builds the route table by scanning your module folders for `#[Route]` attributes
 ```php
 return [
     'routes' => RouterDetector::detect(
-        [__ROOT__ . '/application', __ROOT__ . '/api'],   // module paths to scan
+        [__ROOT__ . '/application'],   // module paths to scan
         [
             // "getUrl-only" entries — no callback, not routable (see below)
             ['url' => '/assets',     'name' => 'assets'],
@@ -95,7 +95,7 @@ reflection scan on every request is too expensive for production.
 
 ## Mechanism 2: a plain routes array
 
-You can also list routes literally. `config/routes.php` (or a per-environment
+You can also list routes literally. `config/development/routes.php` (or another per-environment
 override) just needs to return `['routes' => [ … ]]` with entries in the shape
 shown above. The production route file does exactly this — see below.
 
@@ -167,7 +167,7 @@ return [
         ['url' => '/assets',     'name' => 'assets'],   // getUrl-only entries
         // …
         ['method' => '*',   'url' => '/',              'callback' => [\application\welcome\controllers\MainController::class, 'index'], 'name' => 'home'],
-        ['method' => 'get', 'url' => '/api/read/(\d+)', 'callback' => [\api\controllers\RestController::class, 'read'],  'name' => 'rest_read'],
+        ['method' => 'get', 'url' => '/api/read/(\d+)', 'callback' => [\application\api\controllers\RestController::class, 'read'],  'name' => 'rest_read'],
         // …
     ],
 ];

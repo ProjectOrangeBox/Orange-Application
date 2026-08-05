@@ -40,17 +40,17 @@ class MainController extends BaseController
 
         $this->data['name'] = 'Johnny Appleseed';   // one at a time
 
-        return $this->view->render('main/index');    // returns a string
+        return $this->renderView('main/index');    // returns a string
     }
 }
 ```
 
-Three things are happening, all covered below: **service attachment**, the
-**automatic view directory**, and the method **returning a string**.
+Three things are happening, all covered below: **service attachment**, **locating
+the view by name**, and the method **returning a string**.
 
 ### What `BaseController` gives you for free
 
-`BaseController`'s constructor runs four steps before your method:
+`BaseController`'s constructor runs three steps before your method:
 
 1. **Attaches `#[AttachService]` properties.** It reflects over its own properties
    and populates each one marked with the attribute from the container. It always
@@ -78,14 +78,7 @@ Three things are happening, all covered below: **service attachment**, the
 
    A missing library file throws `FileNotFound`.
 
-3. **Registers the module's view directory.** *If the controller has a `$view`
-   property*, `BaseController` finds the sibling `views/` folder two levels up from
-   the controller file (`.../controllers/Main.php` → `.../views`) and adds it to
-   the **top** of the view search path. That's why `render('main/index')` in the
-   `welcome` module resolves to `application/welcome/views/main/index.php`
-   automatically. See [Views](views.md).
-
-4. **Calls `beforeMethodCalled()` if you defined one.** Override this method to run
+3. **Calls `beforeMethodCalled()` if you defined one.** Override this method to run
    setup common to every action in the controller (it runs after services are
    attached, before the routed method):
 
@@ -96,11 +89,67 @@ Three things are happening, all covered below: **service attachment**, the
    }
    ```
 
+### Attachment is eager
+
+Step 1 happens in the **constructor**, before your method is entered and before it
+can decide whether it needs the service at all. Every `#[AttachService]` property
+is therefore built on every request the controller serves, including the requests
+that never touch it — and a service that cannot be built takes the whole page with
+it, from a line of code your method never reached.
+
+That is harmless for `config`, `input` and `view`, which cannot fail. It is not
+harmless for anything standing in front of a network:
+
+```php
+#[AttachService('user')]        // -> acl -> pdo, built before index() starts
+protected User $user;
+```
+
+This repo learned it the expensive way. `WebController` attached the `orange/acl`
+user service so the shared navbar could say who was signed in. The container
+resolves that as `user → acl → pdo`, so a checkout whose database was not yet
+migrated answered **every** browser page with a stack trace — including the
+marketing page, which mentions no user at all and needs no database to render.
+
+The rule that follows: attach what the controller always needs, and resolve what
+it only sometimes needs where it is needed, so failing to get it is a decision the
+method makes rather than one the constructor makes for it.
+
+```php
+// application/controllers/WebController.php - resolved on first use,
+// and a failure degrades the visitor to anonymous instead of to a 500
+protected function userService(): ?User
+{
+    if ($this->userService === null) {
+        try {
+            $service = container()->get('user');
+
+            $this->userService = $service instanceof User ? $service : false;
+        } catch (PDOException | ModelException | MissingRequired $e) {
+            $this->accountsUnavailable($e);
+        }
+    }
+
+    return $this->userService === false ? null : $this->userService;
+}
+```
+
+Note what is caught: three exceptions from three layers saying one thing. No
+server (`PDOException`), a server with no schema (`ModelException`, `orange/model`
+having wrapped the driver's error), and a schema with no seed data
+(`MissingRequired`, `orange/acl` reporting its guest row missing). Catching only
+the first is a fix that still breaks on a fresh clone, which is the case that
+matters most.
+
+A controller that genuinely cannot work without the service should still attach
+it, and say so — `SessionController` attaches `user` precisely because logging
+someone in *is* the accounts database.
+
 ### Returning output
 
 The routed method must **return a string**. The dispatcher takes that return value
 and writes it to the `output` service; you do **not** `echo`. Rendering a view
-returns a string, which is why `return $this->view->render(...)` is the norm.
+returns a string, which is why `return $this->renderView(...)` is the norm.
 
 ---
 
@@ -113,7 +162,7 @@ the HTTP status + JSON content type and encode `$this->data`. From this repo's
 REST controller:
 
 ```php
-// api/controllers/RestController.php
+// application/api/controllers/RestController.php
 class RestController extends JsonController
 {
     #[AttachService('RecordModel')]
@@ -124,7 +173,7 @@ class RestController extends JsonController
     {
         $record = $this->recordModel->read((int)$id);
 
-        if (!$record instanceof \api\models\RecordDto) {
+        if (!$record instanceof \application\api\models\RecordDto) {
             return $this->notFoundResponse('Record not found');   // 404 {"msg": …}
         }
 
