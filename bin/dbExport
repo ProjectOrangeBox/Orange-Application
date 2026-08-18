@@ -32,6 +32,10 @@ const TARGETS = [
     // login throttle, not one of orange/acl's tables. Deliberately absent from
     // SEED_TARGETS - it records failed logins and starts empty.
     '15-login-attempts.sql' => ['login_attempts'],
+    // Loaded after the acl set because it carries a foreign key onto
+    // orange_users, and absent from SEED_TARGETS for the same reason as
+    // login_attempts: tokens are issued at runtime, so it starts empty.
+    '16-user-tokens.sql' => ['user_tokens'],
     '30-records.sql' => ['records'],
     '40-calendar.sql' => ['calendar_events'],
     '50-orders.sql' => ['customers', 'orders', 'order_lines'],
